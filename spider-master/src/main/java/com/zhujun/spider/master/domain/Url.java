@@ -1,13 +1,13 @@
 package com.zhujun.spider.master.domain;
 
 /**
- * 数据采集定义
+ * Url Action
  * @author zhujun
  * @date 2016年6月3日
  *
  */
-public interface Spider extends DslParentAction {
+public interface Url extends DslParentAction {
 
-	String getAuthor();
+	String getHref();
 	
 }

@@ -9,9 +9,10 @@
 	<url name="category" href="http://cd.meituan.com"></url>
 	<datatran name="categoryDataProcess" input="category" select=".nav-level2-keywords--content li a.keywords__item" attr="href" regex="/([\d\w]+)$"></datatran>
 	
+	<!-- 列表 -->
 	<urlset urltemplate="http://{1}.meituan.com/category/{2}" temp1type="enum" temp2type="enum">
-		<temp1enum>cd;bj</temp1enum>
-		<temp2enum>meishi</temp2enum>
+		<temp1value>cd;bj</temp1value>
+		<temp2value>meishi</temp2value>
 		<paging select=".paginator-wrapper .paginator a" urlattr="href"></paging>
 	</urlset>
 </spider>

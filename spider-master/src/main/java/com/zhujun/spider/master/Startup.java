@@ -9,6 +9,8 @@ import org.apache.commons.io.IOUtils;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.dsl.DslParser;
 import com.zhujun.spider.master.dsl.XmlDslParserImpl;
+import com.zhujun.spider.master.schedule.SpiderSchedule;
+import com.zhujun.spider.master.schedule.SpiderScheduleImpl;
 
 /**
  * 启动 master
@@ -41,11 +43,14 @@ public class Startup {
 		} catch (Exception e) {
 			System.err.println("解析dsl失败");
 			e.printStackTrace();
+			System.exit(-1);
 		} finally {
 			IOUtils.closeQuietly(dslInput);
 		}
 		
-		// TODO 执行
+		// 执行
+		SpiderSchedule schedule = new SpiderScheduleImpl(spider);
+		schedule.start();
 		
 	}
 

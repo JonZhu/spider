@@ -2,6 +2,9 @@ package com.zhujun.spider.master.dsl;
 
 import java.io.InputStream;
 
+import org.dom4j.Document;
+import org.dom4j.io.SAXReader;
+
 import com.zhujun.spider.master.domain.Spider;
 
 /**
@@ -14,7 +17,15 @@ public class XmlDslParserImpl implements DslParser {
 
 	@Override
 	public Spider parse(InputStream inputStream) {
-		// TODO Auto-generated method stub
+		try {
+			Document doc = new SAXReader().read(inputStream);
+			
+			
+			
+		} catch (Exception e) {
+			throw new RuntimeException("解析Dsl失败", e);
+		}
+		
 		return null;
 	}
 
