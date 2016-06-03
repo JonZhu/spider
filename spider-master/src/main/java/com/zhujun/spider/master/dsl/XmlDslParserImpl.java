@@ -20,6 +20,7 @@ import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.Url;
 import com.zhujun.spider.master.domain.internal.DataTransitionImpl;
+import com.zhujun.spider.master.domain.internal.PagingImpl;
 import com.zhujun.spider.master.domain.internal.UrlImpl;
 import com.zhujun.spider.master.domain.internal.UrlSetImpl;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
@@ -82,6 +83,7 @@ public class XmlDslParserImpl implements DslParser {
 		
 		UrlSetImpl urlSet = new UrlSetImpl();
 		urlSet.setUrltemplate(urltemplate);
+		urlSet.setName(getActionName(element));
 		
 		Map<Integer, String> typeMap = new HashMap<>();
 		Map<Integer, String> valueMap = new HashMap<>();
@@ -116,7 +118,33 @@ public class XmlDslParserImpl implements DslParser {
 		urlSet.setTypeMap(typeMap);
 		urlSet.setValueMap(valueMap);
 		
+		Element pagingEle = element.element("paging");
+		if (pagingEle != null) {
+			List<DslAction> childrenList = new ArrayList<>();
+			childrenList.add(parsePaging(pagingEle));
+			urlSet.setChildren(childrenList);
+		}
+		
 		return urlSet;
+	}
+
+	private DslAction parsePaging(Element pagingEle) {
+		String select = pagingEle.attributeValue("select");
+		if (StringUtils.isBlank(select)) {
+			throw new RuntimeException("paging的select属性不能为空");
+		}
+		
+		String urlattr = pagingEle.attributeValue("urlattr");
+		if (StringUtils.isBlank(urlattr)) {
+			throw new RuntimeException("paging的urlattr属性不能为空");
+		}
+		
+		PagingImpl paging = new PagingImpl();
+		paging.setSelect(select);
+		paging.setUrlAttr(urlattr);
+		paging.setName(getActionName(pagingEle));
+		
+		return paging;
 	}
 
 	private DataTransition parseDataTransition(Element element) {
