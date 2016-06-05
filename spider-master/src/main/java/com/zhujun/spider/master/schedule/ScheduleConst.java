@@ -14,4 +14,9 @@ public interface ScheduleConst {
 	 */
 	String RUN_ID_KEY = "spider.run.id";
 	
+	/**
+	 * enum值分隔符
+	 */
+	String ENUM_VALUE_SEPARATOR = ";";
+	
 }
