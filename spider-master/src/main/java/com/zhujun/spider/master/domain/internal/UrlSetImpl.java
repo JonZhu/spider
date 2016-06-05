@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.domain.internal;
 
+import java.util.List;
 import java.util.Map;
 
 import com.zhujun.spider.master.domain.UrlSet;
@@ -7,6 +8,8 @@ import com.zhujun.spider.master.domain.UrlSet;
 public class UrlSetImpl extends DslParentActionImpl implements UrlSet {
 
 	private String urltemplate;
+	
+	private List<Integer> tempIndexList;
 	
 	private Map<Integer, String> typeMap;
 	
@@ -39,6 +42,15 @@ public class UrlSetImpl extends DslParentActionImpl implements UrlSet {
 
 	public void setValueMap(Map<Integer, String> valueMap) {
 		this.valueMap = valueMap;
+	}
+
+	@Override
+	public List<Integer> getTempIndexList() {
+		return tempIndexList;
+	}
+	
+	public void setTempIndexList(List<Integer> tempIndexList) {
+		this.tempIndexList = tempIndexList;
 	}
 
 }

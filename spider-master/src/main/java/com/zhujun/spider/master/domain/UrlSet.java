@@ -1,5 +1,7 @@
 package com.zhujun.spider.master.domain;
 
+import java.util.List;
+
 /**
  * Url集
  * @author zhujun
@@ -10,6 +12,12 @@ public interface UrlSet extends DslParentAction {
 
 	
 	String getUrltemplate();
+	
+	/**
+	 * 模板索引号List
+	 * @return
+	 */
+	List<Integer> getTempIndexList();
 	
 	/**
 	 * 获取tempType类型

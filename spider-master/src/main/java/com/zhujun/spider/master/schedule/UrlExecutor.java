@@ -2,6 +2,8 @@ package com.zhujun.spider.master.schedule;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.zhujun.spider.master.contentfetcher.ContentFetcher;
 import com.zhujun.spider.master.contentfetcher.JavaUrlContentFetcher;
 import com.zhujun.spider.master.domain.DslAction;
@@ -21,8 +23,8 @@ public class UrlExecutor implements ActionExecutor {
 		
 		//TODO content写入文件
 		
-		if (action.getName() != null) {
-			dataScope.put(action.getName(), content); // content写入scope,供后面的action使用
+		if (StringUtils.isNotBlank(urlAction.getName())) {
+			dataScope.put(urlAction.getName(), content); // content写入scope,供后面的action使用
 		}
 	}
 

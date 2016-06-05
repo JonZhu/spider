@@ -2,6 +2,7 @@ package com.zhujun.spider.master.dsl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,7 @@ public class XmlDslParserImpl implements DslParser {
 		urlSet.setUrltemplate(urltemplate);
 		urlSet.setName(getActionName(element));
 		
+		List<Integer> indexList = new ArrayList<>();
 		Map<Integer, String> typeMap = new HashMap<>();
 		Map<Integer, String> valueMap = new HashMap<>();
 		
@@ -97,6 +99,7 @@ public class XmlDslParserImpl implements DslParser {
 				continue;
 			}
 			
+			indexList.add(index);
 			String tempTypeAttr = "temp" + index + "type";
 			String tempValueEle = "temp" + index + "value";
 			
@@ -115,6 +118,10 @@ public class XmlDslParserImpl implements DslParser {
 			
 		}
 		
+		if (!indexList.isEmpty()) {
+			Collections.sort(indexList); // 序号排序
+		}
+		urlSet.setTempIndexList(indexList);
 		urlSet.setTypeMap(typeMap);
 		urlSet.setValueMap(valueMap);
 		
