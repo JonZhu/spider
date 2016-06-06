@@ -41,6 +41,12 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				
 				// 默认暂时都按enum处理
 				String tempValue = urlSet.getTempValue(tempIndex);
+				if (tempValue.startsWith("{") && tempValue.endsWith("}")) {
+					// {}变量处理
+					Object dataInScope = dataScope.get(tempValue.substring(1, tempValue.length() - 1));
+					tempValue = dataInScope instanceof byte[] ? new String((byte[])dataInScope) : String.valueOf(dataInScope);
+				}
+				
 				sequenceItems[i] = new EnumSequenceItem(tempValue.split(ScheduleConst.ENUM_VALUE_SEPARATOR));
 			}
 			Sequence sequence = new Sequence(sequenceItems);

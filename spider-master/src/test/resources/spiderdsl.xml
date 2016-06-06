@@ -11,8 +11,10 @@
 	
 	<!-- 列表 temp序号越小,变化速度越小 -->
 	<urlset urltemplate="http://{1}.meituan.com/category/{2}" temp1type="enum" temp2type="enum">
-		<temp1value>cd;bj</temp1value>
-		<temp2value>meishi;pc_ktv</temp2value>
+<!-- 		<temp1value>cd;bj</temp1value> -->
+<!-- 		<temp2value>meishi;pc_ktv</temp2value> -->
+		<temp1value>{cityDataProcess}</temp1value>
+		<temp2value>{categoryDataProcess}</temp2value>
 		<paging select=".paginator-wrapper .paginator a" urlattr="href"></paging>
 	</urlset>
 </spider>
