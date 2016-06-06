@@ -125,10 +125,11 @@ public class FileDataWriterImpl implements SpiderDataWriter {
 	 * @return
 	 */
 	private File findWritingFileFromDir(File dir) {
+		final String fileNamePrefix = new File(fileName).getName();
 		File[] files = dir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.canWrite() && pathname.getName().startsWith(fileName);
+				return pathname.isFile() && pathname.canWrite() && pathname.getName().startsWith(fileNamePrefix);
 			}
 		});
 		
