@@ -6,6 +6,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 使用java url实现
@@ -16,6 +18,8 @@ import org.apache.commons.io.IOUtils;
  */
 public class JavaUrlContentFetcher implements ContentFetcher {
 
+	private final static Logger LOG = LoggerFactory.getLogger(JavaUrlContentFetcher.class);
+	
 	private final static JavaUrlContentFetcher INSTANCE = new JavaUrlContentFetcher();
 	
 	public static JavaUrlContentFetcher getInstance() {
@@ -37,6 +41,10 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			urlInputStream = connection.getInputStream();
 			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 			IOUtils.copy(urlInputStream, byteOutputStream);
+			
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("fetch: {}", url);
+			}
 			
 			return byteOutputStream.toByteArray();
 		} catch (Exception e) {
