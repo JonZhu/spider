@@ -4,6 +4,7 @@
     <groupId>com.zhujun.spider</groupId>
     <artifactId>spider-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <relativePath>../spider-parent/pom.xml</relativePath>
   </parent>
   <groupId>com.zhujun.spider</groupId>
   <artifactId>spider-worker</artifactId>
