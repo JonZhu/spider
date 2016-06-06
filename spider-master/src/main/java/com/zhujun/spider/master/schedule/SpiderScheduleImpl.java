@@ -7,6 +7,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhujun.spider.master.data.writer.FileDataWriterImpl;
+import com.zhujun.spider.master.data.writer.SpiderDataWriter;
+import com.zhujun.spider.master.domain.DataWrite;
 import com.zhujun.spider.master.domain.Spider;
 
 public class SpiderScheduleImpl implements SpiderSchedule {
@@ -29,6 +32,12 @@ public class SpiderScheduleImpl implements SpiderSchedule {
 		SpiderActionExecutor executor = new SpiderActionExecutor();
 		Map<String, Object> dataScope = new HashMap<>(); // 初始化
 		dataScope.put(ScheduleConst.RUN_ID_KEY, UUID.randomUUID().toString()); // 分配运行id
+		
+		// 构建数据存储写入器
+		DataWrite dataWriteConf = spider.getDataWrite();
+		SpiderDataWriter dataWriter = new FileDataWriterImpl(dataWriteConf.getFilename());
+		dataScope.put(ScheduleConst.DATA_WRITER_KEY, dataWriter);
+		
 		executor.execute(spider, spider, dataScope);
 	}
 	

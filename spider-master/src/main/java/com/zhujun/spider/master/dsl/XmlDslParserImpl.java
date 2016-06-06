@@ -17,10 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.master.domain.DataTransition;
+import com.zhujun.spider.master.domain.DataWrite;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.Url;
 import com.zhujun.spider.master.domain.internal.DataTransitionImpl;
+import com.zhujun.spider.master.domain.internal.DataWriteImpl;
 import com.zhujun.spider.master.domain.internal.PagingImpl;
 import com.zhujun.spider.master.domain.internal.UrlImpl;
 import com.zhujun.spider.master.domain.internal.UrlSetImpl;
@@ -61,6 +63,8 @@ public class XmlDslParserImpl implements DslParser {
 						actionList.add(parseDataTransition(element));
 					} else if ("urlset".equals(eleName)) {
 						actionList.add(parseUrlSet(element));
+					} else if ("datawrite".equals(eleName)) {
+						xmlSpider.setDataWrite(parseDataWrite(element));
 					} else {
 						LOG.warn("spider暂不支持 {} 节点", eleName);
 					}
@@ -69,11 +73,28 @@ public class XmlDslParserImpl implements DslParser {
 				xmlSpider.setChildren(actionList);
 			}
 			
+			if (xmlSpider.getDataWrite() == null) {
+				throw new RuntimeException("spider的datawrite节点不能为空");
+			}
+			
 			return xmlSpider;
 		} catch (Exception e) {
 			throw new RuntimeException("解析Dsl失败", e);
 		}
 		
+	}
+
+	private DataWrite parseDataWrite(Element element) {
+		String filename = element.attributeValue("filename");
+		if (StringUtils.isBlank(filename)) {
+			throw new RuntimeException("datawrite的filename属性不能为空");
+		}
+		
+		DataWriteImpl dataWrite = new DataWriteImpl();
+		dataWrite.setFilename(filename);
+		dataWrite.setType(element.attributeValue("type"));
+		
+		return dataWrite;
 	}
 
 	private DslAction parseUrlSet(Element element) {

@@ -15,8 +15,18 @@ public interface ScheduleConst {
 	String RUN_ID_KEY = "spider.run.id";
 	
 	/**
+	 * Data Scope中的写数据 key
+	 */
+	String DATA_WRITER_KEY = "spider.datawriter";
+	
+	/**
 	 * enum值分隔符
 	 */
 	String ENUM_VALUE_SEPARATOR = ";";
+	
+	/**
+	 * 回车换行
+	 */
+	String CRNL = "\r\n";
 	
 }

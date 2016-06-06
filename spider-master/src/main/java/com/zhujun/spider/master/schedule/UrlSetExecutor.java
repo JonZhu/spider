@@ -1,6 +1,7 @@
 package com.zhujun.spider.master.schedule;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.zhujun.spider.master.contentfetcher.ContentFetcher;
 import com.zhujun.spider.master.contentfetcher.JavaUrlContentFetcher;
+import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.UrlSet;
@@ -68,10 +70,12 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 			
 		}
 		
+		SpiderDataWriter writer = (SpiderDataWriter)dataScope.get(ScheduleConst.DATA_WRITER_KEY);
 		// 内容抓取
 		for (String url : urlList) {
 			byte[] content = contentFetcher.fetch(url);
-			//TODO 存储到文件
+			// 存储到文件
+			writer.write(url, new Date(), content);
 			
 			if (StringUtils.isNotBlank(urlSet.getName())) {
 				dataScope.put(urlSet.getName(), content);
