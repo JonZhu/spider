@@ -81,6 +81,10 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				dataScope.put(urlSet.getName(), content);
 			}
 			
+			// 设置数据到data scope, 子结点使用
+			dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, content);
+			dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, url);
+			
 			// 执行子级,例如paging
 			super.execute(spider, urlSet, dataScope);
 		}

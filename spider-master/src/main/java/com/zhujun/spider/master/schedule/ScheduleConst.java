@@ -20,6 +20,16 @@ public interface ScheduleConst {
 	String DATA_WRITER_KEY = "spider.datawriter";
 	
 	/**
+	 * 前置结果数据
+	 */
+	String PRE_RESULT_DATA_KEY = "spider.preresult.data";
+	
+	/**
+	 * 前置结果url
+	 */
+	String PRE_RESULT_URL_KEY = "spider.preresult.url";
+	
+	/**
 	 * enum值分隔符
 	 */
 	String ENUM_VALUE_SEPARATOR = ";";
