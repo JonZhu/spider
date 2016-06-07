@@ -26,12 +26,12 @@ public class DataTransitionExecutor implements ActionExecutor {
 	@Override
 	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) {
 		DataTransition dataTransition = (DataTransition)action;
-		byte[] inputData = (byte[])dataScope.get(dataTransition.getInput());
+		Object inputData = dataScope.get(dataTransition.getInput());
 		if (inputData == null) {
 			throw new RuntimeException("DataTransition["+ dataTransition.getName() +"] input数据为空");
 		}
 		
-		Document htmlDoc = Jsoup.parse(inputData instanceof byte[] ? new String(inputData) : inputData.toString());
+		Document htmlDoc = Jsoup.parse(ScheduleUtil.obj2str(inputData));
 		Elements selectElements = htmlDoc.select(dataTransition.getSelect());
 		if (selectElements.isEmpty()) {
 			dataScope.put(dataTransition.getName(), "");
