@@ -6,6 +6,7 @@ package com.zhujun.spider.master.domain;
  * @date 2016年6月6日
  *
  */
+@Deprecated
 public interface DataWrite {
 
 	String getType();

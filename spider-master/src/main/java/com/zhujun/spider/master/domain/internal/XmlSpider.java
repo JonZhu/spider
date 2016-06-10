@@ -2,14 +2,13 @@ package com.zhujun.spider.master.domain.internal;
 
 import org.dom4j.Document;
 
-import com.zhujun.spider.master.domain.DataWrite;
 import com.zhujun.spider.master.domain.Spider;
 
 public class XmlSpider extends DslParentActionImpl implements Spider {
 
 	private String author;
 	
-	private DataWrite dataWrite;
+	private String dataDir;
 	
 	private Document spiderDslDoc;
 	
@@ -30,12 +29,12 @@ public class XmlSpider extends DslParentActionImpl implements Spider {
 		this.spiderDslDoc = spiderDslDoc;
 	}
 
-	public DataWrite getDataWrite() {
-		return dataWrite;
+	public String getDataDir() {
+		return dataDir;
 	}
 
-	public void setDataWrite(DataWrite dataWrite) {
-		this.dataWrite = dataWrite;
+	public void setDataDir(String dataDir) {
+		this.dataDir = dataDir;
 	}
 
 }

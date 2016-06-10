@@ -1,6 +1,4 @@
-<spider name="meituan">
-	<!-- 数据写出到文件 -->
-	<datawrite type="file" filename="E:/tmp/spider/meituan/data"></datawrite>
+<spider name="meituan" datadir="E:/tmp/spider/meituan" author="zhujun">
 
 	<!-- 开始定义任务 -->
 <!-- 	<urlset urltemplate="http://item.jd.com/{1}.html" temp1type="int" temp1start="1" temp1end="1000000"></urlset> -->

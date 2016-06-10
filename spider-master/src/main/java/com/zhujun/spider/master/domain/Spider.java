@@ -10,6 +10,6 @@ public interface Spider extends DslParentAction {
 
 	String getAuthor();
 	
-	DataWrite getDataWrite();
+	String getDataDir();
 	
 }

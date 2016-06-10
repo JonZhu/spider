@@ -38,6 +38,11 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			connection.setDoOutput(false);
 			connection.setDoInput(true);
 			
+			int httpRespCode = connection.getResponseCode();
+			if (httpRespCode >= 400) {
+				throw new Exception("http response code >= 400");
+			}
+			
 			urlInputStream = connection.getInputStream();
 			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 			IOUtils.copy(urlInputStream, byteOutputStream);

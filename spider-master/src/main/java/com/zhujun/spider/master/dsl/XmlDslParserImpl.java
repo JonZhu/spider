@@ -48,6 +48,11 @@ public class XmlDslParserImpl implements DslParser {
 			
 			XmlSpider xmlSpider = new XmlSpider();
 			xmlSpider.setSpiderDslDoc(doc);
+			String dataDir = rootEle.attributeValue("datadir");
+			if (StringUtils.isBlank(dataDir)) {
+				throw new RuntimeException("spider的datadir属性不能为空");
+			}
+			xmlSpider.setDataDir(dataDir);
 			xmlSpider.setName(getActionName(rootEle));
 			xmlSpider.setAuthor(rootEle.attributeValue("author"));
 			
@@ -63,18 +68,12 @@ public class XmlDslParserImpl implements DslParser {
 						actionList.add(parseDataTransition(element));
 					} else if ("urlset".equals(eleName)) {
 						actionList.add(parseUrlSet(element));
-					} else if ("datawrite".equals(eleName)) {
-						xmlSpider.setDataWrite(parseDataWrite(element));
 					} else {
 						LOG.warn("spider暂不支持 {} 节点", eleName);
 					}
 				}
 				
 				xmlSpider.setChildren(actionList);
-			}
-			
-			if (xmlSpider.getDataWrite() == null) {
-				throw new RuntimeException("spider的datawrite节点不能为空");
 			}
 			
 			return xmlSpider;

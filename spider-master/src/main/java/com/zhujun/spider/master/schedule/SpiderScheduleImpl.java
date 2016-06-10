@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.schedule;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -9,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.master.data.writer.FileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
-import com.zhujun.spider.master.domain.DataWrite;
 import com.zhujun.spider.master.domain.Spider;
 
 public class SpiderScheduleImpl implements SpiderSchedule {
@@ -34,8 +34,11 @@ public class SpiderScheduleImpl implements SpiderSchedule {
 		dataScope.put(ScheduleConst.RUN_ID_KEY, UUID.randomUUID().toString()); // 分配运行id
 		
 		// 构建数据存储写入器
-		DataWrite dataWriteConf = spider.getDataWrite();
-		SpiderDataWriter dataWriter = new FileDataWriterImpl(dataWriteConf.getFilename());
+		File dataDir = new File(spider.getDataDir());
+		if (!dataDir.exists() || !dataDir.isDirectory()) {
+			dataDir.mkdirs();
+		}
+		SpiderDataWriter dataWriter = new FileDataWriterImpl(new File(dataDir, "data").getAbsolutePath());
 		dataScope.put(ScheduleConst.DATA_WRITER_KEY, dataWriter);
 		
 		executor.execute(spider, spider, dataScope);
