@@ -12,3 +12,26 @@
 <ol>
 	<li>spider任务调度状态持久化</li>
 </ol>
+
+## 数据储存文件结构
+
+数据目录为spider的datadir属性指向的目录
+
+<table>
+	<tr>
+		<td>路径</td>
+		<td>用途</td>
+	</tr>
+	<tr>
+		<td>/data-时间</td>
+		<td>抓取内容数据</td>
+	</tr>
+	<tr>
+		<td>/fetchqueue</td>
+		<td>抓取url队列</td>
+	</tr>
+	<tr>
+		<td>/fetchqueue.index</td>
+		<td>抓取url队列有效数据位置偏移</td>
+	</tr>
+</table>
