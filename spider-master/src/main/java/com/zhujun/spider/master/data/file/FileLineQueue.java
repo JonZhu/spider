@@ -122,8 +122,8 @@ public class FileLineQueue implements Queue<String> {
 							lineBytes = new ByteArrayOutputStream();
 							
 							// 重置readData
-							byte[] temp = new byte[readData.length - LINE_SEP.length];
-							System.arraycopy(readData, LINE_SEP.length, temp, 0, temp.length);
+							byte[] temp = new byte[readData.length - sepIndex - LINE_SEP.length];
+							System.arraycopy(readData, sepIndex + LINE_SEP.length, temp, 0, temp.length);
 							readData = temp;
 							
 							if (readData.length == 0) {
@@ -150,7 +150,7 @@ public class FileLineQueue implements Queue<String> {
 
 
 	private int findLineSepIndex(byte[] readData) {
-		for (int i = 0; i < readData.length - LINE_SEP.length; i++) {
+		for (int i = 0; i <= readData.length - LINE_SEP.length; i++) {
 			int matchCount = 0;
 			for (int j = 0; j < LINE_SEP.length; j++) {
 				if (LINE_SEP[j] == readData[i + j]) {
@@ -180,7 +180,7 @@ public class FileLineQueue implements Queue<String> {
 				byte[] readData = new byte[buffer.remaining()];
 				buffer.get(readData);
 				os.write(readData);
-				buffer.reset();
+				buffer.clear();
 			}
 			
 			return new String(os.toByteArray(), "UTF-8");
@@ -264,7 +264,6 @@ public class FileLineQueue implements Queue<String> {
 			indexFileChannel.position(0);
 			indexFileChannel.truncate(0);
 			ByteBuffer buffer = ByteBuffer.wrap(string.getBytes("UTF-8"));
-			buffer.flip();
 			indexFileChannel.write(buffer);
 		} catch (Exception e) {
 			throw new RuntimeException("写入index file内容出错", e);
@@ -310,10 +309,13 @@ public class FileLineQueue implements Queue<String> {
 	@Override
 	public String poll() {
 		String ele = dataQueue.poll();
-		try {
-			writeIndexContent(index + ele.getBytes("UTF-8").length + LINE_SEP.length);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		if (ele != null) {
+			try {
+				index = index + ele.getBytes("UTF-8").length + LINE_SEP.length; // 计算新位置
+				writeIndexContent(index);
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return ele;
