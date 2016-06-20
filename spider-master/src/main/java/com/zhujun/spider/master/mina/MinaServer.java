@@ -21,6 +21,7 @@ import com.zhujun.spider.net.NetMessageCodecFactory;
 public class MinaServer {
 
 	private int port;
+	private IoAcceptor acceptor;
 	
 	public MinaServer(int port) {
 		this.port = port;
@@ -28,7 +29,7 @@ public class MinaServer {
 	
 	public void start() {
 		
-		IoAcceptor acceptor = new NioSocketAcceptor();
+		acceptor = new NioSocketAcceptor();
 
 		acceptor.getFilterChain().addLast("logger", new LoggingFilter());
 		acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new NetMessageCodecFactory()));
@@ -42,6 +43,12 @@ public class MinaServer {
 			throw new RuntimeException("启动Mina server失败", e);
 		}
 		
+	}
+	
+	public void stop() {
+		if (acceptor != null) {
+			acceptor.dispose();
+		}
 	}
 	
 	
