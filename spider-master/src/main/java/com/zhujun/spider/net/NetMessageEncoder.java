@@ -20,7 +20,7 @@ public class NetMessageEncoder extends ProtocolEncoderAdapter implements Protoco
 		SpiderNetMessage netMessage = (SpiderNetMessage)message;
 		
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		outputStream.write(("SPIDER" + Consts.CRNL).getBytes());
+		outputStream.write(Consts.MSG_START_BYTES); // 开始标识
 		
 		if (netMessage.getHeaders() != null && !netMessage.getHeaders().isEmpty()) {
 			Set<Entry<String, String>> headerEntrySet = netMessage.getHeaders().entrySet();
