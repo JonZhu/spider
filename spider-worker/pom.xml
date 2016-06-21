@@ -9,4 +9,11 @@
   <groupId>com.zhujun.spider</groupId>
   <artifactId>spider-worker</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+  		<groupId>com.zhujun.spider</groupId>
+  		<artifactId>spider-net</artifactId>
+  		<version>1.0-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>
