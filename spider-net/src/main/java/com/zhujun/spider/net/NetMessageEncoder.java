@@ -26,13 +26,15 @@ public class NetMessageEncoder extends ProtocolEncoderAdapter implements Protoco
 			Set<Entry<String, String>> headerEntrySet = netMessage.getHeaders().entrySet();
 			for (Entry<String, String> headerEntry : headerEntrySet) {
 				outputStream.write((headerEntry.getKey() + ":" + headerEntry.getValue()).getBytes());
+				outputStream.write(Consts.CRNL_BYTES);
 			}
 		}
 		
 		if (netMessage.getBody() != null) {
 			outputStream.write((SpiderNetMessage.HEADER_BODY_LENGTH + ":" + netMessage.getBody().length).getBytes());
+			outputStream.write(Consts.CRNL_BYTES);
 		}
-		outputStream.write(Consts.CRNL.getBytes()); // header结束
+		outputStream.write(Consts.CRNL_BYTES); // header结束
 		
 		if (netMessage.getBody() != null) {
 			// 写入body数据
