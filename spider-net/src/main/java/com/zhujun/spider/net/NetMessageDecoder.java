@@ -55,7 +55,7 @@ public class NetMessageDecoder extends CumulativeProtocolDecoder implements Prot
 					String headerLine = in.getString(headerEnd - in.position(), getCharsetDecoder(session));
 					in.position(headerEnd + Consts.CRNL_BYTES.length);
 					
-					String[] headerArray = headerLine.split(";", 2);
+					String[] headerArray = headerLine.split(":", 2);
 					SpiderNetMessage msg = getMsgFromSession(session);
 					if (msg.getHeaders() == null) {
 						msg.setHeaders(new HashMap<String, String>());

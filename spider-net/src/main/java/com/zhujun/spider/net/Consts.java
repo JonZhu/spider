@@ -1,14 +1,14 @@
 package com.zhujun.spider.net;
 
 public interface Consts {
-
-	String CRNL = "\\r\\n";
 	
-	byte[] CRNL_BYTES = CRNL.getBytes();
+	byte[] CRNL_BYTES = new byte[]{'\r', '\n'};
+	
+	String CRNL = new String(CRNL_BYTES);
 	
 	/**
 	 * SpiderNetMessage 数据包开始标识
 	 */
-	byte[] MSG_START_BYTES = ("SPIDER" + CRNL).getBytes();
+	byte[] MSG_START_BYTES = new byte[]{'S', 'P', 'I', 'D', 'E', 'R', '\r', '\n'};
 	
 }
