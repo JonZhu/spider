@@ -1,8 +1,11 @@
 package com.zhujun.spider.master.mina;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+
+import com.zhujun.spider.net.SpiderNetMessage;
 
 public class ServerHandler implements IoHandler {
 
@@ -39,7 +42,10 @@ public class ServerHandler implements IoHandler {
 	@Override
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		// TODO Auto-generated method stub
-
+		if (message instanceof SpiderNetMessage) {
+			System.out.println(ToStringBuilder.reflectionToString(message));
+			//session.getService().get
+		}
 	}
 
 	@Override
