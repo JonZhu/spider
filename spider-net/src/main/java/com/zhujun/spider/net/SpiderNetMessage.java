@@ -42,4 +42,8 @@ public class SpiderNetMessage {
 		headers.put(name, value);
 	}
 	
+	public String getHeader(String name) {
+		return headers == null ? null : headers.get(name);
+	}
+	
 }

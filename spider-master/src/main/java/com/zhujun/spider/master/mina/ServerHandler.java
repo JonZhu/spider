@@ -41,11 +41,31 @@ public class ServerHandler implements IoHandler {
 
 	@Override
 	public void messageReceived(IoSession session, Object message) throws Exception {
-		// TODO Auto-generated method stub
 		if (message instanceof SpiderNetMessage) {
 			System.out.println(ToStringBuilder.reflectionToString(message));
-			//session.getService().get
+			SpiderNetMessage netMsg = (SpiderNetMessage)message;
+			String action = netMsg.getHeader("Action");
+			
+			if ("Pull-url".equals(action)) {
+				pushUrl2client(session);
+			} else if ("Push-fetch-data".equals(action)) {
+				
+			}
+			
 		}
+	}
+
+	/**
+	 * 推送url给客户端
+	 * 
+	 * @author zhujun
+	 * @date 2016年6月22日
+	 *
+	 * @param session
+	 */
+	private void pushUrl2client(IoSession session) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
