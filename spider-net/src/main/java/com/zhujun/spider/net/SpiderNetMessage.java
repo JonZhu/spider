@@ -1,5 +1,6 @@
 package com.zhujun.spider.net;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,6 +32,14 @@ public class SpiderNetMessage {
 
 	public void setBody(byte[] body) {
 		this.body = body;
+	}
+	
+	
+	public void setHeader(String name, String value) {
+		if (headers == null) {
+			headers = new HashMap<>();
+		}
+		headers.put(name, value);
 	}
 	
 }
