@@ -9,6 +9,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
+import com.zhujun.spider.master.server.IServer;
 import com.zhujun.spider.net.NetMessageCodecFactory;
 
 /**
@@ -18,7 +19,7 @@ import com.zhujun.spider.net.NetMessageCodecFactory;
  * @date 2016年6月17日
  *
  */
-public class MinaServer {
+public class MinaServer implements IServer {
 
 	private int port;
 	private IoAcceptor acceptor;
