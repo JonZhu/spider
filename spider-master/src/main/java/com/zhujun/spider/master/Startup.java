@@ -14,6 +14,7 @@ import com.zhujun.spider.master.dsl.XmlDslParserImpl;
 import com.zhujun.spider.master.mina.MinaServer;
 import com.zhujun.spider.master.schedule.SpiderSchedule;
 import com.zhujun.spider.master.schedule.SpiderScheduleImpl;
+import com.zhujun.spider.master.ui.UIServer;
 
 /**
  * 启动 master
@@ -64,6 +65,11 @@ public class Startup {
 		MinaServer minaServer = new MinaServer(port);
 		minaServer.start();
 		LOG.debug("启动完成MinaServer, port:{}", port);
+		
+		LOG.debug("开始启动UIServer, port:8618");
+		UIServer uiServer = new UIServer(8618);
+		uiServer.start();
+		LOG.debug("启动完成UIServer, port:8618");
 		
 	}
 
