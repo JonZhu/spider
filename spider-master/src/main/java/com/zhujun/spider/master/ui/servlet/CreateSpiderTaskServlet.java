@@ -12,6 +12,8 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhujun.spider.master.data.db.ISpiderTaskService;
+import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.dsl.DslParser;
 import com.zhujun.spider.master.dsl.XmlDslParserImpl;
@@ -23,9 +25,9 @@ import com.zhujun.spider.master.dsl.XmlDslParserImpl;
  * @date 2016年6月23日
  *
  */
-public class CreateTaskServlet extends HttpServlet {
+public class CreateSpiderTaskServlet extends HttpServlet {
 
-	private final static Logger LOG = LoggerFactory.getLogger(CreateTaskServlet.class);
+	private final static Logger LOG = LoggerFactory.getLogger(CreateSpiderTaskServlet.class);
 	
 	/**
 	 * 
@@ -41,8 +43,6 @@ public class CreateTaskServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-		resp.getWriter().println("servlet test");
-		
 		InputStream inputStream = req.getInputStream();
 		Spider spider = null;
 		try {
@@ -55,7 +55,7 @@ public class CreateTaskServlet extends HttpServlet {
 			IOUtils.closeQuietly(inputStream);
 		}
 		
-		
+		DIContext.getInstance(ISpiderTaskService.class).createSpiderTask(spider);
 		
 	}
 }

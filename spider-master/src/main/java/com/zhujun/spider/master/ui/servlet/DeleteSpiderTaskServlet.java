@@ -7,7 +7,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class IndexServlet extends HttpServlet {
+import com.zhujun.spider.master.data.db.ISpiderTaskService;
+import com.zhujun.spider.master.di.DIContext;
+
+public class DeleteSpiderTaskServlet extends HttpServlet {
 
 	/**
 	 * 
@@ -23,7 +26,8 @@ public class IndexServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-//		resp.getWriter().println("servlet test");
+		String taskId = req.getParameter("id");
+		DIContext.getInstance(ISpiderTaskService.class).deleteSpiderTask(taskId);
 		
 	}
 }

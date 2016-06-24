@@ -7,7 +7,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class IndexServlet extends HttpServlet {
+import org.apache.commons.lang3.StringUtils;
+
+import com.zhujun.spider.master.data.db.ISpiderTaskService;
+import com.zhujun.spider.master.di.DIContext;
+
+public class SpiderTaskListServlet extends HttpServlet {
 
 	/**
 	 * 
@@ -23,7 +28,12 @@ public class IndexServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-//		resp.getWriter().println("servlet test");
+		String pageNoStr = req.getParameter("pageNo");
+		String pageSizeStr = req.getParameter("pageSize");
 		
+		int pageNo = StringUtils.isNumeric(pageNoStr) ? Integer.valueOf(pageNoStr) : 1;
+		int pageSize = StringUtils.isNumeric(pageSizeStr) ? Integer.valueOf(pageSizeStr) : 20;
+		
+		DIContext.getInstance(ISpiderTaskService.class).findSpiderTaskList(pageNo, pageSize);
 	}
 }
