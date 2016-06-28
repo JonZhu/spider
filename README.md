@@ -56,7 +56,7 @@ spider_task表，用于储存master系统中spider任务列表。
 	</tr>
 	<tr>
 		<td>author</td>
-		<td>vc(200)</td>
+		<td>vc(100)</td>
 		<td>Y</td>
 		<td>N</td>
 		<td>N</td>
@@ -133,12 +133,28 @@ fetchurl表，用于记录抓取的url任务及状态。
 		<td>要抓取的url地址</td>
 	</tr>
 	<tr>
+		<td>status</td>
+		<td>int</td>
+		<td>N</td>
+		<td>N</td>
+		<td>N</td>
+		<td>状态: 1 初始态, 2 已下发, 3 抓取成功, 4 抓取失败</td>
+	</tr>
+	<tr>
 		<td>inserttime</td>
 		<td>datetime</td>
 		<td>N</td>
 		<td>N</td>
 		<td>N</td>
 		<td>数据插入时间</td>
+	</tr>
+	<tr>
+		<td>modifytime</td>
+		<td>datetime</td>
+		<td>N</td>
+		<td>N</td>
+		<td>N</td>
+		<td>最后更新时间</td>
 	</tr>
 </table>
 
