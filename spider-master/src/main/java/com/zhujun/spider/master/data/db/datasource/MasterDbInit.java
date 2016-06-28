@@ -27,7 +27,7 @@ public class MasterDbInit implements DbInit {
 					QueryRunner queryRunner = new QueryRunner();
 					
 					// 创建spider_task表
-					String spiderTaskSql = "create table spider_task("
+					String spiderTaskSql = "create table if not exists spider_task("
 							+ "id varchar(100) not null primary key,"
 							+ "name varchar(200) not null,"
 							+ "author varchar(100),"

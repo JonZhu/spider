@@ -27,12 +27,12 @@ public class SpiderDbInit implements DbInit {
 					QueryRunner queryRunner = new QueryRunner();
 					
 					// 创建fetchurl表
-					String spiderTaskSql = "create table fetchurl("
+					String spiderTaskSql = "create table if not exists fetchurl("
 							+ "id varchar(100) not null primary key,"
 							+ "url varchar(500) not null,"
-							+ "status int not null"
+							+ "status int not null,"
 							+ "inserttime datetime not null,"
-							+ "modifytime datetime not null,"
+							+ "modifytime datetime not null"
 							+ ");";
 					queryRunner.update(conn, spiderTaskSql);
 					
@@ -40,7 +40,7 @@ public class SpiderDbInit implements DbInit {
 				}
 			});
 		} catch (Exception e) {
-			throw new RuntimeException("初始化master出错", e);
+			throw new RuntimeException("初始化fetchurl出错", e);
 		}
 
 	}
