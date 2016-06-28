@@ -55,7 +55,12 @@ public class CreateSpiderTaskServlet extends HttpServlet {
 			IOUtils.closeQuietly(inputStream);
 		}
 		
-		DIContext.getInstance(ISpiderTaskService.class).createSpiderTask(spider);
+		try {
+			DIContext.getInstance(ISpiderTaskService.class).createSpiderTask(spider);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 }

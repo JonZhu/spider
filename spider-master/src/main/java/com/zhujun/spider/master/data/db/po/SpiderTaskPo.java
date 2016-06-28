@@ -12,7 +12,7 @@ public class SpiderTaskPo {
 	
 	private String datadir;
 	
-	private Date date;
+	private Date createTime;
 
 	public String getId() {
 		return id;
@@ -46,12 +46,12 @@ public class SpiderTaskPo {
 		this.datadir = datadir;
 	}
 
-	public Date getDate() {
-		return date;
+	public Date getCreateTime() {
+		return createTime;
 	}
 
-	public void setDate(Date date) {
-		this.date = date;
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
 	}
 	
 	

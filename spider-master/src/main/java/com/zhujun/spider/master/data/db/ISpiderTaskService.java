@@ -18,11 +18,12 @@ public interface ISpiderTaskService {
 	 * @date 2016年6月24日
 	 *
 	 * @param spider
+	 * @throws Exception 
 	 */
-	void createSpiderTask(Spider spider);
+	void createSpiderTask(Spider spider) throws Exception;
 
 	void findSpiderTaskList(int pageNo, int pageSize);
 
-	void deleteSpiderTask(String taskId);
+	void deleteSpiderTask(String taskId) throws Exception;
 
 }

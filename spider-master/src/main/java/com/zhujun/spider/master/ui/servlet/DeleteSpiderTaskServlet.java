@@ -27,7 +27,12 @@ public class DeleteSpiderTaskServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
 		String taskId = req.getParameter("id");
-		DIContext.getInstance(ISpiderTaskService.class).deleteSpiderTask(taskId);
+		try {
+			DIContext.getInstance(ISpiderTaskService.class).deleteSpiderTask(taskId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 }
