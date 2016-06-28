@@ -35,7 +35,7 @@ public class DataSourceManager {
 	 * @param dbFile
 	 * @param type
 	 */
-	public static void regist(String dbFile, DataSourceType type) {
+	synchronized public static void regist(String dbFile, DataSourceType type) {
 		if (DATA_SOURCE_MAP.containsKey(dbFile)) {
 			throw new RuntimeException("DataSource ["+ dbFile +"]已经存在");
 		}
@@ -65,7 +65,7 @@ public class DataSourceManager {
 	 *
 	 * @param dbFile
 	 */
-	public static void remove(String dbFile) {
+	synchronized public static void remove(String dbFile) {
 		DataSource dataSource = DATA_SOURCE_MAP.get(dbFile);
 		if (dataSource != null) {
 			try {
