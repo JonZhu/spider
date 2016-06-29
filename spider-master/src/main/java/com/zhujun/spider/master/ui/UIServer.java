@@ -5,6 +5,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.zhujun.spider.master.server.IServer;
 import com.zhujun.spider.master.ui.servlet.IndexServlet;
+import com.zhujun.spider.master.ui.servlet.SpiderTaskListServlet;
 
 /**
  * 用户界面接口 服务
@@ -34,7 +35,7 @@ public class UIServer implements IServer {
 		webApp.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
 		
 		// servlet
-		webApp.addServlet(IndexServlet.class, "*.do");
+		webApp.addServlet(SpiderTaskListServlet.class, "/servlet/task/list.do");
 		
 		jettyServer.setHandler(webApp);
 		try {

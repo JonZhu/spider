@@ -8,8 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.zhujun.spider.master.data.db.ISpiderTaskService;
+import com.zhujun.spider.master.data.db.Page;
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.di.DIContext;
 
 public class SpiderTaskListServlet extends HttpServlet {
@@ -35,7 +38,9 @@ public class SpiderTaskListServlet extends HttpServlet {
 		int pageSize = StringUtils.isNumeric(pageSizeStr) ? Integer.valueOf(pageSizeStr) : 20;
 		
 		try {
-			DIContext.getInstance(ISpiderTaskService.class).findSpiderTaskList(pageNo, pageSize);
+			Page<SpiderTaskPo> page = DIContext.getInstance(ISpiderTaskService.class).findSpiderTaskList(pageNo, pageSize);
+			
+			resp.getWriter().println(ToStringBuilder.reflectionToString(page));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

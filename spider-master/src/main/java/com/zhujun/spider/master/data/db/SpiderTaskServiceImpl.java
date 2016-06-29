@@ -112,7 +112,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 				
 				if (count > 0) {
 					String dataSql = "select id, name, author, datadir, createtime from spider_task limit ? offset ?";
-					List<SpiderTaskPo> data = QUERY_RUNNER.query(dataSql, new SpiderTaskPoResultHandler(), pageSize, (pageNo - 1) * pageSize);
+					List<SpiderTaskPo> data = QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler(), pageSize, (pageNo - 1) * pageSize);
 					page.setPageData(data);
 				}
 				
