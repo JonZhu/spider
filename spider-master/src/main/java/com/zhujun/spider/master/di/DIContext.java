@@ -4,6 +4,7 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.Stage;
 import com.zhujun.spider.master.data.db.ISpiderTaskService;
 import com.zhujun.spider.master.data.db.SpiderTaskServiceImpl;
 
@@ -16,7 +17,7 @@ import com.zhujun.spider.master.data.db.SpiderTaskServiceImpl;
  */
 public class DIContext {
 
-	private static Injector injector = Guice.createInjector(new Module() {
+	private static Injector injector = Guice.createInjector(Stage.PRODUCTION, new Module() {
 		@Override
 		public void configure(Binder binder) {
 			binder.bind(ISpiderTaskService.class).to(SpiderTaskServiceImpl.class);

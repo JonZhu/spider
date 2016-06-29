@@ -2,20 +2,21 @@ package com.zhujun.spider.master.data.db;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.AbstractListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.io.IOUtils;
 
 import com.zhujun.spider.master.data.db.datasource.DataSourceManager;
@@ -95,17 +96,35 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 
 	protected int findTaskCountByDatadir(Connection conn, String dataDir) throws SQLException {
 		String sql = "select count(*) from spider_task where datadir = ?";
-		return QUERY_RUNNER.query(conn, sql, new ResultSetHandler<Integer>() {
-			@Override
-			public Integer handle(ResultSet rs) throws SQLException {
-				return rs.getInt(1);
-			}
-		}, dataDir);
+		return QUERY_RUNNER.query(conn, sql, new ScalarHandler<Integer>(), dataDir);
 	}
 
 	@Override
-	public void findSpiderTaskList(int pageNo, int pageSize) {
-		// TODO Auto-generated method stub
+	public Page<SpiderTaskPo> findSpiderTaskList(final int pageNo, final int pageSize) throws Exception {
+		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
+		return DsUtils.doInTrans(ds, new IAction<Page<SpiderTaskPo>>() {
+			@Override
+			public Page<SpiderTaskPo> action(Connection conn) throws Exception {
+				Page<SpiderTaskPo> page = new Page<>();
+				
+				String countSql = "select count(*) from spider_task";
+				int count = QUERY_RUNNER.query(conn, countSql, new ScalarHandler<Integer>());
+				
+				if (count > 0) {
+					String dataSql = "select id, name, author, datadir, createtime from spider_task limit ? offset ?";
+					List<SpiderTaskPo> data = QUERY_RUNNER.query(dataSql, new SpiderTaskPoResultHandler(), pageSize, (pageNo - 1) * pageSize);
+					page.setPageData(data);
+				}
+				
+				page.setDataTotal(count);
+				page.setPageNo(pageNo);
+				page.setPageSize(pageSize);
+				page.setPageTotal(Page.calculatePageTotal(count, pageSize));
+				
+				return page;
+			}
+			
+		});
 
 	}
 
@@ -121,6 +140,24 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 			}
 			
 		});
+	}
+	
+	private static class SpiderTaskPoResultHandler extends AbstractListHandler<SpiderTaskPo> {
+
+		@Override
+		protected SpiderTaskPo handleRow(ResultSet rs) throws SQLException {
+			SpiderTaskPo po = new SpiderTaskPo();
+			po.setId(rs.getString("id"));
+			po.setAuthor(rs.getString("author"));
+			po.setCreateTime(rs.getDate("createtime"));
+			po.setDatadir(rs.getString("datadir"));
+			po.setName(rs.getString("name"));
+			
+			return po;
+		}
+
+	
+		
 	}
 
 }

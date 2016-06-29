@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.data.db;
 
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.domain.Spider;
 
 /**
@@ -22,7 +23,7 @@ public interface ISpiderTaskService {
 	 */
 	void createSpiderTask(Spider spider) throws Exception;
 
-	void findSpiderTaskList(int pageNo, int pageSize);
+	Page<SpiderTaskPo> findSpiderTaskList(int pageNo, int pageSize) throws Exception;
 
 	void deleteSpiderTask(String taskId) throws Exception;
 

@@ -34,6 +34,11 @@ public class SpiderTaskListServlet extends HttpServlet {
 		int pageNo = StringUtils.isNumeric(pageNoStr) ? Integer.valueOf(pageNoStr) : 1;
 		int pageSize = StringUtils.isNumeric(pageSizeStr) ? Integer.valueOf(pageSizeStr) : 20;
 		
-		DIContext.getInstance(ISpiderTaskService.class).findSpiderTaskList(pageNo, pageSize);
+		try {
+			DIContext.getInstance(ISpiderTaskService.class).findSpiderTaskList(pageNo, pageSize);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
