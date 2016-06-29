@@ -47,6 +47,8 @@ public class DataSourceManager {
 		BasicDataSource dataSource = new BasicDataSource();
 		dataSource.setDriverClassName("org.sqlite.JDBC");
 		dataSource.setUrl("jdbc:sqlite:" + dbFile);
+		dataSource.setInitialSize(0);
+		dataSource.setMaxTotal(10);
 		
 		DBINIT_MAP.get(type).init(dataSource); // 执行初始化
 		DATA_SOURCE_MAP.put(dbFile, dataSource);
