@@ -1,10 +1,7 @@
 package com.zhujun.spider.master.ui;
 
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.zhujun.spider.master.server.IServer;
 import com.zhujun.spider.master.ui.servlet.IndexServlet;
@@ -29,22 +26,17 @@ public class UIServer implements IServer {
 	public void start() {
 		jettyServer = new Server(port);
 		
-		ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
-		
-		// resource ./ui -> /
-		ContextHandler resourceContextHandler = new ContextHandler("/");
-		ResourceHandler resourceHandler = new ResourceHandler();
-		resourceHandler.setResourceBase("./ui");
-		resourceHandler.setWelcomeFiles(new String[]{"index.html"});
-		resourceContextHandler.setHandler(resourceHandler);
-		handlerCollection.addHandler(resourceContextHandler);
+		WebAppContext webApp = new WebAppContext();
+		webApp = new WebAppContext();
+		webApp.setContextPath("/");
+		webApp.setResourceBase("./ui"); // resource
+		webApp.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+		webApp.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
 		
 		// servlet
-		ServletContextHandler servletContextHandler = new ServletContextHandler();
-		servletContextHandler.addServlet(IndexServlet.class, "*.do");
-		handlerCollection.addHandler(servletContextHandler);
+		webApp.addServlet(IndexServlet.class, "*.do");
 		
-		jettyServer.setHandler(handlerCollection);
+		jettyServer.setHandler(webApp);
 		try {
 			jettyServer.start();
 		} catch (Exception e) {
