@@ -17,6 +17,8 @@ import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.dsl.DslParser;
 import com.zhujun.spider.master.dsl.XmlDslParserImpl;
+import com.zhujun.spider.master.ui.JsonUtils;
+import com.zhujun.spider.master.ui.Result;
 
 /**
  * 创建任务
@@ -45,22 +47,31 @@ public class CreateSpiderTaskServlet extends HttpServlet {
 		
 		InputStream inputStream = req.getInputStream();
 		Spider spider = null;
+		Result result = new Result();
 		try {
 			// 解析DSL
 			DslParser dslParser = new XmlDslParserImpl();
 			spider = dslParser.parse(inputStream);
 		} catch (Exception e) {
 			LOG.error("解析dsl失败", e);
+			result.setStatus(1);
+			result.setMsg("解析dsl失败");
+			JsonUtils.writeValue(resp.getOutputStream(), result);
+			return;
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 		}
 		
+		
 		try {
 			DIContext.getInstance(ISpiderTaskService.class).createSpiderTask(spider);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error("创建任务失败", e);
+			result.setStatus(1);
+			result.setMsg(e.getMessage());
 		}
+		
+		JsonUtils.writeValue(resp.getOutputStream(), result);
 		
 	}
 }

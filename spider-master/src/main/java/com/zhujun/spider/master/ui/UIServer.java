@@ -4,6 +4,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.zhujun.spider.master.server.IServer;
+import com.zhujun.spider.master.ui.servlet.CreateSpiderTaskServlet;
 import com.zhujun.spider.master.ui.servlet.IndexServlet;
 import com.zhujun.spider.master.ui.servlet.SpiderTaskListServlet;
 
@@ -36,6 +37,7 @@ public class UIServer implements IServer {
 		
 		// servlet
 		webApp.addServlet(SpiderTaskListServlet.class, "/servlet/task/list.do");
+		webApp.addServlet(CreateSpiderTaskServlet.class, "/servlet/task/create.do");
 		
 		jettyServer.setHandler(webApp);
 		try {

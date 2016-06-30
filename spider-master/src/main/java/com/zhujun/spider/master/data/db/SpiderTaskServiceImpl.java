@@ -90,7 +90,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	}
 
 	protected void insertSpiderTaskPo(Connection conn, SpiderTaskPo taskPo) throws SQLException {
-		String sql = "insert into spider_task(id, name, author, datadir, createtime) value(?,?,?,?,?)";
+		String sql = "insert into spider_task(id, name, author, datadir, createtime) values(?,?,?,?,?)";
 		QUERY_RUNNER.update(conn, sql, taskPo.getId(), taskPo.getName(), taskPo.getAuthor(), taskPo.getDatadir(), taskPo.getCreateTime());
 	}
 

@@ -66,6 +66,9 @@
         <h1>任务列表</h1>
       </div>
       
+      <p>
+      	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTaskModal">创建任务</button>
+      </p>
       <table id="taskListTable" class="table table-bordered table-hover">
 	      <thead>
 	        <tr>
@@ -108,6 +111,30 @@
       </div>
     </footer>
 
+
+	<!-- 创建任务dialog -->
+	<div id="createTaskModal" class="modal fade">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">创建Spider任务</h4>
+	      </div>
+	      <div class="modal-body">
+	        
+		      <div class="form-group">
+			    <label for="dslText">Spider DSL</label>
+			    <textarea id="dslText" class="form-control" style="height:330px;"></textarea>
+			  </div>
+	        
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	        <button id="createTaskBtn" type="button" class="btn btn-primary">创建</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 
 	<!-- 模板 -->
 	<div style="display: none;">
@@ -170,6 +197,37 @@
     	
     	
     	getTaskList(1);
+    	
+    	
+    	// -------------------------------
+    	
+    	// 创建任务
+    	$("#createTaskBtn").click(function(){
+    		
+    		var spiderDsl = $("#dslText").val();
+    		// alert(spiderDsl);
+    		$.ajax({
+    			url: "servlet/task/create.do",
+    			type: "post",
+    			contentType: "application/xml",
+    			data: spiderDsl,
+    			dataType: "json",
+    			success: function(result){
+    				if (result.status == 0) {
+    					alert("创建成功");
+    					getTaskList(1);
+    					$('#createTaskModal').modal('hide');
+    				} else {
+    					alert(result.msg);
+    					$('#createTaskModal').modal('hide');
+    				}
+    			}
+    		});
+    		
+    		
+    	});
+    	
+    	
     });
     </script>
   </body>
