@@ -77,27 +77,6 @@
 	        </tr>
 	      </thead>
 	      <tbody>
-	        <tr>
-	          <th scope="row">1</th>
-	          <td>Mark</td>
-	          <td>Otto</td>
-	          <td>@mdo</td>
-	          <td>@mdo</td>
-	        </tr>
-	        <tr>
-	          <th scope="row">2</th>
-	          <td>Jacob</td>
-	          <td>Thornton</td>
-	          <td>@fat</td>
-	          <td>@mdo</td>
-	        </tr>
-	        <tr>
-	          <th scope="row">3</th>
-	          <td>Larry</td>
-	          <td>the Bird</td>
-	          <td>@twitter</td>
-	          <td>@mdo</td>
-	        </tr>
 	      </tbody>
       </table>
       
@@ -133,7 +112,7 @@
 	<!-- 模板 -->
 	<div style="display: none;">
 		<table>
-			<tr id="tmpListRow">
+			<tr id="tplListRow">
 	          <th scope="row" class="task-id"></th>
 	          <td class="task-name"></td>
 	          <td class="task-author"></td>
@@ -177,7 +156,7 @@
     		
     		if (page.pageData) {
     			$.each(page.pageData, function(i, item){
-    				$tr = $("#tmpListRow").clone().removeAttr("id");
+    				$tr = $("#tplListRow").clone().removeAttr("id");
     				$(".task-id", $tr).text(item.id);
     				$(".task-name", $tr).text(item.name);
     				$(".task-author", $tr).text(item.author);
