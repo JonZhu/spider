@@ -9,7 +9,7 @@
     <meta name="author" content="">
 <!--     <link rel="icon" href="../../favicon.ico"> -->
 
-    <title>Spider master</title>
+    <title>Spider master 任务</title>
 
     <!-- Bootstrap core CSS -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -40,8 +40,8 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">主页</a></li>
-            <li><a href="task.html">任务</a></li>
+            <li><a href="index.html">主页</a></li>
+            <li class="active"><a href="#">任务</a></li>
             <li><a href="#contact">联系方式</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
@@ -63,10 +63,64 @@
     <!-- Begin page content -->
     <div class="container">
       <div class="page-header">
-        <h1>标题</h1>
+        <h1>任务列表</h1>
       </div>
-      <p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and CSS. A fixed navbar has been added with <code>padding-top: 60px;</code> on the <code>body > .container</code>.</p>
-      <p>Back to <a href="../sticky-footer">the default sticky footer</a> minus the navbar.</p>
+      
+      <table id="taskListTable" class="table table-bordered table-hover">
+	      <thead>
+	        <tr>
+	          <th>ID</th>
+	          <th>名称</th>
+	          <th>作者</th>
+	          <th>数据目录</th>
+	          <th>创建日期</th>
+	        </tr>
+	      </thead>
+	      <tbody>
+	        <tr>
+	          <th scope="row">1</th>
+	          <td>Mark</td>
+	          <td>Otto</td>
+	          <td>@mdo</td>
+	          <td>@mdo</td>
+	        </tr>
+	        <tr>
+	          <th scope="row">2</th>
+	          <td>Jacob</td>
+	          <td>Thornton</td>
+	          <td>@fat</td>
+	          <td>@mdo</td>
+	        </tr>
+	        <tr>
+	          <th scope="row">3</th>
+	          <td>Larry</td>
+	          <td>the Bird</td>
+	          <td>@twitter</td>
+	          <td>@mdo</td>
+	        </tr>
+	      </tbody>
+      </table>
+      
+      <nav style="text-align: right;">
+		  <ul class="pagination">
+		    <li>
+		      <a href="#" aria-label="Previous">
+		        <span aria-hidden="true">&laquo;</span>
+		      </a>
+		    </li>
+		    <li><a href="#">1</a></li>
+		    <li><a href="#">2</a></li>
+		    <li><a href="#">3</a></li>
+		    <li><a href="#">4</a></li>
+		    <li><a href="#">5</a></li>
+		    <li>
+		      <a href="#" aria-label="Next">
+		        <span aria-hidden="true">&raquo;</span>
+		      </a>
+		    </li>
+		  </ul>
+	</nav>
+      
     </div>
 
     <footer class="footer">
@@ -76,10 +130,68 @@
     </footer>
 
 
+	<!-- 模板 -->
+	<div style="display: none;">
+		<table>
+			<tr id="tmpListRow">
+	          <th scope="row" class="task-id"></th>
+	          <td class="task-name"></td>
+	          <td class="task-author"></td>
+	          <td class="task-datadir"></td>
+	          <td class="task-createtime"></td>
+	        </tr>
+		</table>
+	</div>
+
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="jquery/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
+    
+    <script type="text/javascript">
+    $(function(){
+    	
+    	// 获取task list
+    	function getTaskList(pageNo) {
+    		$.ajax({
+        		url: "servlet/task/list.do",
+        		data: {pageSize: 20, pageNo: pageNo},
+        		dataType: "json",
+        		
+        		success: function(result) {
+        			console.info(result);
+        			if (result.status == 0) {
+        				showTaskList(result.data);
+        			} else {
+        				alert("result.msg");
+        			}
+        		}
+        	});
+    	}
+    	
+    	// 显示列表数据, 分页数据
+    	function showTaskList(page) {
+    		$tbody = $("#taskListTable tbody").empty();
+    		
+    		if (page.pageData) {
+    			$.each(page.pageData, function(i, item){
+    				$tr = $("#tmpListRow").clone().removeAttr("id");
+    				$(".task-id", $tr).text(item.id);
+    				$(".task-name", $tr).text(item.name);
+    				$(".task-author", $tr).text(item.author);
+    				$(".task-datadir", $tr).text(item.datadir);
+    				$(".task-createtime", $tr).text(item.createTime);
+    				$tbody.append($tr);
+    			});
+    		}
+    		
+    	}
+    	
+    	
+    	getTaskList(1);
+    });
+    </script>
   </body>
 </html>
