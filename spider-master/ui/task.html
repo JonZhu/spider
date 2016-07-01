@@ -76,7 +76,7 @@
 	          <th>名称</th>
 	          <th>作者</th>
 	          <th>数据目录</th>
-	          <th>创建日期</th>
+	          <th>创建时间</th>
 	        </tr>
 	      </thead>
 	      <tbody>
@@ -156,6 +156,7 @@
     <script src="jquery/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     
+    <script src="js/util.js"></script>
     <script type="text/javascript">
     $(function(){
     	
@@ -188,7 +189,7 @@
     				$(".task-name", $tr).text(item.name);
     				$(".task-author", $tr).text(item.author);
     				$(".task-datadir", $tr).text(item.datadir);
-    				$(".task-createtime", $tr).text(item.createTime);
+    				$(".task-createtime", $tr).text(util.time.ms2Str(item.createTime));
     				$tbody.append($tr);
     			});
     		}
