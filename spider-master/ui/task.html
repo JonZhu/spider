@@ -77,6 +77,7 @@
 	          <th>作者</th>
 	          <th>数据目录</th>
 	          <th>创建时间</th>
+	          <th>操作</th>
 	        </tr>
 	      </thead>
 	      <tbody>
@@ -135,6 +136,25 @@
 	    </div><!-- /.modal-content -->
 	  </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
+	
+	<!-- 删除任务confirm -->
+	<div id="deleteTaskConfirm" class="modal fade">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">确认</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>是否真的要删除该任务？</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	        <button id="confirmDeleteTaskBtn" type="button" class="btn btn-primary" data-dismiss="modal">确认删除</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 
 	<!-- 模板 -->
 	<div style="display: none;">
@@ -145,6 +165,7 @@
 	          <td class="task-author"></td>
 	          <td class="task-datadir"></td>
 	          <td class="task-createtime"></td>
+	          <td><button class="btn btn-default delete-task-btn">删除</button></td>
 	        </tr>
 		</table>
 	</div>
@@ -192,15 +213,27 @@
     				$(".task-createtime", $tr).text(util.time.ms2Str(item.createTime));
     				$tbody.append($tr);
     			});
+    			
+    			bindDeleteBtAction();
     		}
     		
     	}
     	
+    	// 绑定删除操作动作
+    	var deleteTaskId; // 用于存储删除任务id
+    	function bindDeleteBtAction() {
+    		$("#taskListTable .delete-task-btn").click(function(){
+    			deleteTaskId = $(this).closest("tr").find(".task-id").text();
+    			// alert(deleteTaskId);
+    		    $("#deleteTaskConfirm").modal("show");
+    		});
+    	}
     	
+    	// 执行分页数据获取
     	getTaskList(1);
     	
     	
-    	// -------------------------------
+    	// ------------------------------------------------------
     	
     	// 创建任务
     	$("#createTaskBtn").click(function(){
@@ -228,6 +261,26 @@
     		
     	});
     	
+    	
+    	// ------------------------------------------------------
+    	
+    	// 删除任务
+    	$("#confirmDeleteTaskBtn").click(function(){
+    		// alert(deleteTaskId);
+    		
+    		$.ajax({
+    			url: "servlet/task/delete.do",
+    			data: {id: deleteTaskId},
+    			dataType: "json",
+    			success: function(result) {
+    				if (result.status == 0) {
+    					getTaskList(1); // 刷新列表
+    				} else {
+    					alert(result.msg);
+    				}
+    			}
+    		});
+    	});
     	
     });
     </script>
