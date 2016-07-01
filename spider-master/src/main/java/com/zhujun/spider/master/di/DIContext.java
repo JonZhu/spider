@@ -7,6 +7,8 @@ import com.google.inject.Module;
 import com.google.inject.Stage;
 import com.zhujun.spider.master.data.db.ISpiderTaskService;
 import com.zhujun.spider.master.data.db.SpiderTaskServiceImpl;
+import com.zhujun.spider.master.schedule.IScheduleService;
+import com.zhujun.spider.master.schedule.ScheduleServiceImpl;
 
 /**
  * Dependence Inject
@@ -21,6 +23,7 @@ public class DIContext {
 		@Override
 		public void configure(Binder binder) {
 			binder.bind(ISpiderTaskService.class).to(SpiderTaskServiceImpl.class);
+			binder.bind(IScheduleService.class).to(ScheduleServiceImpl.class);
 //				binder.bind(Service1.class);
 //				binder.bind(Service2.class);
 		}

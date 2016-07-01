@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 
@@ -26,6 +27,7 @@ import com.zhujun.spider.master.data.db.datasource.DsUtils.IAction;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
+import com.zhujun.spider.master.schedule.IScheduleService;
 
 @Singleton
 public class SpiderTaskServiceImpl implements ISpiderTaskService {
@@ -39,6 +41,9 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	static {
 		DataSourceManager.regist(DB_FILE, DataSourceType.Master);
 	}
+	
+	@Inject
+	private IScheduleService scheduleService;
 	
 	@Override
 	public void createSpiderTask(final Spider spider) throws Exception {
@@ -82,6 +87,9 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 				// 初始化spider datasource
 				File spiderDbFile = new File(spiderDataDir, "spider.db");
 				DataSourceManager.regist(spiderDbFile.getCanonicalPath(), DataSourceType.Spider);
+				
+				// 启动调度
+				scheduleService.startSchedule(taskPo.getId(), spider);
 				
 				return null;
 			}
@@ -140,6 +148,9 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 			}
 			
 		});
+		
+		// 停止调度
+		scheduleService.stopSchedule(taskId);
 	}
 	
 	private static class SpiderTaskPoResultHandler extends AbstractListHandler<SpiderTaskPo> {
@@ -155,9 +166,20 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 			
 			return po;
 		}
-
-	
 		
+	}
+
+	@Override
+	public List<SpiderTaskPo> findAllSpiderTask() throws Exception {
+		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
+		return DsUtils.doInTrans(ds, new IAction<List<SpiderTaskPo>>() {
+			@Override
+			public List<SpiderTaskPo> action(Connection conn) throws Exception {
+				String dataSql = "select id, name, author, datadir, createtime from spider_task";
+				return QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler());
+			}
+			
+		});
 	}
 
 }

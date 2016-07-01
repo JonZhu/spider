@@ -12,13 +12,15 @@ import com.zhujun.spider.master.data.writer.FileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Spider;
 
-public class SpiderScheduleImpl implements SpiderSchedule {
+public class SpiderScheduleThread extends Thread {
 
-	private final static Logger LOG = LoggerFactory.getLogger(SpiderScheduleImpl.class);
+	private final static Logger LOG = LoggerFactory.getLogger(SpiderScheduleThread.class);
 	
 	private Spider spider;
 	
-	public SpiderScheduleImpl(Spider spider) {
+	public SpiderScheduleThread(Spider spider) {
+		super();
+		
 		if (spider == null) {
 			throw new NullPointerException("spider不能为空");
 		}
@@ -26,7 +28,7 @@ public class SpiderScheduleImpl implements SpiderSchedule {
 	}
 
 	@Override
-	public void start() {
+	public void run() {
 		LOG.debug("开始执行spider [{}]", spider.getName());
 		
 		SpiderActionExecutor executor = new SpiderActionExecutor();
