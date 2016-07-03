@@ -7,13 +7,17 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.zhujun.spider.master.contentfetcher.ContentFetcher;
 import com.zhujun.spider.master.contentfetcher.JavaUrlContentFetcher;
+import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
+import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.Url;
 
 public class UrlExecutor implements ActionExecutor {
 
+	
+	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
 	
 	
 	@Override
