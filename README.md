@@ -118,11 +118,11 @@ fetchurl表，用于记录抓取的url任务及状态。
 	</tr>
 	<tr>
 		<td>id</td>
-		<td>vc(100)</td>
+		<td>bigint</td>
 		<td>N</td>
 		<td>Y</td>
 		<td>N</td>
-		<td>主键</td>
+		<td>主键 autoincrement</td>
 	</tr>
 	<tr>
 		<td>url</td>

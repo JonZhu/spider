@@ -28,7 +28,7 @@ public class SpiderDbInit implements DbInit {
 					
 					// 创建fetchurl表
 					String spiderTaskSql = "create table if not exists fetchurl("
-							+ "id varchar(100) not null primary key,"
+							+ "id bigint not null primary key autoincrement,"
 							+ "url varchar(500) not null,"
 							+ "status int not null,"
 							+ "inserttime datetime not null,"
