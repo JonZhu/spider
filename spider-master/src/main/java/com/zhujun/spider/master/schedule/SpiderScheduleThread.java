@@ -47,6 +47,10 @@ public class SpiderScheduleThread extends Thread {
 	}
 	
 	
+	public Spider getSpider() {
+		return this.spider;
+	}
+	
 	private static class SpiderActionExecutor extends ParentActionExecutor implements ActionExecutor {
 
 	}

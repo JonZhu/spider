@@ -1,14 +1,31 @@
 package com.zhujun.spider.master.mina;
 
+import java.util.List;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhujun.spider.master.data.db.IFetchUrlService;
+import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.di.DIContext;
+import com.zhujun.spider.master.domain.Spider;
+import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.net.SpiderNetMessage;
+import com.zhujun.spider.net.msgbody.PushUrlBody;
 
 public class ServerHandler implements IoHandler {
 
+	private final static Logger LOG = LoggerFactory.getLogger(ServerHandler.class);
+	
+	private IScheduleService scheduleService = DIContext.getInstance(IScheduleService.class);
+	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
+	
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
 		// TODO Auto-generated method stub
@@ -64,8 +81,35 @@ public class ServerHandler implements IoHandler {
 	 * @param session
 	 */
 	private void pushUrl2client(IoSession session) {
-		// TODO Auto-generated method stub
+		SpiderNetMessage netMsg = new SpiderNetMessage();
+		netMsg.setHeader("Action", "Push-url");
+		netMsg.setHeader("Content-type", "json");
+		String status = "200";
 		
+		Pair<String, Spider> task = scheduleService.randomScheduleTask();
+		if (task != null) {
+			netMsg.setHeader("Task-id", task.getLeft());
+			try {
+				List<FetchUrlPo> urlList = fetchUrlService.getGiveOutUrls(task.getRight().getDataDir());
+				PushUrlBody body = new PushUrlBody();
+				for (FetchUrlPo urlPo : urlList) {
+					body.add(urlPo.getUrl());
+				}
+				
+				netMsg.setBody(new ObjectMapper().writeValueAsBytes(body));
+			} catch (Exception e) {
+				status = "500";
+				LOG.error("获取任务的下发url出错", e);
+			}
+			
+		} else {
+			// 无运行中的任务
+			status = "404";
+		}
+		
+		netMsg.setHeader("Status", status);
+		
+		session.write(netMsg);
 	}
 
 	@Override

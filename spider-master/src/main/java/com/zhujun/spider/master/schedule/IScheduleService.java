@@ -1,5 +1,7 @@
 package com.zhujun.spider.master.schedule;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.zhujun.spider.master.domain.Spider;
 
 /**
@@ -39,5 +41,11 @@ public interface IScheduleService {
 	 * @param id
 	 */
 	void stopSchedule(String id);
+	
+	/**
+	 * 随机获取一个正在执行的任务
+	 * @return
+	 */
+	Pair<String, Spider> randomScheduleTask();
 	
 }

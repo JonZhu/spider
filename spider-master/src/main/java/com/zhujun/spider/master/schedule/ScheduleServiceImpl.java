@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,6 +13,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +83,22 @@ public class ScheduleServiceImpl implements IScheduleService {
 			thread.stop();
 			spiderScheduleThreadMap.remove(id);
 		}
+	}
+	
+	/**
+	 * 随机获取一个正在执行的任务id
+	 * @return
+	 */
+	public Pair<String, Spider> randomScheduleTask() {
+		Set<String> keySet = spiderScheduleThreadMap.keySet();
+		if (keySet.isEmpty()) {
+			return null;
+		}
+		Object[] arr = keySet.toArray();
+		String taskId = (String)arr[new Random().nextInt(arr.length)];
+		
+		SpiderScheduleThread thread = spiderScheduleThreadMap.get(taskId);
+		return ImmutablePair.of(taskId, thread.getSpider());
 	}
 
 }
