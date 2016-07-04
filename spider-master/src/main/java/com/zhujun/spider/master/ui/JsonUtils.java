@@ -2,6 +2,7 @@ package com.zhujun.spider.master.ui;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -31,10 +32,10 @@ public class JsonUtils {
 		public MyModule() {
 			super();
 			
-			// sql date
-			addSerializer(java.sql.Date.class, new JsonSerializer<java.sql.Date>() {
+			// date
+			addSerializer(Date.class, new JsonSerializer<Date>() {
 				@Override
-				public void serialize(java.sql.Date value, JsonGenerator gen, SerializerProvider serializers)
+				public void serialize(Date value, JsonGenerator gen, SerializerProvider serializers)
 						throws IOException, JsonProcessingException {
 					if (value != null) {
 						gen.writeNumber(value.getTime());
