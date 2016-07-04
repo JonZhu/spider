@@ -5,9 +5,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,7 +62,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 				taskPo.setName(spider.getName());
 				taskPo.setAuthor(spider.getAuthor());
 				taskPo.setDatadir(spider.getDataDir());
-				taskPo.setCreateTime(new Date(System.currentTimeMillis()));
+				taskPo.setCreateTime(new Time(System.currentTimeMillis()));
 				insertSpiderTaskPo(conn, taskPo);
 				
 				// spider 数据目录
@@ -160,7 +160,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 			SpiderTaskPo po = new SpiderTaskPo();
 			po.setId(rs.getString("id"));
 			po.setAuthor(rs.getString("author"));
-			po.setCreateTime(rs.getDate("createtime"));
+			po.setCreateTime(rs.getTime("createtime"));
 			po.setDatadir(rs.getString("datadir"));
 			po.setName(rs.getString("name"));
 			

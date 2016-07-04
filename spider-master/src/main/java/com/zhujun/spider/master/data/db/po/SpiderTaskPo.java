@@ -1,6 +1,6 @@
 package com.zhujun.spider.master.data.db.po;
 
-import java.sql.Date;
+import java.sql.Time;
 
 public class SpiderTaskPo {
 
@@ -12,7 +12,7 @@ public class SpiderTaskPo {
 	
 	private String datadir;
 	
-	private Date createTime;
+	private Time createTime;
 
 	public String getId() {
 		return id;
@@ -46,11 +46,11 @@ public class SpiderTaskPo {
 		this.datadir = datadir;
 	}
 
-	public Date getCreateTime() {
+	public Time getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(Date createTime) {
+	public void setCreateTime(Time createTime) {
 		this.createTime = createTime;
 	}
 	
