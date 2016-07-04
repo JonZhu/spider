@@ -138,7 +138,7 @@ fetchurl表，用于记录抓取的url任务及状态。
 		<td>N</td>
 		<td>N</td>
 		<td>N</td>
-		<td>状态: 1 初始态, 2 已下发, 3 抓取成功, 4 抓取失败</td>
+		<td>状态: 0 初始态, 2 已下发, 3 抓取成功, 4 抓取失败</td>
 	</tr>
 	<tr>
 		<td>inserttime</td>

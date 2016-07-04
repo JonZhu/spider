@@ -1,5 +1,7 @@
 package com.zhujun.spider.master.data.db.datasource;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,5 +79,37 @@ public class DataSourceManager {
 			}
 		}
 	}
+	
+	
+	/**
+	 * 获取 spider运行时数据源, 没有则注册一个
+	 * @author zhujun
+	 * @date 2016年7月4日
+	 *
+	 * @param dataDir spider任务数据目录
+	 * @return
+	 */
+	public static DataSource getSpiderDataSource(String dataDir) {
+		File dbFile = new File(dataDir, "spider.db");
+		String dbFilePath = null;
+		try {
+			dbFilePath = dbFile.getCanonicalPath();
+		} catch (IOException e) {
+			throw new RuntimeException("获取db路径失败", e);
+		}
+		
+		DataSource ds = null;
+		synchronized (DataSourceManager.class) {
+			ds = DataSourceManager.getDataSource(dbFilePath);
+			if (ds == null) {
+				DataSourceManager.regist(dbFilePath, DataSourceType.Spider);
+				ds = DataSourceManager.getDataSource(dbFilePath);
+			}
+		}
+		
+		return ds;
+		
+	}
+	
 	
 }

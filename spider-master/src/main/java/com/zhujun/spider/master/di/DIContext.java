@@ -5,7 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
-import com.zhujun.spider.master.data.db.FetchUrlService;
+import com.zhujun.spider.master.data.db.FetchUrlServiceImpl;
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.ISpiderTaskService;
 import com.zhujun.spider.master.data.db.SpiderTaskServiceImpl;
@@ -25,7 +25,7 @@ public class DIContext {
 		@Override
 		public void configure(Binder binder) {
 			binder.bind(ISpiderTaskService.class).to(SpiderTaskServiceImpl.class);
-			binder.bind(IFetchUrlService.class).to(FetchUrlService.class);
+			binder.bind(IFetchUrlService.class).to(FetchUrlServiceImpl.class);
 			binder.bind(IScheduleService.class).to(ScheduleServiceImpl.class);
 //				binder.bind(Service1.class);
 //				binder.bind(Service2.class);
