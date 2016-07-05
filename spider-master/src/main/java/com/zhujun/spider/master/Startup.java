@@ -3,7 +3,9 @@ package com.zhujun.spider.master;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.mina.MinaServer;
+import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.ui.UIServer;
 
 /**
@@ -19,7 +21,7 @@ public class Startup {
 	public static void main(String[] args) {
 		
 		// 启动任务调度
-//		DIContext.getInstance(IScheduleService.class).startupAllSchedule();
+		DIContext.getInstance(IScheduleService.class).startupAllSchedule();
 		
 		// start mina server
 		int port  = args.length > 0 ? Integer.valueOf(args[0]) : 8619;

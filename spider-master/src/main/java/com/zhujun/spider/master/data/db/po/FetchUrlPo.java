@@ -11,7 +11,7 @@ import java.sql.Time;
  */
 public class FetchUrlPo {
 
-	private Long id;
+	private Integer id;
 	
 	private String url;
 	
@@ -24,11 +24,11 @@ public class FetchUrlPo {
 	
 	private Time Modifytime;
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

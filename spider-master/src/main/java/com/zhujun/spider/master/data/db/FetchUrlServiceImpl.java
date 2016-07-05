@@ -58,7 +58,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 		urlPo.setInsertTime(new Time(System.currentTimeMillis()));
 		urlPo.setModifytime(urlPo.getInsertTime());
 		String sql = "insert into fetchurl(url, status, inserttime, modifytime) values(?,?,?,?)";
-		long id = QUERY_RUNNER.insert(conn, sql, new ScalarHandler<Long>(), urlPo.getUrl(), 
+		int id = QUERY_RUNNER.insert(conn, sql, new ScalarHandler<Integer>(), urlPo.getUrl(), 
 				urlPo.getStatus(), urlPo.getInsertTime(), urlPo.getModifytime());
 		urlPo.setId(id);
 	}
@@ -126,7 +126,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 		@Override
 		protected FetchUrlPo handleRow(ResultSet rs) throws SQLException {
 			FetchUrlPo po = new FetchUrlPo();
-			po.setId(rs.getLong("id"));
+			po.setId(rs.getInt("id"));
 			po.setInsertTime(rs.getTime("inserttime"));
 			po.setModifytime(rs.getTime("modifytime"));
 			po.setStatus(rs.getInt("status"));

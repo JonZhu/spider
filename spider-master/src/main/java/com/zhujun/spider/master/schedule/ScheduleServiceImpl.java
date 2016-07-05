@@ -55,7 +55,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 		for (SpiderTaskPo spiderTaskPo : taskList) {
 			FileInputStream dslInputStream = null;
 			try {
-				File dslFile = new File(spiderTaskPo.getDatadir(), "spider.db");
+				File dslFile = new File(spiderTaskPo.getDatadir(), "spiderdsl.xml");
 				dslInputStream = new FileInputStream(dslFile);
 				Spider spider = dslParser.parse(dslInputStream);
 				startSchedule(spiderTaskPo.getId(), spider);
