@@ -16,14 +16,18 @@ public class SpiderScheduleThread extends Thread {
 
 	private final static Logger LOG = LoggerFactory.getLogger(SpiderScheduleThread.class);
 	
+	private String taskId;
 	private Spider spider;
 	
-	public SpiderScheduleThread(Spider spider) {
+	public SpiderScheduleThread(String taskId, Spider spider) {
 		super();
-		
+		if (taskId == null) {
+			throw new NullPointerException("taskId不能为空");
+		}
 		if (spider == null) {
 			throw new NullPointerException("spider不能为空");
 		}
+		this.taskId = taskId;
 		this.spider = spider;
 	}
 
@@ -33,7 +37,7 @@ public class SpiderScheduleThread extends Thread {
 		
 		SpiderActionExecutor executor = new SpiderActionExecutor();
 		Map<String, Object> dataScope = new HashMap<>(); // 初始化
-		dataScope.put(ScheduleConst.RUN_ID_KEY, UUID.randomUUID().toString()); // 分配运行id
+		dataScope.put(ScheduleConst.TASK_ID_KEY, taskId); // 分配运行id
 		
 		// 构建数据存储写入器
 		File dataDir = new File(spider.getDataDir());

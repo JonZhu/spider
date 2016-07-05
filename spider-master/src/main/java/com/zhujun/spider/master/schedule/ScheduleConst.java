@@ -10,9 +10,9 @@ package com.zhujun.spider.master.schedule;
 public interface ScheduleConst {
 
 	/**
-	 * Data Scope中的spider运行id key
+	 * Data Scope中的spider taskId key
 	 */
-	String RUN_ID_KEY = "spider.run.id";
+	String TASK_ID_KEY = "spider.run.id";
 	
 	/**
 	 * Data Scope中的写数据 key

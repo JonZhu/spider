@@ -66,10 +66,23 @@ public class ServerHandler implements IoHandler {
 			if ("Pull-url".equals(action)) {
 				pushUrl2client(session);
 			} else if ("Push-fetch-data".equals(action)) {
-				
+				receiveFetchData(netMsg);
 			}
 			
 		}
+	}
+
+	
+	/**
+	 * 接收到worker上传的抓取数据
+	 * @param netMsg
+	 */
+	private void receiveFetchData(SpiderNetMessage netMsg) {
+		String url = netMsg.getHeader("Fetch-url");
+		boolean success = "Success".equals(netMsg.getHeader("Fetch-Result"));
+		byte[] data = netMsg.getBody();
+		
+		
 	}
 
 	/**

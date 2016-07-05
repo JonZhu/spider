@@ -70,7 +70,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 
 	@Override
 	public void startSchedule(String id, Spider spider) {
-		SpiderScheduleThread thread = new SpiderScheduleThread(spider);
+		SpiderScheduleThread thread = new SpiderScheduleThread(id, spider);
 		thread.setName("SpiderScheduler-" + SCHEDULE_THREAD_INDEX.getAndIncrement());
 		thread.start();
 		spiderScheduleThreadMap.put(id, thread);

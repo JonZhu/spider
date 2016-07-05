@@ -34,6 +34,9 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		
 		ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
 		
+		// 初始化数据接收队列
+		
+		
 		// 生成实际url
 		List<String> urlList = new ArrayList<>();
 		List<FetchUrlPo> urlPoList = new ArrayList<>();
