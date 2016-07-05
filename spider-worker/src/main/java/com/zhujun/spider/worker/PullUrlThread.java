@@ -2,7 +2,12 @@ package com.zhujun.spider.worker;
 
 import java.util.Queue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhujun.spider.net.SpiderNetMessage;
+import com.zhujun.spider.net.msgbody.PushUrlBody;
 import com.zhujun.spider.worker.mina.MinaClient;
 
 /**
@@ -14,6 +19,8 @@ import com.zhujun.spider.worker.mina.MinaClient;
  */
 public class PullUrlThread extends Thread {
 
+	private final static Logger LOG = LoggerFactory.getLogger(PullUrlThread.class);
+	
 	private final MinaClient minaClient;
 	
 	public PullUrlThread(MinaClient minaClient) {
@@ -39,11 +46,50 @@ public class PullUrlThread extends Thread {
 			netMsg.setHeader("Action", "Pull-url");
 			minaClient.sendMsg(netMsg);
 			SpiderNetMessage pushUrlMsg = minaClient.waitMsg("Push-url", 5000);
+			
+			boolean needSleep = true;
 			if (pushUrlMsg != null) {
-				
+				System.out.println(pushUrlMsg);
+				String status = pushUrlMsg.getHeader("Status");
+				if ("200".equals(status)) {
+					// 正常响应
+					try {
+						PushUrlBody body = new ObjectMapper().readValue(pushUrlMsg.getBody(), PushUrlBody.class);
+						addUrlData2queue(body, queue);
+						needSleep = false; // 正常逻辑, 不用sleep
+					} catch (Exception e) {
+						LOG.error("解析json出错", e);
+					}
+					
+				}
+			} else {
+				needSleep = false; // 超时不用sleep, 已经有timeout时间等待
+			}
+			
+			if (needSleep) {
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 			
 		}
+	}
+
+	private void addUrlData2queue(PushUrlBody body, Queue<String> queue) {
+		if (body == null || body.isEmpty()) {
+			return;
+		}
+		
+		synchronized (queue) {
+			for (String url : body) {
+				queue.add(url);
+			}
+			
+			queue.notifyAll(); // 有新数据, 激活消费者
+		}
+		
 	}
 	
 }
