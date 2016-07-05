@@ -9,7 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.zhujun.spider.master.contentfetcher.ContentFetcher;
 import com.zhujun.spider.master.contentfetcher.JavaUrlContentFetcher;
+import com.zhujun.spider.master.data.db.IFetchUrlService;
+import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
+import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.UrlSet;
@@ -23,18 +26,23 @@ import com.zhujun.spider.master.domain.UrlSet;
  */
 public class UrlSetExecutor extends ParentActionExecutor implements ActionExecutor {
 
+	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
+	
 	@Override
-	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) {
+	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) throws Exception {
 		UrlSet urlSet = (UrlSet)action;
 		
 		ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
 		
 		// 生成实际url
 		List<String> urlList = new ArrayList<>();
+		List<FetchUrlPo> urlPoList = new ArrayList<>();
 		List<Integer> indexList = urlSet.getTempIndexList();
 		if (indexList == null || indexList.isEmpty()) {
 			// 无模板号
 			urlList.add(urlSet.getUrltemplate());
+			FetchUrlPo urlPo = new FetchUrlPo();
+			urlPo.setUrl(urlSet.getUrltemplate());
 		} else {
 			// 填充模板值
 			SequenceItem[] sequenceItems = new SequenceItem[indexList.size()];
@@ -66,28 +74,45 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				}
 				
 				urlList.add(url);
+				FetchUrlPo urlPo = new FetchUrlPo();
+				urlPo.setUrl(url);
+				urlPoList.add(urlPo);
+				
+				if (urlPoList.size() > 100) {
+					// 100条数据入库
+					fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+					urlPoList = new ArrayList<>();
+				}
 			}
 			
 		}
 		
-		SpiderDataWriter writer = (SpiderDataWriter)dataScope.get(ScheduleConst.DATA_WRITER_KEY);
-		// 内容抓取
-		for (String url : urlList) {
-			byte[] content = contentFetcher.fetch(url);
-			// 存储到文件
-			writer.write(url, new Date(), content);
-			
-			if (StringUtils.isNotBlank(urlSet.getName())) {
-				dataScope.put(urlSet.getName(), content);
-			}
-			
-			// 设置数据到data scope, 子结点使用
-			dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, content);
-			dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, url);
-			
-			// 执行子级,例如paging
-			super.execute(spider, urlSet, dataScope);
+		if (!urlList.isEmpty()) {
+			fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
 		}
+		
+		
+		SpiderDataWriter writer = (SpiderDataWriter)dataScope.get(ScheduleConst.DATA_WRITER_KEY);
+//		// 内容抓取
+//		for (String url : urlList) {
+//			byte[] content = contentFetcher.fetch(url);
+//			// 存储到文件
+//			writer.write(url, new Date(), content);
+//			
+//			if (StringUtils.isNotBlank(urlSet.getName())) {
+//				dataScope.put(urlSet.getName(), content);
+//			}
+//			
+//			// 设置数据到data scope, 子结点使用
+//			dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, content);
+//			dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, url);
+//			
+//			// 执行子级,例如paging
+//			super.execute(spider, urlSet, dataScope);
+//		}
+		
+		
+		// TODO 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
 		
 
 	}
