@@ -43,7 +43,11 @@ public class SpiderScheduleThread extends Thread {
 		SpiderDataWriter dataWriter = new FileDataWriterImpl(new File(dataDir, "data").getAbsolutePath());
 		dataScope.put(ScheduleConst.DATA_WRITER_KEY, dataWriter);
 		
-		executor.execute(spider, spider, dataScope);
+		try {
+			executor.execute(spider, spider, dataScope);
+		} catch (Exception e) {
+			LOG.error("任务执行出错, name:{}, datadir:{}", spider.getName(), spider.getDataDir(), e);
+		}
 	}
 	
 	

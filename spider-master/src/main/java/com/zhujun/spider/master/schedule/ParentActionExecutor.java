@@ -21,7 +21,7 @@ import com.zhujun.spider.master.domain.UrlSet;
 public abstract class ParentActionExecutor implements ActionExecutor {
 
 	@Override
-	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) {
+	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) throws Exception {
 		
 		if (action instanceof DslParentAction) {
 			DslParentAction parentAction = (DslParentAction)action;

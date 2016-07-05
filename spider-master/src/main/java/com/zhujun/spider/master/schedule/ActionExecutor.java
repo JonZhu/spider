@@ -21,6 +21,6 @@ public interface ActionExecutor {
 	 * @param action 当前action
 	 * @param dataScope 数据域
 	 */
-	void execute(Spider spider, DslAction action, Map<String, Object> dataScope);
+	void execute(Spider spider, DslAction action, Map<String, Object> dataScope) throws Exception;
 	
 }
