@@ -27,6 +27,18 @@ public interface IFetchUrlService {
 	void createFetchUrl(String dataDir, FetchUrlPo fetchUrl) throws Exception;
 	
 	/**
+	 * 批量创建url
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月5日
+	 *
+	 * @param dataDir
+	 * @param fetchUrlList
+	 * @throws Exception
+	 */
+	void createFetchUrl(String dataDir, List<FetchUrlPo> fetchUrlList) throws Exception;
+	
+	/**
 	 * 获取要分发的url
 	 * 
 	 * @author zhujun

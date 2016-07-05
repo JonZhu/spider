@@ -27,23 +27,43 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	
 	@Override
 	public void createFetchUrl(String dataDir, final FetchUrlPo fetchUrl) throws Exception {
-		fetchUrl.setInsertTime(new Time(System.currentTimeMillis()));
-		fetchUrl.setModifytime(fetchUrl.getInsertTime());
-		
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
-		DsUtils.doInTrans(ds, new IAction<Long>() {
-
+		DsUtils.doInTrans(ds, new IAction<Void>() {
 			@Override
-			public Long action(Connection conn) throws Exception {
-				String sql = "insert into fetchurl(url, status, inserttime, modifytime) values(?,?,?,?)";
-				long id = QUERY_RUNNER.insert(conn, sql, new ScalarHandler<Long>(), fetchUrl.getUrl(), 
-						fetchUrl.getStatus(), fetchUrl.getInsertTime(), fetchUrl.getModifytime());
-				fetchUrl.setId(id);
-				return id;
+			public Void action(Connection conn) throws Exception {
+				createFetchUrlPo(conn, fetchUrl);
+				return null;
 			}
 		});
 		
 	}
+	
+	public void createFetchUrl(String dataDir, final List<FetchUrlPo> fetchUrlList) throws Exception {
+		if (fetchUrlList == null || fetchUrlList.isEmpty()) {
+			return;
+		}
+		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
+		DsUtils.doInTrans(ds, new IAction<Void>() {
+			@Override
+			public Void action(Connection conn) throws Exception {
+				for (FetchUrlPo fetchUrlPo : fetchUrlList) {
+					createFetchUrlPo(conn, fetchUrlPo);
+				}
+				return null;
+			}
+		});
+	}
+	
+	protected void createFetchUrlPo(Connection conn, FetchUrlPo urlPo) throws SQLException {
+		urlPo.setInsertTime(new Time(System.currentTimeMillis()));
+		urlPo.setModifytime(urlPo.getInsertTime());
+		String sql = "insert into fetchurl(url, status, inserttime, modifytime) values(?,?,?,?)";
+		long id = QUERY_RUNNER.insert(conn, sql, new ScalarHandler<Long>(), urlPo.getUrl(), 
+				urlPo.getStatus(), urlPo.getInsertTime(), urlPo.getModifytime());
+		urlPo.setId(id);
+	}
+	
+	
 
 	@Override
 	public List<FetchUrlPo> getGiveOutUrls(String dataDir) throws Exception {
