@@ -24,7 +24,7 @@ public class MinaClient {
 	private SocketAddress remoteAddress;
 	private IoConnector connector;
 	private IoSession session;
-	
+	private ClientHandler clientHandler;
 	
 	public MinaClient(SocketAddress remoteAddress) {
 		this.remoteAddress = remoteAddress;
@@ -38,7 +38,8 @@ public class MinaClient {
 		connector.getFilterChain().addLast("logger", new LoggingFilter());
 		connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new NetMessageCodecFactory()));
 		
-		connector.setHandler(new ClientHandler());
+		clientHandler = new ClientHandler(); 
+		connector.setHandler(clientHandler);
 		
 		connector.setConnectTimeoutMillis(5000);
 		ConnectFuture connectFuture = connector.connect(remoteAddress);
@@ -62,6 +63,33 @@ public class MinaClient {
 		}
 		
 		session.write(netMsg);
+	}
+	
+	/**
+	 * 等待消息
+	 * 
+	 * <p>阻塞等待一次某类型的消息, 超时返回null</p>
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月5日
+	 *
+	 * @param msgAction 消息的Action类型
+	 * @param timeoutMs 超时毫秒
+	 * @return
+	 */
+	public SpiderNetMessage waitMsg(String msgAction, long timeoutMs) {
+		
+		WaitMsgLock lock = new WaitMsgLock();
+		synchronized (lock) {
+			clientHandler.addWaitMsgLock(msgAction, lock);
+			try {
+				lock.wait(timeoutMs);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return lock.msg;
 	}
 	
 }
