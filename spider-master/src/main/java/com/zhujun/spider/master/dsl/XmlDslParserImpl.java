@@ -53,7 +53,7 @@ public class XmlDslParserImpl implements DslParser {
 				throw new RuntimeException("spider的datadir属性不能为空");
 			}
 			xmlSpider.setDataDir(dataDir);
-			xmlSpider.setName(getActionName(rootEle));
+			xmlSpider.setName(rootEle.attributeValue("name"));
 			xmlSpider.setAuthor(rootEle.attributeValue("author"));
 			
 			List<Element> eleList = rootEle.elements();
@@ -104,7 +104,7 @@ public class XmlDslParserImpl implements DslParser {
 		
 		UrlSetImpl urlSet = new UrlSetImpl();
 		urlSet.setUrltemplate(urltemplate);
-		urlSet.setName(getActionName(element));
+		urlSet.setId(getActionId(element));
 		
 		List<Integer> indexList = new ArrayList<>();
 		Map<Integer, String> typeMap = new HashMap<>();
@@ -169,7 +169,7 @@ public class XmlDslParserImpl implements DslParser {
 		PagingImpl paging = new PagingImpl();
 		paging.setSelect(select);
 		paging.setUrlAttr(urlattr);
-		paging.setName(getActionName(pagingEle));
+		paging.setId(getActionId(pagingEle));
 		
 		return paging;
 	}
@@ -197,7 +197,7 @@ public class XmlDslParserImpl implements DslParser {
 		dataTransition.setSelect(select);
 		dataTransition.setAttr(attr);
 		dataTransition.setRegex(regex);
-		dataTransition.setName(getActionName(element));
+		dataTransition.setId(getActionId(element));
 		
 		return dataTransition;
 	}
@@ -210,13 +210,13 @@ public class XmlDslParserImpl implements DslParser {
 		
 		UrlImpl url = new UrlImpl();
 		url.setHref(href);
-		url.setName(getActionName(element));
+		url.setId(getActionId(element));
 		
 		return url;
 	}
 
-	private String getActionName(Element element) {
-		return element.attributeValue("name");
+	private String getActionId(Element element) {
+		return element.attributeValue("id");
 	}
 
 }

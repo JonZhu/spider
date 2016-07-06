@@ -73,11 +73,13 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 				
 				// 储存dsl
 				if (spider instanceof XmlSpider) {
+					XmlSpider xmlSpider = (XmlSpider)spider;
 					File dslFile = new File(spiderDataDir, "spiderdsl.xml");
 					Writer dslWriter = null;
 					try {
 						dslWriter = new OutputStreamWriter(new FileOutputStream(dslFile));
-						((XmlSpider) spider).getSpiderDslDoc().write(dslWriter);
+						xmlSpider.getSpiderDslDoc().getRootElement().addAttribute("id", taskPo.getId());
+						xmlSpider.getSpiderDslDoc().write(dslWriter);
 					} finally {
 						IOUtils.closeQuietly(dslWriter);
 					}

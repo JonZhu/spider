@@ -3,7 +3,6 @@ package com.zhujun.spider.master.schedule;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.zhujun.spider.master.data.writer.FileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Spider;
+import com.zhujun.spider.master.domain.internal.XmlSpider;
 
 public class SpiderScheduleThread extends Thread {
 
@@ -29,11 +29,14 @@ public class SpiderScheduleThread extends Thread {
 		}
 		this.taskId = taskId;
 		this.spider = spider;
+		if (spider instanceof XmlSpider) {
+			((XmlSpider) spider).setId(taskId);
+		}
 	}
 
 	@Override
 	public void run() {
-		LOG.debug("开始执行spider [{}]", spider.getName());
+		LOG.debug("开始执行spider [{}]", spider.getId());
 		
 		SpiderActionExecutor executor = new SpiderActionExecutor();
 		Map<String, Object> dataScope = new HashMap<>(); // 初始化
@@ -50,7 +53,7 @@ public class SpiderScheduleThread extends Thread {
 		try {
 			executor.execute(spider, spider, dataScope);
 		} catch (Exception e) {
-			LOG.error("任务执行出错, name:{}, datadir:{}", spider.getName(), spider.getDataDir(), e);
+			LOG.error("任务执行出错, name:{}, datadir:{}", spider.getId(), spider.getDataDir(), e);
 		}
 	}
 	

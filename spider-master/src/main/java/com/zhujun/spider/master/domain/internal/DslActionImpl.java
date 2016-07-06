@@ -4,15 +4,15 @@ import com.zhujun.spider.master.domain.DslAction;
 
 public class DslActionImpl implements DslAction {
 
-	private String name;
+	private String id;
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setId(String name) {
+		this.id = name;
 	}
 
 	@Override
-	public String getName() {
-		return name;
+	public String getId() {
+		return id;
 	}
 
 }

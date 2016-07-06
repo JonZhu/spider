@@ -9,8 +9,8 @@ package com.zhujun.spider.master.domain;
 public interface DslAction {
 
 	/**
-	 * 名称
+	 * id
 	 */
-	String getName();
+	String getId();
 	
 }

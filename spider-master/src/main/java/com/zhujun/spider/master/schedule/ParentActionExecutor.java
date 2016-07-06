@@ -33,7 +33,7 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 			for (DslAction child : children) {
 				ActionExecutor childExecutor = getActionExecutor(child);
 				if (childExecutor == null) {
-					throw new RuntimeException("找不到Action["+ child.getName() +"]的执行器");
+					throw new RuntimeException("找不到Action["+ child.getId() +"]的执行器");
 				}
 				childExecutor.execute(spider, child, dataScope);
 			}

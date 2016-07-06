@@ -6,6 +6,8 @@ import com.zhujun.spider.master.domain.Spider;
 
 public class XmlSpider extends DslParentActionImpl implements Spider {
 
+	private String name;
+	
 	private String author;
 	
 	private String dataDir;
@@ -35,6 +37,14 @@ public class XmlSpider extends DslParentActionImpl implements Spider {
 
 	public void setDataDir(String dataDir) {
 		this.dataDir = dataDir;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

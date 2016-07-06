@@ -8,6 +8,8 @@ package com.zhujun.spider.master.domain;
  */
 public interface Spider extends DslParentAction {
 
+	String getName();
+	
 	String getAuthor();
 	
 	String getDataDir();

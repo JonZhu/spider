@@ -28,13 +28,13 @@ public class DataTransitionExecutor implements ActionExecutor {
 		DataTransition dataTransition = (DataTransition)action;
 		Object inputData = dataScope.get(dataTransition.getInput());
 		if (inputData == null) {
-			throw new RuntimeException("DataTransition["+ dataTransition.getName() +"] input数据为空");
+			throw new RuntimeException("DataTransition["+ dataTransition.getId() +"] input数据为空");
 		}
 		
 		Document htmlDoc = Jsoup.parse(ScheduleUtil.obj2str(inputData));
 		Elements selectElements = htmlDoc.select(dataTransition.getSelect());
 		if (selectElements.isEmpty()) {
-			dataScope.put(dataTransition.getName(), "");
+			dataScope.put(dataTransition.getId(), "");
 			return;
 		}
 		
@@ -66,7 +66,7 @@ public class DataTransitionExecutor implements ActionExecutor {
 		}
 		
 		// 存储结果
-		dataScope.put(dataTransition.getName(), valueBuilder.toString());
+		dataScope.put(dataTransition.getId(), valueBuilder.toString());
 
 	}
 

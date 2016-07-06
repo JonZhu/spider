@@ -31,8 +31,8 @@ public class UrlExecutor implements ActionExecutor {
 		SpiderDataWriter writer = (SpiderDataWriter)dataScope.get(ScheduleConst.DATA_WRITER_KEY);
 		writer.write(urlAction.getHref(), new Date(), content);
 		
-		if (StringUtils.isNotBlank(urlAction.getName())) {
-			dataScope.put(urlAction.getName(), content); // content写入scope,供后面的action使用
+		if (StringUtils.isNotBlank(urlAction.getId())) {
+			dataScope.put(urlAction.getId(), content); // content写入scope,供后面的action使用
 		}
 	}
 

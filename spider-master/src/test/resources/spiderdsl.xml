@@ -4,12 +4,12 @@
 <!-- 	<urlset urltemplate="http://item.jd.com/{1}.html" temp1type="int" temp1start="1" temp1end="1000000"></urlset> -->
 
 	<!-- 城市 -->
-	<url name="city" href="http://www.meituan.com/index/changecity/initiative"></url>
-	<datatran name="cityDataProcess" input="city" select=".hasallcity li a.isonline" attr="href" regex="http://([\d\w]+)"></datatran>
+	<url id="city" href="http://www.meituan.com/index/changecity/initiative"></url>
+	<datatran id="cityDataProcess" input="city" select=".hasallcity li a.isonline" attr="href" regex="http://([\d\w]+)"></datatran>
 	
 	<!-- 分类 -->
-	<url name="category" href="http://cd.meituan.com"></url>
-	<datatran name="categoryDataProcess" input="category" select=".nav-level2-keywords--content li a.keywords__item" attr="href" regex="/([\d\w]+)$"></datatran>
+	<url id="category" href="http://cd.meituan.com"></url>
+	<datatran id="categoryDataProcess" input="category" select=".nav-level2-keywords--content li a.keywords__item" attr="href" regex="/([\d\w]+)$"></datatran>
 	
 	<!-- 列表 temp序号越小,变化速度越小 -->
 	<urlset urltemplate="http://{1}.meituan.com/category/{2}" temp1type="enum" temp2type="enum">
