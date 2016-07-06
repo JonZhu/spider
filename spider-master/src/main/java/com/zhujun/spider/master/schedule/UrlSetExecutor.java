@@ -117,6 +117,13 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		
 		// TODO 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
 		
+		/**
+		 * 记录设计思路：
+		 * 1. 任务progress保存, 使任务可以断续从中间某点执行。
+		 * 实现：action执行完后，记录执行位置点到datascope，同时序列化并保存datascope到磁盘，
+		 * 在任务下次运行时，从磁盘加载datascope，执行action，如果action在 执行位置点之前，则跳过。
+		 * 
+		 */
 
 	}
 
