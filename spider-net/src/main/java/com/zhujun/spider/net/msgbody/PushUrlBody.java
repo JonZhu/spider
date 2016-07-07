@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * @date 2016年7月4日
  *
  */
-public class PushUrlBody extends ArrayList<String> {
+public class PushUrlBody extends ArrayList<PushUrlBodyItem> {
 
 	/**
 	 * 

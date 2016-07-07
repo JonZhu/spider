@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.net.SpiderNetMessage;
+import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
 import com.zhujun.spider.worker.FetchUrlQueue;
 import com.zhujun.spider.worker.mina.MinaClient;
 
@@ -35,21 +36,24 @@ public class FetchWorker implements Runnable {
 	public void run() {
 		while (!Thread.currentThread().isInterrupted()) {
 			
-			String url = getUrlFromQueue();
+			PushUrlBodyItem item = getUrlFromQueue();
 			SpiderNetMessage netMsg = new SpiderNetMessage();
 			netMsg.setHeader("Action", "Push-fetch-data");
-			netMsg.setHeader("Fetch-url", url);
+			netMsg.setHeader("Fetch-url", item.url);
 			
 			byte[] content = null;
 			try {
-				content = CONTENT_FETCHER.fetch(url);
+				content = CONTENT_FETCHER.fetch(item.url);
 				netMsg.setHeader("Fetch-Result", "Success");
 				netMsg.setBody(content);
 			} catch (Exception e) {
-				LOG.error("获取url[{}]数据失败", url, e);
+				LOG.error("获取url[{}]数据失败", item.url, e);
 			}
 			
 			netMsg.setHeader("Fetch-time", String.valueOf(System.currentTimeMillis()));
+			netMsg.setHeader("Task_id", item.taskId);
+			netMsg.setHeader("Action_id", item.actionId);
+			netMsg.setHeader("Url_id", String.valueOf(item.id));
 			
 			pushData2master(netMsg);
 		}
@@ -76,8 +80,8 @@ public class FetchWorker implements Runnable {
 	 *
 	 * @return
 	 */
-	private String getUrlFromQueue() {
-		String url = null;
+	private PushUrlBodyItem getUrlFromQueue() {
+		PushUrlBodyItem url = null;
 		
 		synchronized (FetchUrlQueue.DATA) {
 			if (FetchUrlQueue.DATA.isEmpty()) {

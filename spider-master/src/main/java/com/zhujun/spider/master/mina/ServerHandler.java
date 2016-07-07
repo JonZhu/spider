@@ -18,6 +18,7 @@ import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.net.SpiderNetMessage;
 import com.zhujun.spider.net.msgbody.PushUrlBody;
+import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
 
 public class ServerHandler implements IoHandler {
 
@@ -81,6 +82,9 @@ public class ServerHandler implements IoHandler {
 		String url = netMsg.getHeader("Fetch-url");
 		boolean success = "Success".equals(netMsg.getHeader("Fetch-Result"));
 		byte[] data = netMsg.getBody();
+		String taskId = netMsg.getHeader("Task_id");
+		String actionId = netMsg.getHeader("Action_id");
+		String urlId = netMsg.getHeader("Url_id");
 		
 		
 	}
@@ -106,7 +110,11 @@ public class ServerHandler implements IoHandler {
 				List<FetchUrlPo> urlList = fetchUrlService.getGiveOutUrls(task.getRight().getDataDir());
 				PushUrlBody body = new PushUrlBody();
 				for (FetchUrlPo urlPo : urlList) {
-					body.add(urlPo.getUrl());
+					PushUrlBodyItem item = new PushUrlBodyItem();
+					item.url = urlPo.getUrl();
+					item.id = urlPo.getId();
+					item.actionId = urlPo.getActionId();
+					body.add(item);
 				}
 				
 				netMsg.setBody(new ObjectMapper().writeValueAsBytes(body));

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhujun.spider.net.SpiderNetMessage;
 import com.zhujun.spider.net.msgbody.PushUrlBody;
+import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
 import com.zhujun.spider.worker.mina.MinaClient;
 
 /**
@@ -29,7 +30,7 @@ public class PullUrlThread extends Thread {
 	
 	@Override
 	public void run() {
-		final Queue<String> queue = FetchUrlQueue.DATA;
+		final Queue<PushUrlBodyItem> queue = FetchUrlQueue.DATA;
 		
 		while (!Thread.currentThread().isInterrupted()) {
 			synchronized (queue) {
@@ -53,9 +54,11 @@ public class PullUrlThread extends Thread {
 				String status = pushUrlMsg.getHeader("Status");
 				if ("200".equals(status)) {
 					// 正常响应
+					
+					String taskId = pushUrlMsg.getHeader("Task-id");
 					try {
 						PushUrlBody body = new ObjectMapper().readValue(pushUrlMsg.getBody(), PushUrlBody.class);
-						addUrlData2queue(body, queue);
+						addUrlData2queue(taskId, body, queue);
 						needSleep = false; // 正常逻辑, 不用sleep
 					} catch (Exception e) {
 						LOG.error("解析json出错", e);
@@ -77,14 +80,15 @@ public class PullUrlThread extends Thread {
 		}
 	}
 
-	private void addUrlData2queue(PushUrlBody body, Queue<String> queue) {
+	private void addUrlData2queue(String taskId, PushUrlBody body, Queue<PushUrlBodyItem> queue) {
 		if (body == null || body.isEmpty()) {
 			return;
 		}
 		
 		synchronized (queue) {
-			for (String url : body) {
-				queue.add(url);
+			for (PushUrlBodyItem item : body) {
+				item.taskId = taskId;
+				queue.add(item);
 			}
 			
 			queue.notifyAll(); // 有新数据, 激活消费者

@@ -9,8 +9,12 @@ package com.zhujun.spider.net.msgbody;
  */
 public class PushUrlBodyItem {
 
+	public String taskId;
+	
+	public Integer id;
+	
 	public String url;
 	
-	
+	public String actionId;
 	
 }
