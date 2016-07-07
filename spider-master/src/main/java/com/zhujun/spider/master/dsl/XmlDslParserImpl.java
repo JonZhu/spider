@@ -105,6 +105,9 @@ public class XmlDslParserImpl implements DslParser {
 		UrlSetImpl urlSet = new UrlSetImpl();
 		urlSet.setUrltemplate(urltemplate);
 		urlSet.setId(getActionId(element));
+		if (StringUtils.isBlank(urlSet.getId())) {
+			throw new RuntimeException("urlset的id属性不能为空");
+		}
 		
 		List<Integer> indexList = new ArrayList<>();
 		Map<Integer, String> typeMap = new HashMap<>();

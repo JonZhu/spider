@@ -32,7 +32,8 @@ public class SpiderDbInit implements DbInit {
 							+ "url varchar(500) not null,"
 							+ "status int not null,"
 							+ "inserttime datetime not null,"
-							+ "modifytime datetime not null"
+							+ "modifytime datetime not null,"
+							+ "actionid varchar(100)"
 							+ ");";
 					queryRunner.update(conn, spiderTaskSql);
 					

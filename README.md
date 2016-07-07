@@ -101,6 +101,10 @@ spider_task表，用于储存master系统中spider任务列表。
 		<td>spider.db</td>
 		<td>该spider任务运行数据，为sqlite文件</td>
 	</tr>
+	<tr>
+		<td>datascope.bin</td>
+		<td>任务运行时,数据域,为任务继续执行做支持</td>
+	</tr>
 </table>
 
 
@@ -155,6 +159,14 @@ fetchurl表，用于记录抓取的url任务及状态。
 		<td>N</td>
 		<td>N</td>
 		<td>最后更新时间</td>
+	</tr>
+	<tr>
+		<td>actionid</td>
+		<td>varchar(100)</td>
+		<td>Y</td>
+		<td>N</td>
+		<td>N</td>
+		<td>spider中哪个action生成的url</td>
 	</tr>
 </table>
 

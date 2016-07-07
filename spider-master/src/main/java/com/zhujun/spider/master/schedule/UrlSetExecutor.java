@@ -45,6 +45,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 			urlList.add(urlSet.getUrltemplate());
 			FetchUrlPo urlPo = new FetchUrlPo();
 			urlPo.setUrl(urlSet.getUrltemplate());
+			urlPo.setActionId(urlSet.getId());
 		} else {
 			// 填充模板值
 			SequenceItem[] sequenceItems = new SequenceItem[indexList.size()];
@@ -78,6 +79,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				urlList.add(url);
 				FetchUrlPo urlPo = new FetchUrlPo();
 				urlPo.setUrl(url);
+				urlPo.setActionId(urlSet.getId());
 				urlPoList.add(urlPo);
 				
 				if (urlPoList.size() > 100) {

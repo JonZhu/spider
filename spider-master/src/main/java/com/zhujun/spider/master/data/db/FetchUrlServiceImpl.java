@@ -57,9 +57,9 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	protected void createFetchUrlPo(Connection conn, FetchUrlPo urlPo) throws SQLException {
 		urlPo.setInsertTime(new Time(System.currentTimeMillis()));
 		urlPo.setModifytime(urlPo.getInsertTime());
-		String sql = "insert into fetchurl(url, status, inserttime, modifytime) values(?,?,?,?)";
+		String sql = "insert into fetchurl(url, status, inserttime, modifytime, actionid) values(?,?,?,?,?)";
 		int id = QUERY_RUNNER.insert(conn, sql, new ScalarHandler<Integer>(), urlPo.getUrl(), 
-				urlPo.getStatus(), urlPo.getInsertTime(), urlPo.getModifytime());
+				urlPo.getStatus(), urlPo.getInsertTime(), urlPo.getModifytime(), urlPo.getActionId());
 		urlPo.setId(id);
 	}
 	
@@ -76,7 +76,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 				List<FetchUrlPo> urlList = new ArrayList<>();
 				
 				// 查询未下发过的url
-				String sql = "select id, url, status, inserttime, modifytime from fetchurl where status = 0 limit ?";
+				String sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 0 limit ?";
 				FetchUrlPoResultHandler resultHandler = new FetchUrlPoResultHandler();
 				List<FetchUrlPo> unGiveOutUrls = QUERY_RUNNER.query(conn, sql, resultHandler, count);
 				urlList.addAll(unGiveOutUrls);
@@ -88,7 +88,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 					calendar.setTime(time);
 					calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - 2);
 					time.setTime(calendar.getTimeInMillis());
-					sql = "select id, url, status, inserttime, modifytime from fetchurl where status = 2 and modifytime < ? limit ?";
+					sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 2 and modifytime < ? limit ?";
 					
 					List<FetchUrlPo> unPushUrls = QUERY_RUNNER.query(conn, sql, resultHandler, time, count - urlList.size());
 					urlList.addAll(unPushUrls);
@@ -96,7 +96,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 				
 				if (urlList.size() < count) {
 					// 数据不够, 查询 失败的url
-					sql = "select id, url, status, inserttime, modifytime from fetchurl where status = 4  limit ?";
+					sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 4  limit ?";
 					
 					List<FetchUrlPo> errorUrls = QUERY_RUNNER.query(conn, sql, resultHandler, count - urlList.size());
 					urlList.addAll(errorUrls);
@@ -131,6 +131,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 			po.setModifytime(rs.getTime("modifytime"));
 			po.setStatus(rs.getInt("status"));
 			po.setUrl(rs.getString("url"));
+			po.setActionId(rs.getString("actionid"));
 			return po;
 		}
 		

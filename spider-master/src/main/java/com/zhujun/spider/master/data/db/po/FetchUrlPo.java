@@ -23,6 +23,11 @@ public class FetchUrlPo {
 	private Time insertTime;
 	
 	private Time Modifytime;
+	
+	/**
+	 * spider中哪个action生成的url
+	 */
+	private String actionId;
 
 	public Integer getId() {
 		return id;
@@ -62,6 +67,14 @@ public class FetchUrlPo {
 
 	public void setModifytime(Time modifytime) {
 		Modifytime = modifytime;
+	}
+
+	public String getActionId() {
+		return actionId;
+	}
+
+	public void setActionId(String actionId) {
+		this.actionId = actionId;
 	}
 	
 }
