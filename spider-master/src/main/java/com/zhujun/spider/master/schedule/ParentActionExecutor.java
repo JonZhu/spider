@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.schedule;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -66,7 +67,8 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 	private void persistDataScope(Map<String, Serializable> dataScope) throws FileNotFoundException, IOException {
 		ObjectOutputStream oos = null;
 		try {
-			oos = new ObjectOutputStream(new FileOutputStream("e:/tmp/datascope.bin"));
+			File persistFile = new File((String)dataScope.get(ScheduleConst.TASK_DATA_DIR_KEY), (String)dataScope.get(ScheduleConst.DATA_SCOPE_PERSISENT_NAME_KEY));
+			oos = new ObjectOutputStream(new FileOutputStream(persistFile));
 			oos.writeObject(dataScope);
 			oos.flush();
 		} finally {

@@ -39,9 +39,12 @@ public class SpiderScheduleThread extends Thread {
 	public void run() {
 		LOG.debug("开始执行spider [{}]", spider.getId());
 		
-		SpiderActionExecutor executor = new SpiderActionExecutor();
+		final String dataScopePersisentName = "datascope.bin"; // data域持久化文件名
+		
 		Map<String, Serializable> dataScope = new HashMap<>(); // 数据域, 在执行过程中, 该数据会被持久化, 用于任务下次继续执行
-		dataScope.put(ScheduleConst.TASK_ID_KEY, taskId); // 分配运行id
+		dataScope.put(ScheduleConst.TASK_ID_KEY, taskId); // 任务id
+		dataScope.put(ScheduleConst.TASK_DATA_DIR_KEY, spider.getDataDir());
+		dataScope.put(ScheduleConst.DATA_SCOPE_PERSISENT_NAME_KEY, dataScopePersisentName);
 		
 		// 构建数据存储写入器
 		File dataDir = new File(spider.getDataDir());
@@ -58,7 +61,7 @@ public class SpiderScheduleThread extends Thread {
 		context.setDataScope(dataScope);
 		
 		try {
-			executor.execute(context);
+			new SpiderActionExecutor().execute(context);
 		} catch (Exception e) {
 			LOG.error("任务执行出错, name:{}, datadir:{}", spider.getId(), spider.getDataDir(), e);
 		}

@@ -12,7 +12,9 @@ public interface ScheduleConst {
 	/**
 	 * Data Scope中的spider taskId key
 	 */
-	String TASK_ID_KEY = "spider.run.id";
+	String TASK_ID_KEY = "spider.task.id";
+	
+	String TASK_DATA_DIR_KEY = "spider.task.datadir";
 	
 	/**
 	 * 前置结果数据
@@ -25,6 +27,11 @@ public interface ScheduleConst {
 	String PRE_RESULT_URL_KEY = "spider.preresult.url";
 	
 	/**
+	 * 数据域持久化名称
+	 */
+	String DATA_SCOPE_PERSISENT_NAME_KEY = "spider.datascope.persistent.name";
+	
+	/**
 	 * enum值分隔符
 	 */
 	String ENUM_VALUE_SEPARATOR = ";";
@@ -33,5 +40,6 @@ public interface ScheduleConst {
 	 * 回车换行
 	 */
 	String CRNL = "\r\n";
+
 	
 }
