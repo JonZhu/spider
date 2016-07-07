@@ -1,10 +1,15 @@
 package com.zhujun.spider.master.schedule;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +46,17 @@ public class SpiderScheduleThread extends Thread {
 		
 		final String dataScopePersisentName = "datascope.bin"; // data域持久化文件名
 		
-		Map<String, Serializable> dataScope = new HashMap<>(); // 数据域, 在执行过程中, 该数据会被持久化, 用于任务下次继续执行
+		File dataScopeFile = new File(spider.getDataDir(), dataScopePersisentName);
+		Map<String, Serializable> dataScope = loadDataScope(dataScopeFile);
+		if (dataScope == null) {
+			dataScope = new HashMap<>(); // 数据域, 在执行过程中, 该数据会被持久化, 用于任务下次继续执行
+			dataScope.put(ScheduleConst.DATA_SCOPE_PERSISENT_NAME_KEY, dataScopePersisentName);
+		} else {
+			// 设置history progress
+			setHistoryProgress(dataScope);
+		}
 		dataScope.put(ScheduleConst.TASK_ID_KEY, taskId); // 任务id
 		dataScope.put(ScheduleConst.TASK_DATA_DIR_KEY, spider.getDataDir());
-		dataScope.put(ScheduleConst.DATA_SCOPE_PERSISENT_NAME_KEY, dataScopePersisentName);
 		
 		// 构建数据存储写入器
 		File dataDir = new File(spider.getDataDir());
@@ -68,6 +80,47 @@ public class SpiderScheduleThread extends Thread {
 	}
 	
 	
+	private void setHistoryProgress(Map<String, Serializable> dataScope) {
+		if (!dataScope.containsKey(ScheduleConst.HISTORY_PROGRESS_KEY)) {
+			String progress = (String)dataScope.get(ScheduleConst.PROGRESS_KEY);
+			if (progress != null) {
+				dataScope.put(ScheduleConst.HISTORY_PROGRESS_KEY, progress);
+			}
+		}
+		
+		// 总是清除progress
+		dataScope.remove(ScheduleConst.PROGRESS_KEY);
+	}
+
+	/**
+	 * 加载 dataScope数据, 不存在返回null
+	 * @author zhujun
+	 * @date 2016年7月7日
+	 *
+	 * @param dataScopeFile
+	 * @return
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 */
+	private Map<String, Serializable> loadDataScope(File dataScopeFile) {
+		if (!dataScopeFile.exists()) {
+			return null;
+		}
+		
+		ObjectInputStream ois = null;
+		try {
+			
+			ois = new ObjectInputStream(new FileInputStream(dataScopeFile));
+			return (Map<String, Serializable>)ois.readObject();
+		} catch (Exception e) {
+			LOG.error("加载data scope出错", e);
+		} finally {
+			IOUtils.closeQuietly(ois);
+		}
+		
+		return null;
+	}
+
 	public Spider getSpider() {
 		return this.spider;
 	}

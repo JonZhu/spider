@@ -32,6 +32,13 @@ public interface ScheduleConst {
 	String DATA_SCOPE_PERSISENT_NAME_KEY = "spider.datascope.persistent.name";
 	
 	/**
+	 * 执行进度, 如 0, 1, 1:0, 1:1, 2, 3
+	 */
+	String PROGRESS_KEY = "spider.progress";
+	
+	String HISTORY_PROGRESS_KEY = "spider.progress.history";
+	
+	/**
 	 * enum值分隔符
 	 */
 	String ENUM_VALUE_SEPARATOR = ";";
