@@ -1,11 +1,9 @@
 package com.zhujun.spider.master.schedule;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.zhujun.spider.master.contentfetcher.ContentFetcher;
 import com.zhujun.spider.master.contentfetcher.JavaUrlContentFetcher;
@@ -13,7 +11,6 @@ import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.di.DIContext;
-import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.UrlSet;
 
@@ -29,8 +26,10 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
 	
 	@Override
-	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) throws Exception {
-		UrlSet urlSet = (UrlSet)action;
+	public void execute(IScheduleContext context) throws Exception {
+		UrlSet urlSet = (UrlSet)context.getAction();
+		Spider spider = context.getSpider();
+		Map<String, Serializable> dataScope = context.getDataScope();
 		
 		ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
 		
@@ -95,7 +94,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		}
 		
 		
-		SpiderDataWriter writer = (SpiderDataWriter)dataScope.get(ScheduleConst.DATA_WRITER_KEY);
+		SpiderDataWriter writer = context.getDataWriter();
 //		// 内容抓取
 //		for (String url : urlList) {
 //			byte[] content = contentFetcher.fetch(url);

@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.schedule;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,16 +9,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Paging;
-import com.zhujun.spider.master.domain.Spider;
 
 public class PagingExecutor implements ActionExecutor {
 
 	@Override
-	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) {
-		Paging paging = (Paging)action;
-
+	public void execute(IScheduleContext context) {
+		Paging paging = (Paging)context.getAction();
+		Map<String, Serializable> dataScope = context.getDataScope();
+		
 		String currentPageUrl = (String)dataScope.get(ScheduleConst.PRE_RESULT_URL_KEY); // 数据页url
 		String currentPage = ScheduleUtil.obj2str(dataScope.get(ScheduleConst.PRE_RESULT_DATA_KEY)); // 获取数据
 		Document doc = Jsoup.parse(currentPage, currentPageUrl);

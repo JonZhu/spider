@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.schedule;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,8 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.zhujun.spider.master.domain.DataTransition;
-import com.zhujun.spider.master.domain.DslAction;
-import com.zhujun.spider.master.domain.Spider;
 
 /**
  * 数据转换
@@ -24,8 +23,9 @@ import com.zhujun.spider.master.domain.Spider;
 public class DataTransitionExecutor implements ActionExecutor {
 
 	@Override
-	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) {
-		DataTransition dataTransition = (DataTransition)action;
+	public void execute(IScheduleContext context) {
+		DataTransition dataTransition = (DataTransition)context.getAction();
+		Map<String, Serializable> dataScope = context.getDataScope();
 		Object inputData = dataScope.get(dataTransition.getInput());
 		if (inputData == null) {
 			throw new RuntimeException("DataTransition["+ dataTransition.getId() +"] input数据为空");

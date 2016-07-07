@@ -1,10 +1,5 @@
 package com.zhujun.spider.master.schedule;
 
-import java.util.Map;
-
-import com.zhujun.spider.master.domain.DslAction;
-import com.zhujun.spider.master.domain.Spider;
-
 /**
  * Action执行
  * 
@@ -21,6 +16,6 @@ public interface ActionExecutor {
 	 * @param action 当前action
 	 * @param dataScope 数据域
 	 */
-	void execute(Spider spider, DslAction action, Map<String, Object> dataScope) throws Exception;
+	void execute(IScheduleContext context) throws Exception;
 	
 }

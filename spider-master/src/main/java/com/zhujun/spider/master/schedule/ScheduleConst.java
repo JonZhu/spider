@@ -15,11 +15,6 @@ public interface ScheduleConst {
 	String TASK_ID_KEY = "spider.run.id";
 	
 	/**
-	 * Data Scope中的写数据 key
-	 */
-	String DATA_WRITER_KEY = "spider.datawriter";
-	
-	/**
 	 * 前置结果数据
 	 */
 	String PRE_RESULT_DATA_KEY = "spider.preresult.data";

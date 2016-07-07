@@ -1,6 +1,7 @@
 package com.zhujun.spider.master.schedule;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class SpiderScheduleThread extends Thread {
 		LOG.debug("开始执行spider [{}]", spider.getId());
 		
 		SpiderActionExecutor executor = new SpiderActionExecutor();
-		Map<String, Object> dataScope = new HashMap<>(); // 初始化
+		Map<String, Serializable> dataScope = new HashMap<>(); // 数据域, 在执行过程中, 该数据会被持久化, 用于任务下次继续执行
 		dataScope.put(ScheduleConst.TASK_ID_KEY, taskId); // 分配运行id
 		
 		// 构建数据存储写入器
@@ -48,10 +49,16 @@ public class SpiderScheduleThread extends Thread {
 			dataDir.mkdirs();
 		}
 		SpiderDataWriter dataWriter = new FileDataWriterImpl(new File(dataDir, "data").getAbsolutePath());
-		dataScope.put(ScheduleConst.DATA_WRITER_KEY, dataWriter);
+		
+		// 初始化context
+		ScheduleContextImpl context = new ScheduleContextImpl();
+		context.setSpider(spider);
+		context.setAction(spider);
+		context.setDataWriter(dataWriter);
+		context.setDataScope(dataScope);
 		
 		try {
-			executor.execute(spider, spider, dataScope);
+			executor.execute(context);
 		} catch (Exception e) {
 			LOG.error("任务执行出错, name:{}, datadir:{}", spider.getId(), spider.getDataDir(), e);
 		}

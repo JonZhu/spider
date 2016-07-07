@@ -1,13 +1,19 @@
 package com.zhujun.spider.master.schedule;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 
 import com.zhujun.spider.master.domain.DataTransition;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.DslParentAction;
 import com.zhujun.spider.master.domain.Paging;
-import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.Url;
 import com.zhujun.spider.master.domain.UrlSet;
 
@@ -21,9 +27,11 @@ import com.zhujun.spider.master.domain.UrlSet;
 public abstract class ParentActionExecutor implements ActionExecutor {
 
 	@Override
-	public void execute(Spider spider, DslAction action, Map<String, Object> dataScope) throws Exception {
+	public void execute(IScheduleContext context) throws Exception {
+		DslAction action = context.getAction();
 		
 		if (action instanceof DslParentAction) {
+			Map<String, Serializable> dataScope = context.getDataScope();
 			DslParentAction parentAction = (DslParentAction)action;
 			List<DslAction> children = parentAction.getChildren();
 			if (children == null || children.isEmpty()) {
@@ -35,11 +43,36 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 				if (childExecutor == null) {
 					throw new RuntimeException("找不到Action["+ child.getId() +"]的执行器");
 				}
-				childExecutor.execute(spider, child, dataScope);
+				
+				context.setAction(child);
+				childExecutor.execute(context);
+				
+				persistDataScope(dataScope);
 			}
 			
 		}
 
+	}
+
+	/**
+	 * 持久化数据
+	 * @author zhujun
+	 * @date 2016年7月7日
+	 *
+	 * @param dataScope
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 */
+	private void persistDataScope(Map<String, Serializable> dataScope) throws FileNotFoundException, IOException {
+		ObjectOutputStream oos = null;
+		try {
+			oos = new ObjectOutputStream(new FileOutputStream("e:/tmp/datascope.bin"));
+			oos.writeObject(dataScope);
+			oos.flush();
+		} finally {
+			IOUtils.closeQuietly(oos);
+		}
+		
 	}
 
 	private ActionExecutor getActionExecutor(DslAction action) {
