@@ -3,7 +3,6 @@ package com.zhujun.spider.master.mina;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
@@ -63,7 +62,6 @@ public class ServerHandler implements IoHandler {
 	@Override
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		if (message instanceof SpiderNetMessage) {
-			System.out.println(ToStringBuilder.reflectionToString(message));
 			SpiderNetMessage netMsg = (SpiderNetMessage)message;
 			String action = netMsg.getHeader("Action");
 			

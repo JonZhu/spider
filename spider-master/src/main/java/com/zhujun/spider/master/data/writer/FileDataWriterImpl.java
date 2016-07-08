@@ -125,7 +125,7 @@ public class FileDataWriterImpl implements SpiderDataWriter {
 	 * @return
 	 */
 	private File findWritingFileFromDir(File dir) {
-		final String fileNamePrefix = new File(fileName).getName();
+		final String fileNamePrefix = new File(fileName).getName() + "-";
 		File[] files = dir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
