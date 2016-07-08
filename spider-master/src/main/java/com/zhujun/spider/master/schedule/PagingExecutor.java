@@ -23,7 +23,7 @@ public class PagingExecutor implements ActionExecutor {
 		Document doc = Jsoup.parse(currentPage, currentPageUrl);
 		
 		Elements selectedEles = doc.select(paging.getSelect());
-		if (selectedEles == null && selectedEles.isEmpty()) {
+		if (selectedEles == null || selectedEles.isEmpty()) {
 			return;
 		}
 		

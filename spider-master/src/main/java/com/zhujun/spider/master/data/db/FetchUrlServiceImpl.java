@@ -80,7 +80,9 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 				String sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 0 limit ?";
 				FetchUrlPoResultHandler resultHandler = new FetchUrlPoResultHandler();
 				List<FetchUrlPo> unGiveOutUrls = QUERY_RUNNER.query(conn, sql, resultHandler, count);
-				urlList.addAll(unGiveOutUrls);
+				if (unGiveOutUrls != null) {
+					urlList.addAll(unGiveOutUrls);
+				}
 				
 				if (urlList.size() < count) {
 					// 数据不够， 查询 下发超过2分钟，但未push结果的url

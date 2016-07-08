@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import com.zhujun.spider.master.schedule.ScheduleConst;
 
@@ -28,11 +29,6 @@ public class FileDataWriterImpl implements SpiderDataWriter {
 	 * 文件大小128M
 	 */
 	private static final int FILE_SIZE = 128 * 1024 *1024;
-	
-	/**
-	 * 文件后缀时间格式化, 如: 20160606153808
-	 */
-	private static final SimpleDateFormat SUFFIX_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 	
 	/**
 	 * 数据文件中, spider haeder time的格式化, 如：2016-06-06T15:38:08
@@ -164,7 +160,8 @@ public class FileDataWriterImpl implements SpiderDataWriter {
 
 
 	private String generateSuffix() {
-		return "-" + SUFFIX_TIME_FORMAT.format(new Date());
+		// 文件后缀时间格式化, 如: 20160606153808
+		return "-" + DateFormatUtils.format(new Date(), "yyyyMMddHHmmss");
 	}
 
 }
