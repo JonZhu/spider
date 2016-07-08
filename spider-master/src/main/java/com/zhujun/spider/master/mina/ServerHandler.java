@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.mina;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,6 +17,8 @@ import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.schedule.IScheduleService;
+import com.zhujun.spider.master.schedule.PushDataQueue;
+import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.net.SpiderNetMessage;
 import com.zhujun.spider.net.msgbody.PushUrlBody;
 import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
@@ -84,9 +87,19 @@ public class ServerHandler implements IoHandler {
 		byte[] data = netMsg.getBody();
 		String taskId = netMsg.getHeader("Task_id");
 		String actionId = netMsg.getHeader("Action_id");
-		String urlId = netMsg.getHeader("Url_id");
+		Integer urlId = Integer.valueOf(netMsg.getHeader("Url_id"));
 		
+		Item item = new Item();
+		item.data = data;
+		item.success = success;
+		item.url = url;
+		item.fetchTime = new Date(Long.valueOf(netMsg.getHeader("Fetch-time")));
+		item.taskId = taskId;
+		item.actionId = actionId;
+		item.urlId = urlId;
 		
+		// 写入数据上传队列, 等待其它线程处理
+		PushDataQueue.addPushData(taskId, actionId, item);
 	}
 
 	/**

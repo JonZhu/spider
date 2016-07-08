@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -134,6 +135,38 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 			po.setActionId(rs.getString("actionid"));
 			return po;
 		}
+		
+	}
+
+
+	@Override
+	public boolean existUnFetchUrlInAction(String dataDir, final String actionId) throws Exception {
+		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
+		return DsUtils.doInTrans(ds, new IAction<Boolean>() {
+
+			@Override
+			public Boolean action(Connection conn) throws Exception {
+				String sql = "select id from fetchurl where actionid = ? and (status = ? or status = ?) limit 1";
+				String id = QUERY_RUNNER.query(conn, sql, new ScalarHandler<String>(), 
+						actionId, FetchUrlPo.STATUS_INIT, FetchUrlPo.STATUS_ERROR);
+				return id != null;
+			}
+			
+		});
+	}
+
+	@Override
+	public int setFetchUrlStatus(String dataDir, final Integer urlId, final int status, final Date time) throws Exception {
+		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
+		return DsUtils.doInTrans(ds, new IAction<Integer>() {
+
+			@Override
+			public Integer action(Connection conn) throws Exception {
+				String sql = "update fetchurl set status = ?, modifytime = ? where id = ?";
+				return QUERY_RUNNER.update(conn, sql, status, new Time(time.getTime()), urlId);
+			}
+			
+		});
 		
 	}
 

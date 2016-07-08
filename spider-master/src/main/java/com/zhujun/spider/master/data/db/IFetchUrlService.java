@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.data.db;
 
+import java.util.Date;
 import java.util.List;
 
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
@@ -49,5 +50,33 @@ public interface IFetchUrlService {
 	 * @throws Exception 
 	 */
 	List<FetchUrlPo> getGiveOutUrls(String dataDir) throws Exception;
+
+	/**
+	 * 判断action中是否还有未抓取的url
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月8日
+	 *
+	 * @param dataDir
+	 * @param actionId
+	 * @return
+	 * @throws Exception 
+	 */
+	boolean existUnFetchUrlInAction(String dataDir, String actionId) throws Exception;
+
+	/**
+	 * 设置url状态
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月8日
+	 *
+	 * @param dataDir
+	 * @param urlId
+	 * @param status
+	 * @param time
+	 * @return 影响数据行数
+	 * @throws Exception 
+	 */
+	int setFetchUrlStatus(String dataDir, Integer urlId, int status, Date time) throws Exception;
 	
 }

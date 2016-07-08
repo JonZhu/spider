@@ -5,14 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.zhujun.spider.master.contentfetcher.ContentFetcher;
-import com.zhujun.spider.master.contentfetcher.JavaUrlContentFetcher;
+import org.apache.commons.lang3.StringUtils;
+
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.UrlSet;
+import com.zhujun.spider.master.schedule.PushDataQueue.Item;
+import com.zhujun.spider.master.util.ThreadUtils;
 
 /**
  * Url集合 执行器
@@ -30,11 +32,6 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		UrlSet urlSet = (UrlSet)context.getAction();
 		Spider spider = context.getSpider();
 		Map<String, Serializable> dataScope = context.getDataScope();
-		
-		ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
-		
-		// 初始化数据接收队列
-		
 		
 		// 生成实际url
 		List<String> urlList = new ArrayList<>();
@@ -97,36 +94,54 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		
 		
 		SpiderDataWriter writer = context.getDataWriter();
-//		// 内容抓取
-//		for (String url : urlList) {
-//			byte[] content = contentFetcher.fetch(url);
-//			// 存储到文件
-//			writer.write(url, new Date(), content);
-//			
-//			if (StringUtils.isNotBlank(urlSet.getName())) {
-//				dataScope.put(urlSet.getName(), content);
-//			}
-//			
-//			// 设置数据到data scope, 子结点使用
-//			dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, content);
-//			dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, url);
-//			
-//			// 执行子级,例如paging
-//			super.execute(spider, urlSet, dataScope);
-//		}
 		
-		
-		// TODO 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
-		
-		/**
-		 * 记录设计思路：
-		 * 1. 任务progress保存, 使任务可以断续从中间某点执行。
-		 * 实现：action执行完后，记录执行位置点到datascope，同时序列化并保存datascope到磁盘，
-		 * 在任务下次运行时，从磁盘加载datascope，执行action，如果action在 执行位置点之前，则跳过。
-		 * 
-		 */
+		// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
+		while (true) {
+			Item item = PushDataQueue.popPushData(spider.getId(), urlSet.getId());
+			if (item == null) {
+				ThreadUtils.sleep(5000);
+				
+				item = PushDataQueue.popPushData(spider.getId(), urlSet.getId()); // 5秒后再次获取
+				if (item == null) {
+					// 队列中无数据, 查询数据库中该action是否还有url未处理完
+					boolean existUnFetch = fetchUrlService.existUnFetchUrlInAction(spider.getDataDir(), urlSet.getId());
+					if (existUnFetch) {
+						// 如果还有, 等待5秒 再尝试从 push data queue中获取
+						ThreadUtils.sleep(5000);
+						continue;
+					} else {
+						// 库中该action的url全部抓取完
+						break;
+					}
+				}
+			}
+			
+			
+			// 从队列中获得数据
+			if (item.success) {
+				// 存储到文件
+				writer.write(item.url, item.fetchTime, item.data);
+				fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
+				
+				if (StringUtils.isNotBlank(urlSet.getId())) {
+					dataScope.put(urlSet.getId(), item.data);
+				}
+				
+				// 设置数据到data scope, 子结点使用
+				dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, item.data);
+				dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, item.url);
+				
+				// 执行子级,例如paging
+				super.execute(context);
+			} else {
+				// 抓取失败
+				fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
+			}
+			
+		}
 
 	}
+
 
 	/**
 	 * 序列

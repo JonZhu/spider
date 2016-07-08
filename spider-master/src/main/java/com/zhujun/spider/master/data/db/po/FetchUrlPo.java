@@ -11,6 +11,12 @@ import java.sql.Time;
  */
 public class FetchUrlPo {
 
+	public final static int STATUS_INIT = 0;
+	public final static int STATUS_PUSHED = 2;
+	public final static int STATUS_SUCCESS = 3;
+	public final static int STATUS_ERROR = 4;
+	
+	
 	private Integer id;
 	
 	private String url;
@@ -18,7 +24,7 @@ public class FetchUrlPo {
 	/**
 	 * 状态: 0初始态, 2 已下发, 3 抓取成功, 4 抓取失败
 	 */
-	private int status;
+	private int status = STATUS_INIT;
 	
 	private Time insertTime;
 	
