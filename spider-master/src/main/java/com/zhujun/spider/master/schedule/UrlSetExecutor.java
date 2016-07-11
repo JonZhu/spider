@@ -33,124 +33,182 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 	
 	@Override
 	public void execute(IScheduleContext context) throws Exception {
-		UrlSet urlSet = (UrlSet)context.getAction();
-		Spider spider = context.getSpider();
-		Map<String, Serializable> dataScope = context.getDataScope();
 		
-		LOG.debug("开始url入库");
-		long startInsertUrlTime = System.currentTimeMillis();
-		
-		// 生成实际url
-		List<String> urlList = new ArrayList<>();
-		List<FetchUrlPo> urlPoList = new ArrayList<>();
-		List<Integer> indexList = urlSet.getTempIndexList();
-		if (indexList == null || indexList.isEmpty()) {
-			// 无模板号
-			urlList.add(urlSet.getUrltemplate());
-			FetchUrlPo urlPo = new FetchUrlPo();
-			urlPo.setUrl(urlSet.getUrltemplate());
-			urlPo.setActionId(urlSet.getId());
-		} else {
-			// 填充模板值
-			SequenceItem[] sequenceItems = new SequenceItem[indexList.size()];
-			for (int i = 0; i < indexList.size(); i++) {
-				int tempIndex = indexList.get(i);
+		List<Step> stepList = new ArrayList<>();
+		// url入库step
+		Step insertUrlStep = new Step() {
+			@Override
+			public void execute(IScheduleContext c) throws Exception {
+				UrlSet urlSet = (UrlSet)c.getAction();
+				Spider spider = c.getSpider();
+				Map<String, Serializable> dataScope = c.getDataScope();
 				
-				// 默认暂时都按enum处理
-				String tempValue = urlSet.getTempValue(tempIndex);
-				if (tempValue.startsWith("{") && tempValue.endsWith("}")) {
-					// {}变量处理
-					Object dataInScope = dataScope.get(tempValue.substring(1, tempValue.length() - 1));
-					tempValue = ScheduleUtil.obj2str(dataInScope);
-				}
+				LOG.debug("开始url入库");
+				long startInsertUrlTime = System.currentTimeMillis();
 				
-				sequenceItems[i] = new EnumSequenceItem(tempValue.split(ScheduleConst.ENUM_VALUE_SEPARATOR));
-			}
-			Sequence sequence = new Sequence(sequenceItems);
-			while (true) {
-				Object[] sequenceValue = sequence.getNextValue(); // 根据temp生成值序列
-				if (sequenceValue == null) {
-					break;
-				}
-				
-				// 设置值到Urltemplate
-				String url = urlSet.getUrltemplate();
-				for (int i = 0; i < indexList.size(); i++) {
-					int tempIndex = indexList.get(i);
-					url = url.replaceAll("\\{"+ tempIndex +"\\}", String.valueOf(sequenceValue[i]));
-				}
-				
-				urlList.add(url);
-				FetchUrlPo urlPo = new FetchUrlPo();
-				urlPo.setUrl(url);
-				urlPo.setActionId(urlSet.getId());
-				urlPoList.add(urlPo);
-				
-				if (urlPoList.size() > 1000) {
-					// 100条数据入库
-					fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
-					urlPoList = new ArrayList<>();
-				}
-			}
-			
-		}
-		
-		if (!urlList.isEmpty()) {
-			fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
-		}
-		
-		LOG.debug("结束url入库, time:{}", System.currentTimeMillis() - startInsertUrlTime);
-		
-		
-		SpiderDataWriter writer = context.getDataWriter();
-		
-		// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
-		while (true) {
-			Item item = PushDataQueue.popPushData(spider.getId(), urlSet.getId());
-			if (item == null) {
-				ThreadUtils.sleep(5000);
-				
-				item = PushDataQueue.popPushData(spider.getId(), urlSet.getId()); // 5秒后再次获取
-				if (item == null) {
-					// 队列中无数据, 查询数据库中该action是否还有url未处理完
-					boolean existUnFetch = fetchUrlService.existUnFetchUrlInAction(spider.getDataDir(), urlSet.getId());
-					if (existUnFetch) {
-						// 如果还有, 等待5秒 再尝试从 push data queue中获取
-						ThreadUtils.sleep(5000);
-						continue;
-					} else {
-						// 库中该action的url全部抓取完
-						break;
+				// 生成实际url
+				List<String> urlList = new ArrayList<>();
+				List<FetchUrlPo> urlPoList = new ArrayList<>();
+				List<Integer> indexList = urlSet.getTempIndexList();
+				if (indexList == null || indexList.isEmpty()) {
+					// 无模板号
+					urlList.add(urlSet.getUrltemplate());
+					FetchUrlPo urlPo = new FetchUrlPo();
+					urlPo.setUrl(urlSet.getUrltemplate());
+					urlPo.setActionId(urlSet.getId());
+				} else {
+					// 填充模板值
+					SequenceItem[] sequenceItems = new SequenceItem[indexList.size()];
+					for (int i = 0; i < indexList.size(); i++) {
+						int tempIndex = indexList.get(i);
+						
+						// 默认暂时都按enum处理
+						String tempValue = urlSet.getTempValue(tempIndex);
+						if (tempValue.startsWith("{") && tempValue.endsWith("}")) {
+							// {}变量处理
+							Object dataInScope = dataScope.get(tempValue.substring(1, tempValue.length() - 1));
+							tempValue = ScheduleUtil.obj2str(dataInScope);
+						}
+						
+						sequenceItems[i] = new EnumSequenceItem(tempValue.split(ScheduleConst.ENUM_VALUE_SEPARATOR));
 					}
+					Sequence sequence = new Sequence(sequenceItems);
+					while (true) {
+						Object[] sequenceValue = sequence.getNextValue(); // 根据temp生成值序列
+						if (sequenceValue == null) {
+							break;
+						}
+						
+						// 设置值到Urltemplate
+						String url = urlSet.getUrltemplate();
+						for (int i = 0; i < indexList.size(); i++) {
+							int tempIndex = indexList.get(i);
+							url = url.replaceAll("\\{"+ tempIndex +"\\}", String.valueOf(sequenceValue[i]));
+						}
+						
+						urlList.add(url);
+						FetchUrlPo urlPo = new FetchUrlPo();
+						urlPo.setUrl(url);
+						urlPo.setActionId(urlSet.getId());
+						urlPoList.add(urlPo);
+						
+						if (urlPoList.size() > 1000) {
+							// 100条数据入库
+							fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+							urlPoList = new ArrayList<>();
+						}
+					}
+					
 				}
-			}
-			
-			
-			// 从队列中获得数据
-			if (item.success) {
-				// 存储到文件
-				writer.write(item.url, item.fetchTime, item.data);
-				fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
 				
-				if (StringUtils.isNotBlank(urlSet.getId())) {
-					dataScope.put(urlSet.getId(), item.data);
+				if (!urlList.isEmpty()) {
+					fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
 				}
 				
-				// 设置数据到data scope, 子结点使用
-				dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, item.data);
-				dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, item.url);
+				LOG.debug("结束url入库, time:{}", System.currentTimeMillis() - startInsertUrlTime);
 				
-				// 执行子级,例如paging
-				super.execute(context);
-			} else {
-				// 抓取失败
-				fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
 			}
+		};
+		
+		stepList.add(insertUrlStep);
+		
+		// 处理数据 step
+		Step processDataStep = new Step() {
 			
-		}
-
+			@Override
+			public void execute(IScheduleContext c) throws Exception {
+				UrlSet urlSet = (UrlSet)c.getAction();
+				Spider spider = c.getSpider();
+				Map<String, Serializable> dataScope = c.getDataScope();
+				
+				SpiderDataWriter writer = c.getDataWriter();
+				
+				// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
+				while (true) {
+					Item item = PushDataQueue.popPushData(spider.getId(), urlSet.getId());
+					if (item == null) {
+						ThreadUtils.sleep(5000);
+						
+						item = PushDataQueue.popPushData(spider.getId(), urlSet.getId()); // 5秒后再次获取
+						if (item == null) {
+							// 队列中无数据, 查询数据库中该action是否还有url未处理完
+							boolean existUnFetch = fetchUrlService.existUnFetchUrlInAction(spider.getDataDir(), urlSet.getId());
+							if (existUnFetch) {
+								// 如果还有, 等待5秒 再尝试从 push data queue中获取
+								ThreadUtils.sleep(5000);
+								continue;
+							} else {
+								// 库中该action的url全部抓取完
+								break;
+							}
+						}
+					}
+					
+					
+					// 从队列中获得数据
+					if (item.success) {
+						// 存储到文件
+						writer.write(item.url, item.fetchTime, item.data);
+						fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
+						
+						if (StringUtils.isNotBlank(urlSet.getId())) {
+							dataScope.put(urlSet.getId(), item.data);
+						}
+						
+						// 设置数据到data scope, 子结点使用
+						dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, item.data);
+						dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, item.url);
+						
+						// 执行子级,例如paging
+						executeChildren(c);
+					} else {
+						// 抓取失败
+						fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
+					}
+					
+				}
+				
+			}
+		};
+		
+		stepList.add(processDataStep);
+		
+		executeSteps(context, stepList);
 	}
 
+	/**
+	 * 执行步骤
+	 * 
+	 * <p>保存executor内部progress记录</p>
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月11日
+	 *
+	 * @param stepList
+	 * @throws Exception 
+	 */
+	private void executeSteps(IScheduleContext context, List<Step> stepList) throws Exception {
+		Map<String, Serializable> dataScope = context.getDataScope();
+		String progressKey = (String)dataScope.get(ScheduleConst.PROGRESS_KEY);
+		for (int i = 0; i < stepList.size(); i++) {
+			String stepProgress = progressKey + "_" + i;
+			dataScope.put(ScheduleConst.PROGRESS_KEY, stepProgress);
+			if (ProgressUtils.inHistoryProgress(dataScope)) {
+				// 如果历史执行过, 则跳过
+				continue;
+			}
+			
+			persistDataScope(dataScope);
+			
+			stepList.get(i).execute(context);
+		}
+		
+	}
+
+
+	private void executeChildren(IScheduleContext context) throws Exception {
+		super.execute(context);
+	}
 
 	/**
 	 * 序列
@@ -285,6 +343,17 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 			index = -1;
 		}
 		
+	}
+	
+	/**
+	 * 执行步骤
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月11日
+	 *
+	 */
+	private static interface Step {
+		void execute(IScheduleContext context) throws Exception;
 	}
 	
 }

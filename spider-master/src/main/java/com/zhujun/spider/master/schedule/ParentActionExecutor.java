@@ -51,7 +51,7 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 			for (int i = 0; i < children.size(); i++) {
 				String progress = prentProgressStr == null ? String.valueOf(i) : prentProgressStr + ":" + i;
 				dataScope.put(ScheduleConst.PROGRESS_KEY, progress);
-				if (inHistoryProgress(dataScope)) {
+				if (ProgressUtils.inHistoryProgress(dataScope)) {
 					// 如果历史执行过, 则跳过
 					continue;
 				}
@@ -73,31 +73,6 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 
 	}
 
-	/**
-	 * 判断当前progress是否在history中
-	 * @author zhujun
-	 * @date 2016年7月7日
-	 *
-	 * @param dataScope
-	 * @return
-	 */
-	private boolean inHistoryProgress(Map<String, Serializable> dataScope) {
-		String hisProgress = (String)dataScope.get(ScheduleConst.HISTORY_PROGRESS_KEY);
-		if (hisProgress == null) {
-			// history progress 不存在
-			return false;
-		}
-		
-		// history progress存在
-		
-		if (hisProgress.startsWith((String)dataScope.get(ScheduleConst.PROGRESS_KEY))) {
-			// 当前progress已经达到history, 可从这里执行
-			dataScope.remove(ScheduleConst.HISTORY_PROGRESS_KEY); // 删除history标识
-			return false;
-		}
-		
-		return true;
-	}
 
 	/**
 	 * 持久化数据
@@ -108,7 +83,7 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	private void persistDataScope(Map<String, Serializable> dataScope) throws FileNotFoundException, IOException {
+	protected void persistDataScope(Map<String, Serializable> dataScope) throws FileNotFoundException, IOException {
 		ObjectOutputStream oos = null;
 		try {
 			File persistFile = new File((String)dataScope.get(ScheduleConst.TASK_DATA_DIR_KEY), (String)dataScope.get(ScheduleConst.DATA_SCOPE_PERSISENT_NAME_KEY));
