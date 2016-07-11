@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
@@ -25,6 +27,8 @@ import com.zhujun.spider.master.util.ThreadUtils;
  */
 public class UrlSetExecutor extends ParentActionExecutor implements ActionExecutor {
 
+	private final static Logger LOG = LoggerFactory.getLogger(UrlSetExecutor.class);
+	
 	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
 	
 	@Override
@@ -32,6 +36,9 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		UrlSet urlSet = (UrlSet)context.getAction();
 		Spider spider = context.getSpider();
 		Map<String, Serializable> dataScope = context.getDataScope();
+		
+		LOG.debug("开始url入库");
+		long startInsertUrlTime = System.currentTimeMillis();
 		
 		// 生成实际url
 		List<String> urlList = new ArrayList<>();
@@ -79,7 +86,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				urlPo.setActionId(urlSet.getId());
 				urlPoList.add(urlPo);
 				
-				if (urlPoList.size() > 100) {
+				if (urlPoList.size() > 1000) {
 					// 100条数据入库
 					fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
 					urlPoList = new ArrayList<>();
@@ -91,6 +98,8 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		if (!urlList.isEmpty()) {
 			fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
 		}
+		
+		LOG.debug("结束url入库, time:{}", System.currentTimeMillis() - startInsertUrlTime);
 		
 		
 		SpiderDataWriter writer = context.getDataWriter();
