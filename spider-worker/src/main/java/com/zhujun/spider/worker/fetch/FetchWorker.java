@@ -1,5 +1,11 @@
 package com.zhujun.spider.worker.fetch;
 
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +27,11 @@ public class FetchWorker implements Runnable {
 	private final static Logger LOG = LoggerFactory.getLogger(FetchWorker.class);
 	
 	private final static ContentFetcher CONTENT_FETCHER = JavaUrlContentFetcher.getInstance();
+	
+	/**
+	 * 同一个host，只允许一个线程抓取
+	 */
+	private final static Map<String, Lock> HOST_LOCK_MAP = new HashMap<>();
 
 	private final MinaClient minaClient;
 	
@@ -42,12 +53,19 @@ public class FetchWorker implements Runnable {
 			netMsg.setHeader("Fetch-url", item.url);
 			
 			byte[] content = null;
+			Lock lock = null;
 			try {
+				
+				URL url = new URL(item.url);
+				lock = getHostFetchLock(url.getHost());
+				
 				content = CONTENT_FETCHER.fetch(item.url);
 				netMsg.setHeader("Fetch-Result", "Success");
 				netMsg.setBody(content);
 			} catch (Exception e) {
 				LOG.error("获取url[{}]数据失败", item.url, e);
+			} finally {
+				lock.unlock();
 			}
 			
 			netMsg.setHeader("Fetch-time", String.valueOf(System.currentTimeMillis()));
@@ -57,6 +75,22 @@ public class FetchWorker implements Runnable {
 			
 			pushData2master(netMsg);
 		}
+	}
+
+
+	private Lock getHostFetchLock(String host) {
+		Lock lock = null;
+		synchronized (HOST_LOCK_MAP) {
+			lock = HOST_LOCK_MAP.get(host);
+			if (lock == null) {
+				lock = new ReentrantLock();
+				HOST_LOCK_MAP.put(host, lock);
+			}
+			
+		}
+		
+		lock.lock();
+		return lock;
 	}
 
 
