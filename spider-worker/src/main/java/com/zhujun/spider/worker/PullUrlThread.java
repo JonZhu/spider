@@ -50,7 +50,6 @@ public class PullUrlThread extends Thread {
 			
 			boolean needSleep = true;
 			if (pushUrlMsg != null) {
-				System.out.println(pushUrlMsg);
 				String status = pushUrlMsg.getHeader("Status");
 				if ("200".equals(status)) {
 					// 正常响应
