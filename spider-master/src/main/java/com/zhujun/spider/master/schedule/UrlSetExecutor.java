@@ -16,6 +16,8 @@ import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.UrlSet;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
+import com.zhujun.spider.master.schedule.progress.IStep;
+import com.zhujun.spider.master.schedule.progress.ProgressUtils;
 import com.zhujun.spider.master.util.ThreadUtils;
 
 /**
@@ -34,9 +36,9 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 	@Override
 	public void execute(IScheduleContext context) throws Exception {
 		
-		List<Step> stepList = new ArrayList<>();
+		List<IStep> stepList = new ArrayList<>();
 		// url入库step
-		Step insertUrlStep = new Step() {
+		IStep insertUrlStep = new IStep() {
 			@Override
 			public void execute(IScheduleContext c) throws Exception {
 				UrlSet urlSet = (UrlSet)c.getAction();
@@ -113,7 +115,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		stepList.add(insertUrlStep);
 		
 		// 处理数据 step
-		Step processDataStep = new Step() {
+		IStep processDataStep = new IStep() {
 			
 			@Override
 			public void execute(IScheduleContext c) throws Exception {
@@ -173,38 +175,8 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 		
 		stepList.add(processDataStep);
 		
-		executeSteps(context, stepList);
+		ProgressUtils.executeSteps(context, stepList, '_');
 	}
-
-	/**
-	 * 执行步骤
-	 * 
-	 * <p>保存executor内部progress记录</p>
-	 * 
-	 * @author zhujun
-	 * @date 2016年7月11日
-	 *
-	 * @param stepList
-	 * @throws Exception 
-	 */
-	private void executeSteps(IScheduleContext context, List<Step> stepList) throws Exception {
-		Map<String, Serializable> dataScope = context.getDataScope();
-		String progressKey = (String)dataScope.get(ScheduleConst.PROGRESS_KEY);
-		for (int i = 0; i < stepList.size(); i++) {
-			String stepProgress = progressKey + "_" + i;
-			dataScope.put(ScheduleConst.PROGRESS_KEY, stepProgress);
-			if (ProgressUtils.inHistoryProgress(dataScope)) {
-				// 如果历史执行过, 则跳过
-				continue;
-			}
-			
-			persistDataScope(dataScope);
-			
-			stepList.get(i).execute(context);
-		}
-		
-	}
-
 
 	private void executeChildren(IScheduleContext context) throws Exception {
 		super.execute(context);
@@ -343,17 +315,6 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 			index = -1;
 		}
 		
-	}
-	
-	/**
-	 * 执行步骤
-	 * 
-	 * @author zhujun
-	 * @date 2016年7月11日
-	 *
-	 */
-	private static interface Step {
-		void execute(IScheduleContext context) throws Exception;
 	}
 	
 }

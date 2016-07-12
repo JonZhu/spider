@@ -29,16 +29,6 @@ public class ClientHandler implements IoHandler {
 	@Override
 	public void sessionOpened(IoSession session) throws Exception {
 		LOG.debug("sessionOpened");
-		
-		SpiderNetMessage msg = new SpiderNetMessage();
-		Map<String, String> header = new HashMap<>();
-		header.put("aaa", "111");
-		header.put("bbb", "2222");
-		msg.setHeaders(header);
-		
-		session.write(msg);
-		
-		LOG.debug("已发送测试msg");
 	}
 
 	@Override
