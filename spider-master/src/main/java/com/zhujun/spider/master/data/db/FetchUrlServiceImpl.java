@@ -109,13 +109,13 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 				
 				if (unGiveOutUrls != null && !unGiveOutUrls.isEmpty()) {
 					// 修改状态
-					StringBuilder updateStatusSql = new StringBuilder("update fetchurl set status = 2 where id in(");
+					StringBuilder updateStatusSql = new StringBuilder("update fetchurl set status = ?, modifytime = ? where id in(");
 					for (FetchUrlPo fetchUrlPo : unGiveOutUrls) {
 						updateStatusSql.append(fetchUrlPo.getId()).append(",");
 					}
 					updateStatusSql.deleteCharAt(updateStatusSql.length() - 1).append(")");
 					
-					QUERY_RUNNER.update(conn, updateStatusSql.toString());
+					QUERY_RUNNER.update(conn, updateStatusSql.toString(), FetchUrlPo.STATUS_PUSHED, new Time(System.currentTimeMillis()));
 				}
 				
 				
