@@ -83,7 +83,7 @@ public class ProgressUtils {
 			
 			persistDataScope(dataScope);
 			
-			LOG.debug("progress: {}", progress);
+			LOG.debug("开始执行 progress: {}", stepProgress);
 			
 			stepList.get(i).execute(context);
 		}
