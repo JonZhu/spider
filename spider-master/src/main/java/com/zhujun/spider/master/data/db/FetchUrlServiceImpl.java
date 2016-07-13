@@ -16,6 +16,8 @@ import javax.sql.DataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.master.data.db.datasource.DataSourceManager;
 import com.zhujun.spider.master.data.db.datasource.DsUtils;
@@ -26,6 +28,8 @@ import com.zhujun.spider.master.util.ReadWriteLockUtils;
 @Singleton
 public class FetchUrlServiceImpl implements IFetchUrlService {
 
+	private final static Logger LOG = LoggerFactory.getLogger(FetchUrlServiceImpl.class);
+	
 	private final static QueryRunner QUERY_RUNNER = new QueryRunner();
 	
 	@Override
@@ -84,6 +88,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	public List<FetchUrlPo> getGiveOutUrls(String dataDir) throws Exception {
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
 		
+		LOG.debug(dataDir);
 		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
 		try {
 			return DsUtils.doInTrans(ds, new IAction<List<FetchUrlPo>>() {
@@ -164,31 +169,41 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	@Override
 	public boolean existUnFetchUrlInAction(String dataDir, final String actionId) throws Exception {
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
-		return DsUtils.doInTrans(ds, new IAction<Boolean>() {
-
-			@Override
-			public Boolean action(Connection conn) throws Exception {
-				String sql = "select id from fetchurl where actionid = ? and (status = ? or status = ?) limit 1";
-				Integer id = QUERY_RUNNER.query(conn, sql, new ScalarHandler<Integer>(), 
-						actionId, FetchUrlPo.STATUS_INIT, FetchUrlPo.STATUS_ERROR);
-				return id != null;
-			}
-			
-		});
+		Lock lock = ReadWriteLockUtils.getReadLock(dataDir);
+		try {
+			return DsUtils.doInTrans(ds, new IAction<Boolean>() {
+				
+				@Override
+				public Boolean action(Connection conn) throws Exception {
+					String sql = "select id from fetchurl where actionid = ? and (status = ? or status = ?) limit 1";
+					Integer id = QUERY_RUNNER.query(conn, sql, new ScalarHandler<Integer>(), 
+							actionId, FetchUrlPo.STATUS_INIT, FetchUrlPo.STATUS_ERROR);
+					return id != null;
+				}
+				
+			});
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public int setFetchUrlStatus(String dataDir, final Integer urlId, final int status, final Date time) throws Exception {
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
-		return DsUtils.doInTrans(ds, new IAction<Integer>() {
-
-			@Override
-			public Integer action(Connection conn) throws Exception {
-				String sql = "update fetchurl set status = ?, modifytime = ? where id = ?";
-				return QUERY_RUNNER.update(conn, sql, status, new Time(time.getTime()), urlId);
-			}
-			
-		});
+		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
+		try {
+			return DsUtils.doInTrans(ds, new IAction<Integer>() {
+	
+				@Override
+				public Integer action(Connection conn) throws Exception {
+					String sql = "update fetchurl set status = ?, modifytime = ? where id = ?";
+					return QUERY_RUNNER.update(conn, sql, status, new Time(time.getTime()), urlId);
+				}
+				
+			});
+		} finally {
+			lock.unlock();
+		}
 		
 	}
 

@@ -20,13 +20,17 @@ public class ReadWriteLockUtils {
 	
 	public static Lock getWriteLock(String lockKey) {
 		ReadWriteLock lock = getLockObj(lockKey);
-		return lock.writeLock();
+		Lock writeLock = lock.writeLock();
+		writeLock.lock();
+		return writeLock;
 	}
 	
 	
 	public static Lock getReadLock(String lockKey) {
 		ReadWriteLock lock = getLockObj(lockKey);
-		return lock.readLock();
+		Lock readLock = lock.readLock();
+		readLock.lock();
+		return readLock;
 	}
 	
 	
