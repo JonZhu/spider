@@ -8,6 +8,8 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.net.NetMessageCodecFactory;
 import com.zhujun.spider.net.SpiderNetMessage;
@@ -21,6 +23,8 @@ import com.zhujun.spider.net.SpiderNetMessage;
  */
 public class MinaClient {
 
+	private final static Logger LOG = LoggerFactory.getLogger(MinaClient.class);
+	
 	private SocketAddress remoteAddress;
 	private IoConnector connector;
 	private IoSession session;
@@ -42,9 +46,26 @@ public class MinaClient {
 		connector.setHandler(clientHandler);
 		
 		connector.setConnectTimeoutMillis(5000);
-		ConnectFuture connectFuture = connector.connect(remoteAddress);
-		connectFuture.awaitUninterruptibly();
-		session = connectFuture.getSession();
+		ConnectFuture connectFuture = null;
+		
+		while (true) {
+			try {
+				connectFuture = connector.connect(remoteAddress);
+				connectFuture.awaitUninterruptibly();
+				session = connectFuture.getSession();
+				if (session.isConnected()) {
+					break;
+				}
+			} catch (Exception e) {
+				LOG.error("连接服务端失败, 等待5秒重试, 原因：{}", e.getMessage());
+			}
+			
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
 	}
 	
