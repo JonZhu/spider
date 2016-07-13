@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 import javax.inject.Singleton;
 import javax.sql.DataSource;
@@ -20,6 +21,7 @@ import com.zhujun.spider.master.data.db.datasource.DataSourceManager;
 import com.zhujun.spider.master.data.db.datasource.DsUtils;
 import com.zhujun.spider.master.data.db.datasource.DsUtils.IAction;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.util.ReadWriteLockUtils;
 
 @Singleton
 public class FetchUrlServiceImpl implements IFetchUrlService {
@@ -29,13 +31,19 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	@Override
 	public void createFetchUrl(String dataDir, final FetchUrlPo fetchUrl) throws Exception {
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
-		DsUtils.doInTrans(ds, new IAction<Void>() {
-			@Override
-			public Void action(Connection conn) throws Exception {
-				createFetchUrlPo(conn, fetchUrl);
-				return null;
-			}
-		});
+		
+		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
+		try {
+			DsUtils.doInTrans(ds, new IAction<Void>() {
+				@Override
+				public Void action(Connection conn) throws Exception {
+					createFetchUrlPo(conn, fetchUrl);
+					return null;
+				}
+			});
+		} finally {
+			lock.unlock();
+		}
 		
 	}
 	
@@ -44,15 +52,21 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 			return;
 		}
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
-		DsUtils.doInTrans(ds, new IAction<Void>() {
-			@Override
-			public Void action(Connection conn) throws Exception {
-				for (FetchUrlPo fetchUrlPo : fetchUrlList) {
-					createFetchUrlPo(conn, fetchUrlPo);
+		
+		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
+		try {
+			DsUtils.doInTrans(ds, new IAction<Void>() {
+				@Override
+				public Void action(Connection conn) throws Exception {
+					for (FetchUrlPo fetchUrlPo : fetchUrlList) {
+						createFetchUrlPo(conn, fetchUrlPo);
+					}
+					return null;
 				}
-				return null;
-			}
-		});
+			});
+		} finally {
+			lock.unlock();
+		}
 	}
 	
 	protected void createFetchUrlPo(Connection conn, FetchUrlPo urlPo) throws SQLException {
@@ -69,59 +83,65 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	@Override
 	public List<FetchUrlPo> getGiveOutUrls(String dataDir) throws Exception {
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
-		return DsUtils.doInTrans(ds, new IAction<List<FetchUrlPo>>() {
-
-			@Override
-			public List<FetchUrlPo> action(Connection conn) throws Exception {
-				int count = 50;
-				List<FetchUrlPo> urlList = new ArrayList<>();
-				
-				// 查询未下发过的url
-				String sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 0 limit ?";
-				FetchUrlPoResultHandler resultHandler = new FetchUrlPoResultHandler();
-				List<FetchUrlPo> unGiveOutUrls = QUERY_RUNNER.query(conn, sql, resultHandler, count);
-				if (unGiveOutUrls != null) {
-					urlList.addAll(unGiveOutUrls);
-				}
-				
-				if (urlList.size() < count) {
-					// 数据不够， 查询 下发超过2分钟，但未push结果的url
-					Time time = new Time(System.currentTimeMillis());
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTime(time);
-					calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - 2);
-					time.setTime(calendar.getTimeInMillis());
-					sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 2 and modifytime < ? limit ?";
+		
+		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
+		try {
+			return DsUtils.doInTrans(ds, new IAction<List<FetchUrlPo>>() {
+	
+				@Override
+				public List<FetchUrlPo> action(Connection conn) throws Exception {
+					int count = 50;
+					List<FetchUrlPo> urlList = new ArrayList<>();
 					
-					List<FetchUrlPo> unPushUrls = QUERY_RUNNER.query(conn, sql, resultHandler, time, count - urlList.size());
-					urlList.addAll(unPushUrls);
-				}
-				
-				if (urlList.size() < count) {
-					// 数据不够, 查询 失败的url
-					sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 4  limit ?";
-					
-					List<FetchUrlPo> errorUrls = QUERY_RUNNER.query(conn, sql, resultHandler, count - urlList.size());
-					urlList.addAll(errorUrls);
-				}
-				
-				
-				
-				if (unGiveOutUrls != null && !unGiveOutUrls.isEmpty()) {
-					// 修改状态
-					StringBuilder updateStatusSql = new StringBuilder("update fetchurl set status = ?, modifytime = ? where id in(");
-					for (FetchUrlPo fetchUrlPo : unGiveOutUrls) {
-						updateStatusSql.append(fetchUrlPo.getId()).append(",");
+					// 查询未下发过的url
+					String sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 0 limit ?";
+					FetchUrlPoResultHandler resultHandler = new FetchUrlPoResultHandler();
+					List<FetchUrlPo> unGiveOutUrls = QUERY_RUNNER.query(conn, sql, resultHandler, count);
+					if (unGiveOutUrls != null) {
+						urlList.addAll(unGiveOutUrls);
 					}
-					updateStatusSql.deleteCharAt(updateStatusSql.length() - 1).append(")");
 					
-					QUERY_RUNNER.update(conn, updateStatusSql.toString(), FetchUrlPo.STATUS_PUSHED, new Time(System.currentTimeMillis()));
+					if (urlList.size() < count) {
+						// 数据不够， 查询 下发超过2分钟，但未push结果的url
+						Time time = new Time(System.currentTimeMillis());
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(time);
+						calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - 2);
+						time.setTime(calendar.getTimeInMillis());
+						sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 2 and modifytime < ? limit ?";
+						
+						List<FetchUrlPo> unPushUrls = QUERY_RUNNER.query(conn, sql, resultHandler, time, count - urlList.size());
+						urlList.addAll(unPushUrls);
+					}
+					
+					if (urlList.size() < count) {
+						// 数据不够, 查询 失败的url
+						sql = "select id, url, status, inserttime, modifytime, actionid from fetchurl where status = 4  limit ?";
+						
+						List<FetchUrlPo> errorUrls = QUERY_RUNNER.query(conn, sql, resultHandler, count - urlList.size());
+						urlList.addAll(errorUrls);
+					}
+					
+					
+					
+					if (unGiveOutUrls != null && !unGiveOutUrls.isEmpty()) {
+						// 修改状态
+						StringBuilder updateStatusSql = new StringBuilder("update fetchurl set status = ?, modifytime = ? where id in(");
+						for (FetchUrlPo fetchUrlPo : unGiveOutUrls) {
+							updateStatusSql.append(fetchUrlPo.getId()).append(",");
+						}
+						updateStatusSql.deleteCharAt(updateStatusSql.length() - 1).append(")");
+						
+						QUERY_RUNNER.update(conn, updateStatusSql.toString(), FetchUrlPo.STATUS_PUSHED, new Time(System.currentTimeMillis()));
+					}
+					
+					
+					return urlList;
 				}
-				
-				
-				return urlList;
-			}
-		});
+			});
+		} finally {
+			lock.unlock();
+		}
 	}
 	
 	

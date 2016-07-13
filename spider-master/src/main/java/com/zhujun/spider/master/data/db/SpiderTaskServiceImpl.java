@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +29,7 @@ import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
 import com.zhujun.spider.master.schedule.IScheduleService;
+import com.zhujun.spider.master.util.ReadWriteLockUtils;
 
 @Singleton
 public class SpiderTaskServiceImpl implements ISpiderTaskService {
@@ -49,54 +51,60 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	public void createSpiderTask(final Spider spider) throws Exception {
 		
 		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
-		DsUtils.doInTrans(ds, new IAction<Void>() {
-			@Override
-			public Void action(Connection conn) throws Exception {
-				// 校验是否已有datadir相同的任务
-				if (findTaskCountByDatadir(conn, spider.getDataDir()) > 0) {
-					throw new Exception("datadir被其它任务占用");
-				}
-				
-				SpiderTaskPo taskPo = new SpiderTaskPo();
-				taskPo.setId(UUID.randomUUID().toString());
-				taskPo.setName(spider.getName());
-				taskPo.setAuthor(spider.getAuthor());
-				taskPo.setDatadir(spider.getDataDir());
-				taskPo.setCreateTime(new Time(System.currentTimeMillis()));
-				insertSpiderTaskPo(conn, taskPo);
-				
-				// spider 数据目录
-				File spiderDataDir = new File(spider.getDataDir());
-				if (!spiderDataDir.exists()) {
-					spiderDataDir.mkdirs();
-				}
-				
-				// 储存dsl
-				if (spider instanceof XmlSpider) {
-					XmlSpider xmlSpider = (XmlSpider)spider;
-					File dslFile = new File(spiderDataDir, "spiderdsl.xml");
-					Writer dslWriter = null;
-					try {
-						dslWriter = new OutputStreamWriter(new FileOutputStream(dslFile));
-						xmlSpider.getSpiderDslDoc().getRootElement().addAttribute("id", taskPo.getId());
-						xmlSpider.getSpiderDslDoc().write(dslWriter);
-					} finally {
-						IOUtils.closeQuietly(dslWriter);
+		
+		Lock lock = ReadWriteLockUtils.getWriteLock(DB_FILE);
+		try {
+			DsUtils.doInTrans(ds, new IAction<Void>() {
+				@Override
+				public Void action(Connection conn) throws Exception {
+					// 校验是否已有datadir相同的任务
+					if (findTaskCountByDatadir(conn, spider.getDataDir()) > 0) {
+						throw new Exception("datadir被其它任务占用");
 					}
 					
+					SpiderTaskPo taskPo = new SpiderTaskPo();
+					taskPo.setId(UUID.randomUUID().toString());
+					taskPo.setName(spider.getName());
+					taskPo.setAuthor(spider.getAuthor());
+					taskPo.setDatadir(spider.getDataDir());
+					taskPo.setCreateTime(new Time(System.currentTimeMillis()));
+					insertSpiderTaskPo(conn, taskPo);
+					
+					// spider 数据目录
+					File spiderDataDir = new File(spider.getDataDir());
+					if (!spiderDataDir.exists()) {
+						spiderDataDir.mkdirs();
+					}
+					
+					// 储存dsl
+					if (spider instanceof XmlSpider) {
+						XmlSpider xmlSpider = (XmlSpider)spider;
+						File dslFile = new File(spiderDataDir, "spiderdsl.xml");
+						Writer dslWriter = null;
+						try {
+							dslWriter = new OutputStreamWriter(new FileOutputStream(dslFile));
+							xmlSpider.getSpiderDslDoc().getRootElement().addAttribute("id", taskPo.getId());
+							xmlSpider.getSpiderDslDoc().write(dslWriter);
+						} finally {
+							IOUtils.closeQuietly(dslWriter);
+						}
+						
+					}
+					
+					// 初始化spider datasource
+					File spiderDbFile = new File(spiderDataDir, "spider.db");
+					DataSourceManager.regist(spiderDbFile.getCanonicalPath(), DataSourceType.Spider);
+					
+					// 启动调度
+					scheduleService.startSchedule(taskPo.getId(), spider);
+					
+					return null;
 				}
 				
-				// 初始化spider datasource
-				File spiderDbFile = new File(spiderDataDir, "spider.db");
-				DataSourceManager.regist(spiderDbFile.getCanonicalPath(), DataSourceType.Spider);
-				
-				// 启动调度
-				scheduleService.startSchedule(taskPo.getId(), spider);
-				
-				return null;
-			}
-			
-		});
+			});
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	protected void insertSpiderTaskPo(Connection conn, SpiderTaskPo taskPo) throws SQLException {
@@ -112,44 +120,55 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	@Override
 	public Page<SpiderTaskPo> findSpiderTaskList(final int pageNo, final int pageSize) throws Exception {
 		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
-		return DsUtils.doInTrans(ds, new IAction<Page<SpiderTaskPo>>() {
-			@Override
-			public Page<SpiderTaskPo> action(Connection conn) throws Exception {
-				Page<SpiderTaskPo> page = new Page<>();
-				
-				String countSql = "select count(*) from spider_task";
-				int count = QUERY_RUNNER.query(conn, countSql, new ScalarHandler<Integer>());
-				
-				if (count > 0) {
-					String dataSql = "select id, name, author, datadir, createtime from spider_task limit ? offset ?";
-					List<SpiderTaskPo> data = QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler(), pageSize, (pageNo - 1) * pageSize);
-					page.setPageData(data);
+		
+		Lock lock = ReadWriteLockUtils.getReadLock(DB_FILE);
+		try {
+			return DsUtils.doInTrans(ds, new IAction<Page<SpiderTaskPo>>() {
+				@Override
+				public Page<SpiderTaskPo> action(Connection conn) throws Exception {
+					Page<SpiderTaskPo> page = new Page<>();
+					
+					String countSql = "select count(*) from spider_task";
+					int count = QUERY_RUNNER.query(conn, countSql, new ScalarHandler<Integer>());
+					
+					if (count > 0) {
+						String dataSql = "select id, name, author, datadir, createtime from spider_task limit ? offset ?";
+						List<SpiderTaskPo> data = QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler(), pageSize, (pageNo - 1) * pageSize);
+						page.setPageData(data);
+					}
+					
+					page.setDataTotal(count);
+					page.setPageNo(pageNo);
+					page.setPageSize(pageSize);
+					page.setPageTotal(Page.calculatePageTotal(count, pageSize));
+					
+					return page;
 				}
 				
-				page.setDataTotal(count);
-				page.setPageNo(pageNo);
-				page.setPageSize(pageSize);
-				page.setPageTotal(Page.calculatePageTotal(count, pageSize));
-				
-				return page;
-			}
-			
-		});
-
+			});
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public void deleteSpiderTask(final String taskId) throws Exception {
 		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
-		DsUtils.doInTrans(ds, new IAction<Void>() {
-			@Override
-			public Void action(Connection conn) throws Exception {
-				String sql = "delete from spider_task where id = ?";
-				QUERY_RUNNER.update(conn, sql, taskId);
-				return null;
-			}
-			
-		});
+		
+		Lock lock = ReadWriteLockUtils.getWriteLock(DB_FILE);
+		try {
+			DsUtils.doInTrans(ds, new IAction<Void>() {
+				@Override
+				public Void action(Connection conn) throws Exception {
+					String sql = "delete from spider_task where id = ?";
+					QUERY_RUNNER.update(conn, sql, taskId);
+					return null;
+				}
+				
+			});
+		} finally {
+			lock.unlock();
+		}
 		
 		// 停止调度
 		scheduleService.stopSchedule(taskId);
@@ -174,14 +193,20 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	@Override
 	public List<SpiderTaskPo> findAllSpiderTask() throws Exception {
 		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
-		return DsUtils.doInTrans(ds, new IAction<List<SpiderTaskPo>>() {
-			@Override
-			public List<SpiderTaskPo> action(Connection conn) throws Exception {
-				String dataSql = "select id, name, author, datadir, createtime from spider_task";
-				return QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler());
-			}
-			
-		});
+		
+		Lock lock = ReadWriteLockUtils.getReadLock(DB_FILE);
+		try {
+			return DsUtils.doInTrans(ds, new IAction<List<SpiderTaskPo>>() {
+				@Override
+				public List<SpiderTaskPo> action(Connection conn) throws Exception {
+					String dataSql = "select id, name, author, datadir, createtime from spider_task";
+					return QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler());
+				}
+				
+			});
+		} finally {
+			lock.unlock();
+		}
 	}
 
 }
