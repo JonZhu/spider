@@ -2,8 +2,6 @@ package com.zhujun.spider.worker;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
