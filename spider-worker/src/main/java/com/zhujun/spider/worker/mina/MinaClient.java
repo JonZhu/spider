@@ -46,6 +46,12 @@ public class MinaClient {
 		connector.setHandler(clientHandler);
 		
 		connector.setConnectTimeoutMillis(5000);
+		connectMaster();
+		
+	}
+
+
+	private void connectMaster() {
 		ConnectFuture connectFuture = null;
 		
 		while (true) {
@@ -57,7 +63,7 @@ public class MinaClient {
 					break;
 				}
 			} catch (Exception e) {
-				LOG.error("连接服务端失败, 等待5秒重试, 原因：{}", e.getMessage());
+				LOG.error("连接master失败, 等待5秒重试, 原因：{}", e.getMessage());
 			}
 			
 			try {
@@ -66,7 +72,6 @@ public class MinaClient {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	public void stop() {
@@ -79,8 +84,15 @@ public class MinaClient {
 
 
 	public void sendMsg(SpiderNetMessage netMsg) {
-		if (session == null) {
-			throw new RuntimeException("Client未连接");
+		synchronized (this) {
+			if (session == null) {
+				throw new RuntimeException("Client未连接");
+			}
+			
+			if (!session.isConnected()) {
+				// 重连
+				connectMaster();
+			}
 		}
 		
 		session.write(netMsg);
