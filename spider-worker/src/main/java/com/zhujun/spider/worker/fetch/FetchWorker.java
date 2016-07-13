@@ -127,7 +127,9 @@ public class FetchWorker implements Runnable {
 			}
 			
 			url = FetchUrlQueue.DATA.poll();
-			FetchUrlQueue.DATA.notifyAll();
+			if (FetchUrlQueue.DATA.size() < 100) {
+				FetchUrlQueue.DATA.notifyAll(); // 通知push url
+			}
 		}
 		
 		return url;
