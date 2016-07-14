@@ -9,12 +9,19 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.zhujun.spider.master.data.db.IFetchUrlService;
+import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Paging;
+import com.zhujun.spider.master.domain.Spider;
 
 public class PagingExecutor implements ActionExecutor {
 
+	private final IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
+	
 	@Override
-	public void execute(IScheduleContext context) {
+	public void execute(IScheduleContext context) throws Exception {
+		Spider spider = context.getSpider();
 		Paging paging = (Paging)context.getAction();
 		Map<String, Serializable> dataScope = context.getDataScope();
 		
@@ -31,7 +38,11 @@ public class PagingExecutor implements ActionExecutor {
 			String url = element.attr(paging.getUrlAttr());
 			if (StringUtils.isNotBlank(url)) {
 				String pagingUrl = buildAbsoluteUrl(currentPageUrl, url);
-				addUrl2fetchQueue(pagingUrl);
+				
+				FetchUrlPo fetchUrl = new FetchUrlPo();
+				fetchUrl.setUrl(pagingUrl);
+				fetchUrl.setActionId(paging.getId());
+				// fetchUrlService.createFetchUrl(spider.getDataDir(), fetchUrl);
 			}
 		}
 	}
@@ -58,11 +69,6 @@ public class PagingExecutor implements ActionExecutor {
 			// 相对于baseUrl的当前路径
 			return baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1) + url;
 		}
-	}
-
-	private void addUrl2fetchQueue(String url) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
