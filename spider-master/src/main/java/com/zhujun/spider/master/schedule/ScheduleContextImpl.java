@@ -18,6 +18,7 @@ public class ScheduleContextImpl implements IScheduleContext {
 
 	private Spider spider;
 	private DslAction action;
+	private DslAction parentAction;
 	
 	private Map<String, Serializable> dataScope;
 	
@@ -53,6 +54,14 @@ public class ScheduleContextImpl implements IScheduleContext {
 
 	public void setDataWriter(SpiderDataWriter dataWriter) {
 		this.dataWriter = dataWriter;
+	}
+	
+	public DslAction getParentAction() {
+		return parentAction;
+	}
+
+	public void setParentAction(DslAction parentAction) {
+		this.parentAction = parentAction;
 	}
 	
 }

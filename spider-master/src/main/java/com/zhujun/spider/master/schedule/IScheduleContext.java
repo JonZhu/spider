@@ -38,6 +38,20 @@ public interface IScheduleContext {
 	
 	void setAction(DslAction action);
 	
+	
+	/**
+	 * pre action
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月14日
+	 *
+	 * @return
+	 */
+	DslAction getParentAction();
+	
+	void setParentAction(DslAction action);
+	
+	
 	/**
 	 * 数据域
 	 * 

@@ -36,6 +36,7 @@ public class SpiderDbInit implements DbInit {
 							+ "actionid varchar(100)"
 							+ ");";
 					queryRunner.update(conn, spiderTaskSql);
+					queryRunner.update(conn, "create unique index if not exists idx_fetchurl_url on fetchurl(url);");
 					
 					return null;
 				}

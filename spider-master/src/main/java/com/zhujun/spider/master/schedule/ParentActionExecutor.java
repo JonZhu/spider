@@ -1,9 +1,7 @@
 package com.zhujun.spider.master.schedule;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,7 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 		DslAction action = context.getAction();
 		
 		if (action instanceof DslParentAction) {
-			DslParentAction parentAction = (DslParentAction)action;
+			final DslParentAction parentAction = (DslParentAction)action;
 			List<DslAction> children = parentAction.getChildren();
 			if (children == null || children.isEmpty()) {
 				return;
@@ -51,13 +49,12 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 				IStep actionStep = new IStep() {
 					@Override
 					public void execute(IScheduleContext c) throws Exception {
-						// TODO Auto-generated method stub
-						
 						ActionExecutor childExecutor = getActionExecutor(child);
 						if (childExecutor == null) {
 							throw new RuntimeException("找不到Action["+ child.getId() +"]的执行器");
 						}
 						
+						c.setParentAction(parentAction);
 						c.setAction(child);
 						childExecutor.execute(c);
 					}

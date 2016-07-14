@@ -49,12 +49,10 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				long startInsertUrlTime = System.currentTimeMillis();
 				
 				// 生成实际url
-				List<String> urlList = new ArrayList<>();
 				List<FetchUrlPo> urlPoList = new ArrayList<>();
 				List<Integer> indexList = urlSet.getTempIndexList();
 				if (indexList == null || indexList.isEmpty()) {
 					// 无模板号
-					urlList.add(urlSet.getUrltemplate());
 					FetchUrlPo urlPo = new FetchUrlPo();
 					urlPo.setUrl(urlSet.getUrltemplate());
 					urlPo.setActionId(urlSet.getId());
@@ -88,7 +86,6 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 							url = url.replaceAll("\\{"+ tempIndex +"\\}", String.valueOf(sequenceValue[i]));
 						}
 						
-						urlList.add(url);
 						FetchUrlPo urlPo = new FetchUrlPo();
 						urlPo.setUrl(url);
 						urlPo.setActionId(urlSet.getId());
@@ -103,7 +100,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 					
 				}
 				
-				if (!urlList.isEmpty()) {
+				if (!urlPoList.isEmpty()) {
 					fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
 				}
 				

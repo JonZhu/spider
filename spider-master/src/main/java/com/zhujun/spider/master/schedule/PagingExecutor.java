@@ -41,8 +41,8 @@ public class PagingExecutor implements ActionExecutor {
 				
 				FetchUrlPo fetchUrl = new FetchUrlPo();
 				fetchUrl.setUrl(pagingUrl);
-				fetchUrl.setActionId(paging.getId());
-				// fetchUrlService.createFetchUrl(spider.getDataDir(), fetchUrl);
+				fetchUrl.setActionId(context.getParentAction().getId());
+				fetchUrlService.createFetchUrl(spider.getDataDir(), fetchUrl);
 			}
 		}
 	}

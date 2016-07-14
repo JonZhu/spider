@@ -74,14 +74,18 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	}
 	
 	protected void createFetchUrlPo(Connection conn, FetchUrlPo urlPo) throws SQLException {
-		urlPo.setInsertTime(new Time(System.currentTimeMillis()));
-		urlPo.setModifytime(urlPo.getInsertTime());
-		String sql = "insert into fetchurl(url, status, inserttime, modifytime, actionid) values(?,?,?,?,?)";
-		int id = QUERY_RUNNER.insert(conn, sql, new ScalarHandler<Integer>(), urlPo.getUrl(), 
-				urlPo.getStatus(), urlPo.getInsertTime(), urlPo.getModifytime(), urlPo.getActionId());
-		urlPo.setId(id);
+		// check exist
+		String existSql = "select id from fetchurl where url = ? limit 1";
+		Integer existId = QUERY_RUNNER.query(conn, existSql, new ScalarHandler<Integer>(), urlPo.getUrl());
+		if (existId == null) {
+			urlPo.setInsertTime(new Time(System.currentTimeMillis()));
+			urlPo.setModifytime(urlPo.getInsertTime());
+			String sql = "insert into fetchurl(url, status, inserttime, modifytime, actionid) values(?,?,?,?,?)";
+			int id = QUERY_RUNNER.insert(conn, sql, new ScalarHandler<Integer>(), urlPo.getUrl(), 
+					urlPo.getStatus(), urlPo.getInsertTime(), urlPo.getModifytime(), urlPo.getActionId());
+			urlPo.setId(id);
+		}
 	}
-	
 	
 
 	@Override
