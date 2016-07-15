@@ -8,6 +8,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
@@ -17,6 +19,8 @@ import com.zhujun.spider.master.domain.Spider;
 
 public class PagingExecutor implements ActionExecutor {
 
+	private final static Logger LOG = LoggerFactory.getLogger(PagingExecutor.class);
+	
 	private final IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
 	
 	@Override
@@ -43,6 +47,7 @@ public class PagingExecutor implements ActionExecutor {
 				fetchUrl.setUrl(pagingUrl);
 				fetchUrl.setActionId(context.getParentAction().getId());
 				fetchUrlService.createFetchUrl(spider.getDataDir(), fetchUrl);
+				LOG.debug(pagingUrl);
 			}
 		}
 	}

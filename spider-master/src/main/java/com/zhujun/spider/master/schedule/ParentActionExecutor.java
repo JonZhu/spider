@@ -34,6 +34,9 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 		DslAction action = context.getAction();
 		
 		if (action instanceof DslParentAction) {
+			DslAction oldParentAction = context.getParentAction();
+			String oldProgress = (String)context.getDataScope().get(ScheduleConst.PROGRESS_KEY);
+			
 			final DslParentAction parentAction = (DslParentAction)action;
 			List<DslAction> children = parentAction.getChildren();
 			if (children == null || children.isEmpty()) {
@@ -65,6 +68,10 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 			
 			ProgressUtils.executeSteps(context, actionStepList, ':');
 			
+			// 恢复context数据, 以防后继操作action不正确, 特别是环境执行子级
+			context.setAction(action);
+			context.setParentAction(oldParentAction);
+			context.getDataScope().put(ScheduleConst.PROGRESS_KEY, oldProgress);
 		}
 
 	}
