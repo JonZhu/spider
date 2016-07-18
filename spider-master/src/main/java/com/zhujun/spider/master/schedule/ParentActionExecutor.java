@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhujun.spider.master.domain.Clone;
 import com.zhujun.spider.master.domain.DataTransition;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.DslParentAction;
@@ -98,6 +99,9 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 			return new PagingExecutor();
 		}
 		
+		if (action instanceof Clone) {
+			return new CloneExecutor();
+		}
 		
 		return null;
 	}

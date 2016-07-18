@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import com.zhujun.spider.master.domain.DataWrite;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.Url;
+import com.zhujun.spider.master.domain.internal.CloneImpl;
 import com.zhujun.spider.master.domain.internal.DataTransitionImpl;
 import com.zhujun.spider.master.domain.internal.DataWriteImpl;
 import com.zhujun.spider.master.domain.internal.PagingImpl;
@@ -68,6 +70,8 @@ public class XmlDslParserImpl implements DslParser {
 						actionList.add(parseDataTransition(element));
 					} else if ("urlset".equals(eleName)) {
 						actionList.add(parseUrlSet(element));
+					} else if ("clone".equals(eleName)) {
+						actionList.add(parseClone(element));
 					} else {
 						LOG.warn("spider暂不支持 {} 节点", eleName);
 					}
@@ -81,6 +85,51 @@ public class XmlDslParserImpl implements DslParser {
 			throw new RuntimeException("解析Dsl失败", e);
 		}
 		
+	}
+
+	private DslAction parseClone(Element element) {
+		CloneImpl clone = new CloneImpl();
+		clone.setId(getActionId(element));
+		if (StringUtils.isBlank(clone.getId())) {
+			throw new RuntimeException("clone的id属性不能为空");
+		}
+		
+		String css = element.attributeValue("css");
+		String js = element.attributeValue("js");
+		String image = element.attributeValue("image");
+		if ("false".equals(css)) {
+			clone.setAllowCss(false);
+		}
+		if ("false".equals(js)) {
+			clone.setAllowJs(false);
+		}
+		if ("false".equals(image)) {
+			clone.setAllowImage(false);
+		}
+		
+		// seeds
+		List<Node> seedEleList = element.selectNodes("seeds/seed");
+		if (seedEleList == null || seedEleList.isEmpty()) {
+			throw new RuntimeException("clone的seeds seed节点不能为空");
+		}
+		List<String> seedUrlList = new ArrayList<>();
+		for (Node seedEle : seedEleList) {
+			seedUrlList.add(seedEle.getText());
+		}
+		clone.setSeeds(seedUrlList.toArray(new String[]{}));
+		
+		// hosts
+		List<Node> hostEleList = element.selectNodes("hosts/host");
+		if (hostEleList == null || hostEleList.isEmpty()) {
+			throw new RuntimeException("clone的hosts host节点不能为空");
+		}
+		List<String> hostList = new ArrayList<>();
+		for (Node hostEle : hostEleList) {
+			hostList.add(hostEle.getText());
+		}
+		clone.setHosts(hostList.toArray(new String[]{}));
+		
+		return clone;
 	}
 
 	private DataWrite parseDataWrite(Element element) {

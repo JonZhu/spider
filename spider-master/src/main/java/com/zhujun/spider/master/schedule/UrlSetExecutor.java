@@ -18,7 +18,6 @@ import com.zhujun.spider.master.domain.UrlSet;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.schedule.progress.IStep;
 import com.zhujun.spider.master.schedule.progress.ProgressUtils;
-import com.zhujun.spider.master.util.ThreadUtils;
 
 /**
  * Url集合 执行器
@@ -123,24 +122,11 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				SpiderDataWriter writer = c.getDataWriter();
 				
 				// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
+				Item item = null;
 				while (true) {
-					Item item = PushDataQueue.popPushData(spider.getId(), urlSet.getId());
+					item = ScheduleUtil.waitPushData(spider, urlSet.getId(), fetchUrlService);
 					if (item == null) {
-						ThreadUtils.sleep(5000);
-						
-						item = PushDataQueue.popPushData(spider.getId(), urlSet.getId()); // 5秒后再次获取
-						if (item == null) {
-							// 队列中无数据, 查询数据库中该action是否还有url未处理完
-							boolean existUnFetch = fetchUrlService.existUnFetchUrlInAction(spider.getDataDir(), urlSet.getId());
-							if (existUnFetch) {
-								// 如果还有, 等待5秒 再尝试从 push data queue中获取
-								ThreadUtils.sleep(5000);
-								continue;
-							} else {
-								// 库中该action的url全部抓取完
-								break;
-							}
-						}
+						break;
 					}
 					
 					

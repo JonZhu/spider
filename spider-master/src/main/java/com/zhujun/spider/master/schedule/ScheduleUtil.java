@@ -1,5 +1,10 @@
 package com.zhujun.spider.master.schedule;
 
+import com.zhujun.spider.master.data.db.IFetchUrlService;
+import com.zhujun.spider.master.domain.Spider;
+import com.zhujun.spider.master.schedule.PushDataQueue.Item;
+import com.zhujun.spider.master.util.ThreadUtils;
+
 /**
  * Schedule工具
  * 
@@ -11,6 +16,40 @@ public class ScheduleUtil {
 
 	public static String obj2str(Object obj) {
 		return obj instanceof byte[] ? new String((byte[])obj) : String.valueOf(obj);
+	}
+	
+	/**
+	 * 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
+	 * @author zhujun
+	 * 
+	 * @param spider
+	 * @param actionId
+	 * @param fetchUrlService
+	 * @return 返回null, 表示push队列无数据 且 fetchurl中无该action创建的无完成的url
+	 * @throws Exception
+	 */
+	public static Item waitPushData(Spider spider, String actionId, IFetchUrlService fetchUrlService) throws Exception {
+		// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
+		Item item = null;
+		while (true) {
+			item = PushDataQueue.popPushData(spider.getId(), actionId);
+			if (item == null) {
+				ThreadUtils.sleep(5000);
+				
+				item = PushDataQueue.popPushData(spider.getId(), actionId); // 5秒后再次获取
+				if (item == null) {
+					// 队列中无数据, 查询数据库中该action是否还有url未处理完
+					boolean existUnFetch = fetchUrlService.existUnFetchUrlInAction(spider.getDataDir(), actionId);
+					if (existUnFetch) {
+						// 如果还有, 等待5秒 再尝试从 push data queue中获取
+						ThreadUtils.sleep(5000);
+						continue;
+					}
+				}
+			}
+			
+			return item;
+		}
 	}
 	
 }
