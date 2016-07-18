@@ -61,6 +61,7 @@
       <p>
         master负责维护任务，调度任务，下发url给worker，处理worker上报的数据。
                         任务通过专有的DSL(领域特定语言)定义抓取逻辑，提交给master。
+                        任务按照抓取逻辑分为指定数据抓取和镜像克隆，指定数据抓取是只抓取我们关心的站点页面；镜像克隆是抓取站点所有页面。
       </p>
       <p>
                        定义任务可以通过xml，这个目前唯一的方式，因为只实现了基于xml的dsl解析。目前xml可以参考下面示例，这个例子定义了抓取美团所有城市所有分类的店铺列表页。
@@ -88,6 +89,28 @@
 		<temp2value>{categoryDataProcess}</temp2value>
 		<paging select=".paginator-wrapper .paginator a" urlattr="href"></paging>
 	</urlset>
+</spider>
+</xmp></pre>
+      
+      <p>下面的例子定义了克隆成都和北京美团的克隆任务</p>
+<pre><xmp>
+<spider name="meituan_clone" datadir="E:/tmp/spider/meituan_clone" author="zhujun">
+
+	<!-- 开始定义任务 -->
+	<clone id="meituanClone" css="yes" js="yes" image="yes">
+		<!-- 种子url -->
+		<seeds>
+			<seed>http://cd.meituan.com</seed>
+			<seed>http://bj.meituan.com</seed>
+		</seeds>
+		
+		<!-- 限制范围, 仅作用于html -->
+		<hosts>
+			<host>cd.meituan.com</host>
+			<host>bj.meituan.com</host>
+		</hosts>
+	</clone>
+	
 </spider>
 </xmp></pre>
       
