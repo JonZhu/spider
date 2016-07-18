@@ -69,7 +69,7 @@ public class PushDataQueue {
 		public byte[] data;
 		public Date fetchTime;
 		public boolean success;
-		
+		public String contentType;
 	}
 	
 }

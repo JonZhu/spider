@@ -52,16 +52,17 @@ public class FetchWorker implements Runnable {
 			netMsg.setHeader("Action", "Push-fetch-data");
 			netMsg.setHeader("Fetch-url", item.url);
 			
-			byte[] content = null;
+			IFetchResult result = null;
 			Lock lock = null;
 			try {
 				
 				URL url = new URL(item.url);
 				lock = getHostFetchLock(url.getHost());
 				
-				content = CONTENT_FETCHER.fetch(item.url);
+				result = CONTENT_FETCHER.fetch(item.url);
 				netMsg.setHeader("Fetch-Result", "Success");
-				netMsg.setBody(content);
+				netMsg.setHeader("Content-Type", result.getContentType());
+				netMsg.setBody(result.getData());
 			} catch (Exception e) {
 				LOG.error("获取url[{}]数据失败", item.url, e);
 			} finally {

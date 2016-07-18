@@ -14,6 +14,6 @@ public interface ContentFetcher {
 	 * @param url
 	 * @return
 	 */
-	byte[] fetch(String url);
+	IFetchResult fetch(String url);
 	
 }

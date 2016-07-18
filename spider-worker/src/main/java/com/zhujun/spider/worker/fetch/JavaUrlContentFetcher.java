@@ -51,7 +51,7 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 	}
 	
 	@Override
-	public byte[] fetch(String url) {
+	public IFetchResult fetch(String url) {
 		
 		InputStream urlInputStream = null;
 		HttpURLConnection connection = null;
@@ -70,6 +70,7 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 				throw new Exception("http response code >= 400");
 			}
 			
+			String contentType = connection.getHeaderField("Content-Type");
 			urlInputStream = connection.getInputStream();
 			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 			IOUtils.copy(urlInputStream, byteOutputStream);
@@ -78,7 +79,11 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 				LOG.debug("fetch: {}", url);
 			}
 			
-			return byteOutputStream.toByteArray();
+			FetchResultImpl result = new FetchResultImpl();
+			
+			result.setContentType(contentType);
+			result.setData(byteOutputStream.toByteArray());
+			return result;
 		} catch (Exception e) {
 			throw new RuntimeException("获取内容失败", e);
 		} finally {
