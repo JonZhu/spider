@@ -41,6 +41,11 @@ public class PullUrlThread extends Thread {
 						e.printStackTrace();
 					}
 				}
+				
+				if (queue.size() > 100) {
+					// 二次判断
+					continue;
+				}
 			}
 			
 			SpiderNetMessage netMsg = new SpiderNetMessage();

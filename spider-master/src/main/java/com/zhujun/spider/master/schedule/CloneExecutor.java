@@ -78,11 +78,11 @@ public class CloneExecutor implements ActionExecutor {
 					if (item.success) {
 						// 存储到文件
 						writer.write(item.url, item.fetchTime, item.data);
-						fetchUrlService.setFetchUrlStatus(c.getSpider().getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
 						
 						// 解析连接的url
 						parseLinkedUrls(item.url, item.contentType, item.data, clone, c.getSpider());
 						
+						fetchUrlService.setFetchUrlStatus(c.getSpider().getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
 					} else {
 						// 抓取失败
 						fetchUrlService.setFetchUrlStatus(c.getSpider().getDataDir(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
@@ -212,7 +212,6 @@ public class CloneExecutor implements ActionExecutor {
 		
 		if (urlPoList.size() > 0) {
 			fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
-			urlPoList = new ArrayList<>();
 		}
 		
 		if (LOG.isDebugEnabled()) {

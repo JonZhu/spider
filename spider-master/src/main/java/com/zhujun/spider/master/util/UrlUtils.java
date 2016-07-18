@@ -22,13 +22,19 @@ public class UrlUtils {
 	public static String buildAbsoluteUrl(String baseUrl, String url) {
 		if (url.startsWith("/")) {
 			// 相对于baseUrl的根路径
-			return baseUrl.substring(0, baseUrl.indexOf("/", 8)) + url;
+			int index = baseUrl.indexOf("/", 8); // 查找http(s):// 之后的/
+			return index > 0 ? baseUrl.substring(0, index) + url : baseUrl + url;
 		} else if (url.startsWith("http://") || url.startsWith("https://")) {
 			// 已经是绝对url
 			return url;
 		} else {
 			// 相对于baseUrl的当前路径
-			return baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1) + url;
+			int index = baseUrl.lastIndexOf("/");
+			if (index < 8) {
+				return baseUrl + "/" + url;
+			} else {
+				return baseUrl.substring(0, index + 1) + url;
+			}
 		}
 	}
 	

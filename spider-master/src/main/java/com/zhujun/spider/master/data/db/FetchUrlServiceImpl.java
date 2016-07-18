@@ -179,9 +179,9 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 				
 				@Override
 				public Boolean action(Connection conn) throws Exception {
-					String sql = "select id from fetchurl where actionid = ? and (status = ? or status = ?) limit 1";
+					String sql = "select id from fetchurl where actionid = ? and status in (?,?,?) limit 1";
 					Integer id = QUERY_RUNNER.query(conn, sql, new ScalarHandler<Integer>(), 
-							actionId, FetchUrlPo.STATUS_INIT, FetchUrlPo.STATUS_ERROR);
+							actionId, FetchUrlPo.STATUS_INIT, FetchUrlPo.STATUS_ERROR, FetchUrlPo.STATUS_PUSHED);
 					return id != null;
 				}
 				

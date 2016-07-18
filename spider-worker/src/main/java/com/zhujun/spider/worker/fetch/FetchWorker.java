@@ -3,6 +3,7 @@ package com.zhujun.spider.worker.fetch;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -117,19 +118,27 @@ public class FetchWorker implements Runnable {
 	 */
 	private PushUrlBodyItem getUrlFromQueue() {
 		PushUrlBodyItem url = null;
+		Queue<PushUrlBodyItem> queue = FetchUrlQueue.DATA;
 		
-		synchronized (FetchUrlQueue.DATA) {
-			if (FetchUrlQueue.DATA.isEmpty()) {
-				try {
-					FetchUrlQueue.DATA.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+		while(true) {
+			synchronized (queue) {
+				if (queue.isEmpty()) {
+					try {
+						queue.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
-			}
-			
-			url = FetchUrlQueue.DATA.poll();
-			if (FetchUrlQueue.DATA.size() < 100) {
-				FetchUrlQueue.DATA.notifyAll(); // 通知push url
+				
+				url = queue.poll();
+				if (url == null) {
+					continue;
+				}
+				
+				if (queue.size() < 100) {
+					queue.notifyAll(); // 通知push url
+				}
+				break;
 			}
 		}
 		
