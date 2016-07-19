@@ -91,14 +91,4 @@ public class EachFileDataWriterImpl implements SpiderDataWriter {
 		
 	}
 	
-	public static void main(String[] args) {
-		File dir = new File("E:/tmp/spider/sina_clone/tech.sina.com.cn/zl");
-		try {
-			new EachFileDataWriterImpl("").mkdirs(dir);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 }
