@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.schedule;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class UrlExecutor implements ActionExecutor {
 	
 	
 	@Override
-	public void execute(IScheduleContext context) {
+	public void execute(IScheduleContext context) throws IOException {
 		Url urlAction = (Url)context.getAction();
 		Map<String, Serializable> dataScope = context.getDataScope();
 

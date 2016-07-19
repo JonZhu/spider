@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.data.writer;
 
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -23,6 +24,6 @@ public interface SpiderDataWriter {
 	 * @param fetchTime 抓取时间
 	 * @param contentData 内容数据
 	 */
-	void write(String originUrl, Date fetchTime, byte[] contentData);
+	void write(String originUrl, Date fetchTime, byte[] contentData) throws IOException;
 	
 }

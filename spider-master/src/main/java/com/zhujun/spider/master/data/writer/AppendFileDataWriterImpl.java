@@ -23,7 +23,7 @@ import com.zhujun.spider.master.schedule.ScheduleConst;
  * @date 2016年6月6日
  *
  */
-public class FileDataWriterImpl implements SpiderDataWriter {
+public class AppendFileDataWriterImpl implements SpiderDataWriter {
 
 	/**
 	 * 文件大小128M
@@ -53,7 +53,7 @@ public class FileDataWriterImpl implements SpiderDataWriter {
 	private File writingFile;
 	
 	
-	public FileDataWriterImpl(String fileName) {
+	public AppendFileDataWriterImpl(String fileName) {
 		this.fileName = fileName;
 	}
 	

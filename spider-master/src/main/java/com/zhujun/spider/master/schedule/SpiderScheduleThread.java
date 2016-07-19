@@ -13,7 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhujun.spider.master.data.writer.FileDataWriterImpl;
+import com.zhujun.spider.master.data.writer.AppendFileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
@@ -63,7 +63,7 @@ public class SpiderScheduleThread extends Thread {
 		if (!dataDir.exists() || !dataDir.isDirectory()) {
 			dataDir.mkdirs();
 		}
-		SpiderDataWriter dataWriter = new FileDataWriterImpl(new File(dataDir, "data").getAbsolutePath());
+		SpiderDataWriter dataWriter = new AppendFileDataWriterImpl(new File(dataDir, "data").getAbsolutePath());
 		
 		// 初始化context
 		ScheduleContextImpl context = new ScheduleContextImpl();
