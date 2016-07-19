@@ -3,7 +3,9 @@ package com.zhujun.spider.master.data.writer;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
@@ -31,9 +33,72 @@ public class EachFileDataWriterImpl implements SpiderDataWriter {
 			hostDir.mkdirs();
 		}
 		
-		File dataFile = new File(hostDir, urlObj.getFile());
+		String fileName = urlObj.getFile();
+		if ("".equals(fileName) || "/".equals(fileName)) {
+			fileName = "index.html";
+		}
+		
+		// replace : * ? " < > | 
+		fileName = fileName.replaceAll("[:*?\"<>|]", "_");
+		
+		File dataFile = new File(hostDir, fileName);
+		mkdirs(dataFile.getParentFile());
+		
 		FileUtils.writeByteArrayToFile(dataFile, contentData);
 		
+	}
+
+	/**
+	 * 创建目录
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月19日
+	 *
+	 * @param parentFile
+	 * @throws IOException 
+	 */
+	private void mkdirs(File dir) throws IOException {
+		if (dir.isDirectory()) {
+			return;
+		}
+		
+		boolean flag = dir.mkdirs();
+		if (!flag) {
+			// 检查是否有文件占用目录名称
+			File temp = dir;
+			List<File> movedFileList = new ArrayList<>();
+			while (temp != null) {
+				if (temp.isFile()) {
+					File moveToFile = new File(temp.getAbsolutePath() + "__mkdir_move");
+					FileUtils.moveFile(temp, moveToFile);
+					movedFileList.add(moveToFile);
+				}
+				
+				temp = temp.getParentFile();
+			}
+			
+			flag = dir.mkdirs();
+			if (!flag) {
+				throw new IOException("无法创建目录:" + dir.getAbsolutePath());
+			}
+			
+			// 创建目录成功, 处理之前移动过的文件
+			for (File file : movedFileList) {
+				FileUtils.moveFile(file, new File(file.getAbsolutePath().replace("__mkdir_move", "/index")));
+			}
+			
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		File dir = new File("E:/tmp/spider/sina_clone/tech.sina.com.cn/zl");
+		try {
+			new EachFileDataWriterImpl("").mkdirs(dir);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
