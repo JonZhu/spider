@@ -12,6 +12,11 @@ public class XmlSpider extends DslParentActionImpl implements Spider {
 	
 	private String dataDir;
 	
+	/**
+	 * appendfile、eachfile
+	 */
+	private String dataWriterType = "appendfile";
+	
 	private Document spiderDslDoc;
 	
 	public void setAuthor(String author) {
@@ -45,6 +50,14 @@ public class XmlSpider extends DslParentActionImpl implements Spider {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getDataWriterType() {
+		return dataWriterType;
+	}
+
+	public void setDataWriterType(String dataWriterType) {
+		this.dataWriterType = dataWriterType;
 	}
 
 }

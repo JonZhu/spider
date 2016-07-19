@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.master.data.writer.AppendFileDataWriterImpl;
+import com.zhujun.spider.master.data.writer.EachFileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
@@ -59,11 +60,12 @@ public class SpiderScheduleThread extends Thread {
 		dataScope.put(ScheduleConst.TASK_DATA_DIR_KEY, spider.getDataDir());
 		
 		// 构建数据存储写入器
-		File dataDir = new File(spider.getDataDir());
-		if (!dataDir.exists() || !dataDir.isDirectory()) {
-			dataDir.mkdirs();
+		SpiderDataWriter dataWriter = null;
+		if ("eachfile".equalsIgnoreCase(spider.getDataWriterType())) {
+			dataWriter = new EachFileDataWriterImpl(spider.getDataDir());
+		} else {
+			dataWriter = new AppendFileDataWriterImpl(new File(spider.getDataDir(), "data").getAbsolutePath());
 		}
-		SpiderDataWriter dataWriter = new AppendFileDataWriterImpl(new File(dataDir, "data").getAbsolutePath());
 		
 		// 初始化context
 		ScheduleContextImpl context = new ScheduleContextImpl();

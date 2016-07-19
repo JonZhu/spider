@@ -58,6 +58,11 @@ public class XmlDslParserImpl implements DslParser {
 			xmlSpider.setName(rootEle.attributeValue("name"));
 			xmlSpider.setAuthor(rootEle.attributeValue("author"));
 			
+			String datawriter = rootEle.attributeValue("datawriter");
+			if (StringUtils.isNotBlank(datawriter)) {
+				xmlSpider.setDataWriterType(datawriter);
+			}
+			
 			List<Element> eleList = rootEle.elements();
 			if (eleList != null && !eleList.isEmpty()) {
 				List<DslAction> actionList = new ArrayList<>();

@@ -14,4 +14,11 @@ public interface Spider extends DslParentAction {
 	
 	String getDataDir();
 	
+	/**
+	 * 写数据 类型
+	 * 
+	 * @return
+	 */
+	String getDataWriterType();
+	
 }
