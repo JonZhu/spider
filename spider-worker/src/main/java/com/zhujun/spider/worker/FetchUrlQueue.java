@@ -1,7 +1,7 @@
 package com.zhujun.spider.worker;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
 
@@ -17,7 +17,7 @@ public class FetchUrlQueue {
 	/**
 	 * 队列数据
 	 */
-	public final static Queue<PushUrlBodyItem> DATA = new LinkedList<>();
+	public final static BlockingQueue<PushUrlBodyItem> DATA = new LinkedBlockingQueue<>();
 	
 	private FetchUrlQueue(){};
 }

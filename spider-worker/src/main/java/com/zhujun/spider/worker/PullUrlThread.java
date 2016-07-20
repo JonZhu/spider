@@ -24,6 +24,11 @@ public class PullUrlThread extends Thread {
 	
 	private final MinaClient minaClient;
 	
+	/**
+	 * 连续空响应次数
+	 */
+	private int responseEmptyCount = 0;
+	
 	public PullUrlThread(MinaClient minaClient) {
 		this.minaClient = minaClient;
 	}
@@ -33,19 +38,9 @@ public class PullUrlThread extends Thread {
 		final Queue<PushUrlBodyItem> queue = FetchUrlQueue.DATA;
 		
 		while (!Thread.currentThread().isInterrupted()) {
-			synchronized (queue) {
-				if (queue.size() > 100) {
-					try {
-						queue.wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				
-				if (queue.size() > 100) {
-					// 二次判断
-					continue;
-				}
+			if (queue.size() > 100) {
+				threadSleep(300);
+				continue;
 			}
 			
 			SpiderNetMessage netMsg = new SpiderNetMessage();
@@ -53,7 +48,7 @@ public class PullUrlThread extends Thread {
 			minaClient.sendMsg(netMsg);
 			SpiderNetMessage pushUrlMsg = minaClient.waitMsg("Push-url", 5000);
 			
-			boolean needSleep = true;
+			int needSleep = 10000;
 			if (pushUrlMsg != null) {
 				String status = pushUrlMsg.getHeader("Status");
 				if ("200".equals(status)) {
@@ -62,25 +57,38 @@ public class PullUrlThread extends Thread {
 					String taskId = pushUrlMsg.getHeader("Task-id");
 					try {
 						PushUrlBody body = new ObjectMapper().readValue(pushUrlMsg.getBody(), PushUrlBody.class);
-						addUrlData2queue(taskId, body, queue);
-						needSleep = false; // 正常逻辑, 不用sleep
+						if (body != null && !body.isEmpty()) {
+							addUrlData2queue(taskId, body, queue);
+							needSleep = 0; // 正常逻辑, 不用sleep
+							responseEmptyCount = 0; // 重置空响应次数
+						} else {
+							// 响应数据为空
+							responseEmptyCount++;
+							if (responseEmptyCount < 3) {
+								responseEmptyCount = 0; // 前两次不用sleep
+							}
+						}
 					} catch (Exception e) {
 						LOG.error("解析json出错", e);
 					}
 					
 				}
 			} else {
-				needSleep = false; // 超时不用sleep, 已经有timeout时间等待
+				needSleep = 0; // 超时不用sleep, 已经有timeout时间等待
 			}
 			
-			if (needSleep) {
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			if (needSleep > 0) {
+				threadSleep(needSleep);
 			}
 			
+		}
+	}
+
+	private void threadSleep(int millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 

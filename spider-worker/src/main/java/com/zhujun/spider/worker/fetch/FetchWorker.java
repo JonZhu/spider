@@ -3,7 +3,7 @@ package com.zhujun.spider.worker.fetch;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -48,7 +48,12 @@ public class FetchWorker implements Runnable {
 	public void run() {
 		while (!Thread.currentThread().isInterrupted()) {
 			
-			PushUrlBodyItem item = getUrlFromQueue();
+			PushUrlBodyItem item = null;
+			try {
+				item = getUrlFromQueue();
+			} catch (InterruptedException e1) {
+				break;
+			}
 			SpiderNetMessage netMsg = new SpiderNetMessage();
 			netMsg.setHeader("Action", "Push-fetch-data");
 			netMsg.setHeader("Fetch-url", item.url);
@@ -115,34 +120,11 @@ public class FetchWorker implements Runnable {
 	 * @date 2016年6月22日
 	 *
 	 * @return
+	 * @throws InterruptedException 
 	 */
-	private PushUrlBodyItem getUrlFromQueue() {
-		PushUrlBodyItem url = null;
-		Queue<PushUrlBodyItem> queue = FetchUrlQueue.DATA;
-		
-		while(true) {
-			synchronized (queue) {
-				if (queue.isEmpty()) {
-					try {
-						queue.wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				
-				url = queue.poll();
-				if (url == null) {
-					continue;
-				}
-				
-				if (queue.size() < 100) {
-					queue.notifyAll(); // 通知push url
-				}
-				break;
-			}
-		}
-		
-		return url;
+	private PushUrlBodyItem getUrlFromQueue() throws InterruptedException {
+		// queue is blocking
+		return FetchUrlQueue.DATA.poll(999999, TimeUnit.DAYS);
 	}
 
 }
