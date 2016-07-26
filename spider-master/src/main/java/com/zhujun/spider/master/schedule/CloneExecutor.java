@@ -149,7 +149,7 @@ public class CloneExecutor implements ActionExecutor {
 		
 		if (clone.isAllowCss()) {
 			// css
-			Elements linkEles = doc.select("link[href][ref=stylesheet]");
+			Elements linkEles = doc.select("link[href]");
 			if (linkEles != null && !linkEles.isEmpty()) {
 				for (Element linkEle : linkEles) {
 					String absUrl = linkEle.absUrl("href");
@@ -258,5 +258,4 @@ public class CloneExecutor implements ActionExecutor {
 		return false;
 	}
 	
-
 }
