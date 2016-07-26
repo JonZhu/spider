@@ -2,14 +2,15 @@ package com.zhujun.spider.master.data.db.datasource;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteConfig.SynchronousMode;
+import org.sqlite.SQLiteDataSource;
 
 /**
  * 数据库连接池管理
@@ -46,11 +47,16 @@ public class DataSourceManager {
 			throw new RuntimeException("未找到数据源类型 ["+ type +"]的初始化程序");
 		}
 		
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName("org.sqlite.JDBC");
+//		BasicDataSource dataSource = new BasicDataSource();
+//		dataSource.setDriverClassName("org.sqlite.JDBC");
+//		dataSource.setUrl("jdbc:sqlite:" + dbFile);
+//		dataSource.setInitialSize(0);
+//		dataSource.setMaxTotal(10);
+		
+		SQLiteConfig config = new SQLiteConfig();
+		config.setSynchronous(SynchronousMode.OFF);
+		SQLiteDataSource dataSource = new SQLiteDataSource(config);
 		dataSource.setUrl("jdbc:sqlite:" + dbFile);
-		dataSource.setInitialSize(0);
-		dataSource.setMaxTotal(10);
 		
 		DBINIT_MAP.get(type).init(dataSource); // 执行初始化
 		DATA_SOURCE_MAP.put(dbFile, dataSource);
@@ -70,14 +76,7 @@ public class DataSourceManager {
 	 * @param dbFile
 	 */
 	synchronized public static void remove(String dbFile) {
-		DataSource dataSource = DATA_SOURCE_MAP.get(dbFile);
-		if (dataSource != null) {
-			try {
-				((BasicDataSource)dataSource).close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		DATA_SOURCE_MAP.remove(dbFile);
 	}
 	
 	
