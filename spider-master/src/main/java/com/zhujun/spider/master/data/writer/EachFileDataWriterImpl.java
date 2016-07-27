@@ -42,7 +42,12 @@ public class EachFileDataWriterImpl implements SpiderDataWriter {
 		fileName = fileName.replaceAll("[:*?\"<>|]", "_");
 		
 		File dataFile = new File(hostDir, fileName);
-		mkdirs(dataFile.getParentFile());
+		if (dataFile.isDirectory()) {
+			// 如果文件路径已经被生成目录, 则存入该目录下的 index.html文件中
+			dataFile = new File(dataFile, "index.html");
+		} else {
+			mkdirs(dataFile.getParentFile());
+		}
 		
 		FileUtils.writeByteArrayToFile(dataFile, contentData);
 		
