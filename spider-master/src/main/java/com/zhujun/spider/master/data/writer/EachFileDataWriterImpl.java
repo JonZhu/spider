@@ -29,9 +29,6 @@ public class EachFileDataWriterImpl implements SpiderDataWriter {
 
 		URL urlObj = new URL(originUrl);
 		File hostDir = new File(dir, urlObj.getHost());
-		if (!hostDir.exists()) {
-			hostDir.mkdirs();
-		}
 		
 		String fileName = urlObj.getFile();
 		if ("".equals(fileName) || "/".equals(fileName)) {

@@ -128,7 +128,7 @@ public class CloneExecutor implements ActionExecutor {
 		String href = null;
 		if (aEles != null && !aEles.isEmpty()) {
 			for (Element aEle : aEles) {
-				href = aEle.attr("href");
+				href = StringUtils.trim(aEle.attr("href"));
 				if (StringUtils.isNotBlank(href) && !href.startsWith("#") && !href.startsWith("javascript:")) {
 					String absoluteUrl = UrlUtils.buildAbsoluteUrl(url, href);
 					if (isUrlInHosts(absoluteUrl, clone.getHosts())) {
