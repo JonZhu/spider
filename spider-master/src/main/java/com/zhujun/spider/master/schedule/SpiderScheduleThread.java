@@ -43,7 +43,7 @@ public class SpiderScheduleThread extends Thread {
 
 	@Override
 	public void run() {
-		LOG.debug("开始执行spider [{}]", spider.getId());
+		LOG.debug("start schedule spider task, datadir: {}", spider.getDataDir());
 		
 		final String dataScopePersisentName = "datascope.bin"; // data域持久化文件名
 		
@@ -77,8 +77,10 @@ public class SpiderScheduleThread extends Thread {
 		try {
 			new SpiderActionExecutor().execute(context);
 		} catch (Exception e) {
-			LOG.error("任务执行出错, name:{}, datadir:{}", spider.getId(), spider.getDataDir(), e);
+			LOG.error("schedule task error, datadir:{}", spider.getDataDir(), e);
 		}
+		
+		LOG.debug("complete schedule spider task, datadir: {}", spider.getDataDir());
 	}
 	
 	

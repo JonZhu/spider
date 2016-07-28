@@ -215,7 +215,7 @@ public class CloneExecutor implements ActionExecutor {
 		}
 		
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("耗时: {} ms", System.currentTimeMillis() - startTime);
+			LOG.debug("parse link url and insert into database cost {} ms", System.currentTimeMillis() - startTime);
 		}
 		
 	}
