@@ -66,7 +66,7 @@ public class ServerHandler implements IoHandler {
 			String action = netMsg.getHeader("Action");
 			
 			if ("Pull-url".equals(action)) {
-				pushUrl2client(session);
+				pushUrl2client(session, netMsg);
 			} else if ("Push-fetch-data".equals(action)) {
 				receiveFetchData(netMsg);
 			}
@@ -109,7 +109,7 @@ public class ServerHandler implements IoHandler {
 	 *
 	 * @param session
 	 */
-	private void pushUrl2client(IoSession session) {
+	private void pushUrl2client(IoSession session, SpiderNetMessage requstMsg) {
 		SpiderNetMessage netMsg = new SpiderNetMessage();
 		netMsg.setHeader("Action", "Push-url");
 		netMsg.setHeader("Content-type", "json");
@@ -141,6 +141,12 @@ public class ServerHandler implements IoHandler {
 		}
 		
 		netMsg.setHeader("Status", status);
+		
+		// 处理响应消息id
+		String reqMsgId = requstMsg.getHeader("Msg-id");
+		if (reqMsgId != null) {
+			netMsg.setHeader("Response-for", reqMsgId);
+		}
 		
 		session.write(netMsg);
 	}

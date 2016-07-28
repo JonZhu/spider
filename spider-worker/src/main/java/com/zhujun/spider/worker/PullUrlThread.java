@@ -45,9 +45,7 @@ public class PullUrlThread extends Thread {
 			
 			SpiderNetMessage netMsg = new SpiderNetMessage();
 			netMsg.setHeader("Action", "Pull-url");
-			minaClient.sendMsg(netMsg);
-			LOG.debug("send pull url message to master");
-			SpiderNetMessage pushUrlMsg = minaClient.waitMsg("Push-url", 5000);
+			SpiderNetMessage pushUrlMsg = minaClient.sendMsg(netMsg, 5000);
 			
 			int needSleep = 10000;
 			if (pushUrlMsg != null) {

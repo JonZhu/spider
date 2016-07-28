@@ -1,11 +1,7 @@
 package com.zhujun.spider.worker.mina;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
@@ -19,12 +15,7 @@ public class ClientHandler implements IoHandler {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ClientHandler.class);
 	
-	private final Map<String, Queue<WaitMsgLock>> waitMsgQueueMap = new ConcurrentHashMap<>();
-	
-	/**
-	 * set用于全局判断lock是存在于等待队列
-	 */
-	private final Set<WaitMsgLock> waitMsgLockSet = new HashSet<>();
+	private final Map<String, WaitMsgLock> waitMsgQueueMap = new ConcurrentHashMap<>();
 	
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
@@ -59,15 +50,15 @@ public class ClientHandler implements IoHandler {
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		if (message instanceof SpiderNetMessage) {
 			SpiderNetMessage netMsg = (SpiderNetMessage)message;
-			String action = netMsg.getHeader("Action");
+			String respForMsgId = netMsg.getHeader("Response-for");
 			
-			// 先处理等待锁逻辑
-			Queue<WaitMsgLock> waitQueue = waitMsgQueueMap.get(action);
 			boolean existWaitLock = false;
-			if (waitQueue != null) {
-				WaitMsgLock lock = waitQueue.poll();
+			if (respForMsgId != null) {
+				// 先处理等待锁逻辑
+				WaitMsgLock lock = waitMsgQueueMap.get(respForMsgId);
+				
 				if (lock != null) {
-					waitMsgLockSet.remove(lock);
+					waitMsgQueueMap.remove(respForMsgId);
 					synchronized (lock) {
 						lock.msg = netMsg; // 设置响应msg
 						lock.notifyAll(); // 解除其它线程等待
@@ -117,29 +108,15 @@ public class ClientHandler implements IoHandler {
 	 * @author zhujun
 	 * @date 2016年7月5日
 	 *
-	 * @param msgAction
+	 * @param msgId
 	 * @param lock
 	 */
-	public void addWaitMsgLock(String msgAction, WaitMsgLock lock) {
-		
-		Queue<WaitMsgLock> queue = waitMsgQueueMap.get(msgAction);
-		if (queue == null) {
-			queue = new ConcurrentLinkedQueue<>();
-			waitMsgQueueMap.put(msgAction, queue);
-			waitMsgLockSet.add(lock);
-		}
-		
-		queue.add(lock);
+	public void addWaitMsgLock(String msgId, WaitMsgLock lock) {
+		waitMsgQueueMap.put(msgId, lock);
 	}
 
-	public void removeWaitMsgLock(String msgAction, WaitMsgLock lock) {
-		if (waitMsgLockSet.contains(lock)) {
-			waitMsgLockSet.remove(lock);
-			Queue<WaitMsgLock> waitQueue = waitMsgQueueMap.get(msgAction);
-			if (waitQueue != null) {
-				waitQueue.remove(lock);
-			}
-		}
+	public void removeWaitMsgLock(String msgId) {
+		waitMsgQueueMap.remove(msgId);
 	}
 
 }
