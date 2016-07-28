@@ -119,7 +119,11 @@ public class MinaClient {
 				lock.wait(timeoutMs);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			} finally {
+				// 防止超时后lock不能清除
+				clientHandler.removeWaitMsgLock(msgAction, lock);
 			}
+			
 		}
 		
 		return lock.msg;

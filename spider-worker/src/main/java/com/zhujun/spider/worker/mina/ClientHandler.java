@@ -1,7 +1,9 @@
 package com.zhujun.spider.worker.mina;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -18,6 +20,11 @@ public class ClientHandler implements IoHandler {
 	private final static Logger LOG = LoggerFactory.getLogger(ClientHandler.class);
 	
 	private final Map<String, Queue<WaitMsgLock>> waitMsgQueueMap = new ConcurrentHashMap<>();
+	
+	/**
+	 * set用于全局判断lock是存在于等待队列
+	 */
+	private final Set<WaitMsgLock> waitMsgLockSet = new HashSet<>();
 	
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
@@ -60,6 +67,7 @@ public class ClientHandler implements IoHandler {
 			if (waitQueue != null) {
 				WaitMsgLock lock = waitQueue.poll();
 				if (lock != null) {
+					waitMsgLockSet.remove(lock);
 					synchronized (lock) {
 						lock.msg = netMsg; // 设置响应msg
 						lock.notifyAll(); // 解除其它线程等待
@@ -118,9 +126,20 @@ public class ClientHandler implements IoHandler {
 		if (queue == null) {
 			queue = new ConcurrentLinkedQueue<>();
 			waitMsgQueueMap.put(msgAction, queue);
+			waitMsgLockSet.add(lock);
 		}
 		
 		queue.add(lock);
+	}
+
+	public void removeWaitMsgLock(String msgAction, WaitMsgLock lock) {
+		if (waitMsgLockSet.contains(lock)) {
+			waitMsgLockSet.remove(lock);
+			Queue<WaitMsgLock> waitQueue = waitMsgQueueMap.get(msgAction);
+			if (waitQueue != null) {
+				waitQueue.remove(lock);
+			}
+		}
 	}
 
 }
