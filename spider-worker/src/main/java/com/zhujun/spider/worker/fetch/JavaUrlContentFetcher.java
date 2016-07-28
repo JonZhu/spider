@@ -56,6 +56,10 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 		InputStream urlInputStream = null;
 		HttpURLConnection connection = null;
 		try {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("fetch: {}", url);
+			}
+			
 			URL urlObj = new URL(url);
 			connection = (HttpURLConnection)urlObj.openConnection();
 			connection.setDoOutput(false);
@@ -74,10 +78,6 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			urlInputStream = connection.getInputStream();
 			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 			IOUtils.copy(urlInputStream, byteOutputStream);
-			
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("fetch: {}", url);
-			}
 			
 			FetchResultImpl result = new FetchResultImpl();
 			
