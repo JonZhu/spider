@@ -70,9 +70,11 @@ public class FetchWorker implements Runnable {
 				netMsg.setHeader("Content-Type", result.getContentType());
 				netMsg.setBody(result.getData());
 			} catch (Exception e) {
-				LOG.error("获取url[{}]数据失败", item.url, e);
+				LOG.error("fetch url[{}] data fail", item.url, e);
 			} finally {
-				lock.unlock();
+				if (lock != null) {
+					lock.unlock();
+				}
 			}
 			
 			netMsg.setHeader("Fetch-time", String.valueOf(System.currentTimeMillis()));
