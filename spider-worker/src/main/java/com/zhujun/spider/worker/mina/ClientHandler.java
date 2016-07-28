@@ -1,6 +1,5 @@
 package com.zhujun.spider.worker.mina;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;

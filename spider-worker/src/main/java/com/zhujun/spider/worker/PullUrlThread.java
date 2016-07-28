@@ -1,6 +1,6 @@
 package com.zhujun.spider.worker;
 
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class PullUrlThread extends Thread {
 	
 	@Override
 	public void run() {
-		final Queue<PushUrlBodyItem> queue = FetchUrlQueue.DATA;
+		final BlockingQueue<PushUrlBodyItem> queue = FetchUrlQueue.DATA;
 		
 		while (!Thread.currentThread().isInterrupted()) {
 			if (queue.size() > 100) {
@@ -46,6 +46,7 @@ public class PullUrlThread extends Thread {
 			SpiderNetMessage netMsg = new SpiderNetMessage();
 			netMsg.setHeader("Action", "Pull-url");
 			minaClient.sendMsg(netMsg);
+			LOG.debug("send pull url message");
 			SpiderNetMessage pushUrlMsg = minaClient.waitMsg("Push-url", 5000);
 			
 			int needSleep = 10000;
@@ -92,19 +93,17 @@ public class PullUrlThread extends Thread {
 		}
 	}
 
-	private void addUrlData2queue(String taskId, PushUrlBody body, Queue<PushUrlBodyItem> queue) {
+	private void addUrlData2queue(String taskId, PushUrlBody body, BlockingQueue<PushUrlBodyItem> queue) {
 		if (body == null || body.isEmpty()) {
 			return;
 		}
 		
-		synchronized (queue) {
-			for (PushUrlBodyItem item : body) {
-				item.taskId = taskId;
-				queue.add(item);
-			}
-			
-			queue.notifyAll(); // 有新数据, 激活消费者
+		for (PushUrlBodyItem item : body) {
+			item.taskId = taskId;
+			queue.add(item);
 		}
+		
+		LOG.debug("add {} count of data to fetch url queue", body.size());
 		
 	}
 	
