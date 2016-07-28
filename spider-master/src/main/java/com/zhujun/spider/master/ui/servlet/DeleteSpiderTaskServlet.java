@@ -37,7 +37,7 @@ public class DeleteSpiderTaskServlet extends HttpServlet {
 		try {
 			DIContext.getInstance(ISpiderTaskService.class).deleteSpiderTask(taskId);
 		} catch (Exception e) {
-			LOG.error("删除[{}]任务出错", taskId, e);
+			LOG.error("delete [{}] task fail", taskId, e);
 			result.setStatus(1);
 			result.setMsg("删除任务出错");
 		}
