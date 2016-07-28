@@ -1,7 +1,6 @@
 package com.zhujun.spider.worker;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -37,16 +36,16 @@ public class Startup {
 		MinaClient client = null;
 		try {
 			
-			SocketAddress remoteAddress = new InetSocketAddress(args[0], Integer.valueOf(args[1]));
+			InetSocketAddress remoteAddress = new InetSocketAddress(args[0], Integer.valueOf(args[1]));
 			
-			LOG.debug("开始启动Mina客户端");
+			LOG.debug("start boot mina client and connect master[{}:{}]", remoteAddress.getHostName(), remoteAddress.getPort());
 			
 			client = new MinaClient(remoteAddress);
 			client.start();
 			
-			LOG.debug("Mina客户端启动完成");
+			LOG.debug("mina client connected to master");
 		} catch (Exception e) {
-			LOG.error("启动Mina客户端失败", e);
+			LOG.error("boot mina client fail", e);
 			System.exit(-1);
 		}
 		

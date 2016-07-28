@@ -25,16 +25,16 @@ public class Startup {
 		
 		// start mina server
 		int port  = args.length > 0 ? Integer.valueOf(args[0]) : 8619;
-		LOG.debug("开始启动MinaServer, port:{}", port);
+		LOG.debug("start boot mina server on port:{}", port);
 		MinaServer minaServer = new MinaServer(port);
 		minaServer.start();
-		LOG.debug("启动完成MinaServer, port:{}", port);
+		LOG.debug("mina server is running on port:{}", port);
 		
 		// start ui server
-		LOG.debug("开始启动UIServer, port:8618");
+		LOG.debug("start boot ui server on port:8618");
 		UIServer uiServer = new UIServer(8618);
 		uiServer.start();
-		LOG.debug("启动完成UIServer, port:8618");
+		LOG.debug("ui server is running on port:8618");
 		
 	}
 

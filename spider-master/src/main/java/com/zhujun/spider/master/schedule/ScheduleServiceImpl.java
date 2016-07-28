@@ -38,7 +38,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 	
 	@Override
 	public void startupAllSchedule() {
-		LOG.debug("开始启动所有spider任务");
+		LOG.debug("start boot all spider task");
 		List<SpiderTaskPo> taskList = null;
 		try {
 			taskList = spiderTaskService.findAllSpiderTask();
@@ -60,7 +60,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 				Spider spider = dslParser.parse(dslInputStream);
 				startSchedule(spiderTaskPo.getId(), spider);
 			} catch (Exception e) {
-				LOG.error("启动任务失败, name:{}, datadir:{}", spiderTaskPo.getName(), spiderTaskPo.getDatadir(), e);
+				LOG.error("boot task fail, name:{}, datadir:{}", spiderTaskPo.getName(), spiderTaskPo.getDatadir(), e);
 			} finally {
 				IOUtils.closeQuietly(dslInputStream);
 			}

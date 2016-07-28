@@ -44,7 +44,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				Spider spider = c.getSpider();
 				Map<String, Serializable> dataScope = c.getDataScope();
 				
-				LOG.debug("开始url入库");
+				LOG.debug("begin insert url into database");
 				long startInsertUrlTime = System.currentTimeMillis();
 				
 				// 生成实际url

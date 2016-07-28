@@ -42,7 +42,7 @@ public class XmlDslParserImpl implements DslParser {
 	
 	@Override
 	public Spider parse(InputStream inputStream) {
-		LOG.debug("解析XML DSL");
+		LOG.debug("parse XML DSL");
 		
 		try {
 			Document doc = new SAXReader().read(inputStream);
@@ -78,7 +78,7 @@ public class XmlDslParserImpl implements DslParser {
 					} else if ("clone".equals(eleName)) {
 						actionList.add(parseClone(element));
 					} else {
-						LOG.warn("spider暂不支持 {} 节点", eleName);
+						LOG.warn("spider not support {} element", eleName);
 					}
 				}
 				
