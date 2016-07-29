@@ -2,9 +2,11 @@ package com.zhujun.spider.master.mina;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
@@ -50,6 +52,18 @@ public class MinaServer implements IServer {
 		if (acceptor != null) {
 			acceptor.dispose();
 		}
+	}
+	
+	/**
+	 * 获取客户端Sessions
+	 * 
+	 * @author zhujun
+	 * @date 2016年7月29日
+	 *
+	 * @return
+	 */
+	public Map<Long,IoSession> getClientSessions() {
+		return acceptor == null ? null : acceptor.getManagedSessions();
 	}
 	
 	

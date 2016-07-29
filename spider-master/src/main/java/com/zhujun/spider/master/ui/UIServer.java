@@ -8,6 +8,7 @@ import com.zhujun.spider.master.ui.servlet.CreateSpiderTaskServlet;
 import com.zhujun.spider.master.ui.servlet.DeleteSpiderTaskServlet;
 import com.zhujun.spider.master.ui.servlet.IndexServlet;
 import com.zhujun.spider.master.ui.servlet.SpiderTaskListServlet;
+import com.zhujun.spider.master.ui.servlet.WorkerListServlet;
 
 /**
  * 用户界面接口 服务
@@ -40,6 +41,8 @@ public class UIServer implements IServer {
 		webApp.addServlet(SpiderTaskListServlet.class, "/servlet/task/list.do");
 		webApp.addServlet(CreateSpiderTaskServlet.class, "/servlet/task/create.do");
 		webApp.addServlet(DeleteSpiderTaskServlet.class, "/servlet/task/delete.do");
+		
+		webApp.addServlet(WorkerListServlet.class, "/servlet/worker/list.do");
 		
 		jettyServer.setHandler(webApp);
 		try {

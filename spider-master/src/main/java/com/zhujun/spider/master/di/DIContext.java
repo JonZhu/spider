@@ -27,13 +27,21 @@ public class DIContext {
 			binder.bind(ISpiderTaskService.class).to(SpiderTaskServiceImpl.class);
 			binder.bind(IFetchUrlService.class).to(FetchUrlServiceImpl.class);
 			binder.bind(IScheduleService.class).to(ScheduleServiceImpl.class);
-//				binder.bind(Service1.class);
-//				binder.bind(Service2.class);
 		}
 	});
 	
 	public static <T> T getInstance(Class<T> type) {
 		return injector.getInstance(type);
+	}
+	
+	
+	public static <T> void bind(final Class<T> type, final T instance) {
+		injector = injector.createChildInjector((new Module() {
+			@Override
+			public void configure(Binder binder) {
+				binder.bind(type).toInstance(instance);
+			}
+		}));
 	}
 	
 	private DIContext() {}

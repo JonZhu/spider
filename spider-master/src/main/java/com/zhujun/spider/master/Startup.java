@@ -30,6 +30,9 @@ public class Startup {
 		minaServer.start();
 		LOG.debug("mina server is running on port:{}", port);
 		
+		// 注册到DI
+		DIContext.bind(MinaServer.class, minaServer);
+		
 		// start ui server
 		LOG.debug("start boot ui server on port:8618");
 		UIServer uiServer = new UIServer(8618);
