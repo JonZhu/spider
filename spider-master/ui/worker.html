@@ -9,7 +9,7 @@
     <meta name="author" content="">
 <!--     <link rel="icon" href="../../favicon.ico"> -->
 
-    <title>Spider master</title>
+    <title>Spider worker</title>
 
     <!-- Bootstrap core CSS -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -36,14 +36,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Spider master</a>
+          <a class="navbar-brand" href="#">Spider worker</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="/">主页</a></li>
             <li><a href="task.html">任务</a></li>
-            <li><a href="worker.html">worker</a></li>
-            <li class="active"><a>联系方式</a></li>
+            <li class="active"><a>worker</a></li>
+            <li><a href="contact.html">联系方式</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -52,11 +52,27 @@
     <!-- Begin page content -->
     <div class="container">
       <div class="page-header">
-        <h1>联系方式</h1>
+        <h1>Worker列表</h1>
       </div>
-      <p class="lead">
-      	QQ:564409400
-      </p>
+      <table id="workerListTable" class="table table-bordered table-hover">
+	      <thead>
+	        <tr>
+	          <th>ID</th>
+	          <th>主机</th>
+	          <th>端口</th>
+	          <th>上行数据</th>
+	          <th>每秒上行数据</th>
+	          <th>上行消息</th>
+	          <th>每秒上行消息</th>
+	          <th>下行数据</th>
+	          <th>每秒下行数据</th>
+	          <th>下行消息</th>
+	          <th>每秒下行消息</th>
+	        </tr>
+	      </thead>
+	      <tbody>
+	      </tbody>
+      </table>
     </div>
 
     <footer class="footer">
@@ -71,5 +87,52 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="jquery/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
+    
+    <script type="text/javascript">
+    $(function(){
+    	
+    	function queryWorkList() {
+    		$.ajax({
+    			url: "servlet/worker/list.do",
+    			dataType: "json",
+    			success: function(result) {
+    				if (result.status == 0) {
+        				showTaskList(result.data);
+        			} else {
+        				console.error(result.msg);
+        			}
+    			}
+    		});
+    	}
+    	
+    	function showTaskList(workList) {
+    		$tbody = $("#workerListTable tbody").empty();
+    		
+    		if (workList) {
+    			$.each(workList, function(i, item){
+    				$tr = $("<tr></tr>");
+    				$("<td></td>").text(item.id).appendTo($tr); //ID
+    				$("<td></td>").text(item.host).appendTo($tr); //主机
+    				$("<td></td>").text(item.port).appendTo($tr); //端口
+    				$("<td></td>").text(item.upBytes).appendTo($tr); //上行数据
+    				$("<td></td>").text(item.upBytesPS).appendTo($tr); //每秒上行数据
+    				$("<td></td>").text(item.upMsg).appendTo($tr); //上行消息
+    				$("<td></td>").text(item.upMsgPS).appendTo($tr); //每秒上行消息
+    				$("<td></td>").text(item.downBytes).appendTo($tr); //下行数据
+    				$("<td></td>").text(item.downBytesPS).appendTo($tr); //每秒下行数据
+    				$("<td></td>").text(item.downMsg).appendTo($tr); //下行消息
+    				$("<td></td>").text(item.downMsgPS).appendTo($tr); //每秒下行消息
+    				
+    				$tbody.append($tr);
+    			});
+    		}
+    	}
+    	
+    	
+    	queryWorkList();
+    	window.setInterval(queryWorkList, 5000);
+    });
+    </script>
+    
   </body>
 </html>
