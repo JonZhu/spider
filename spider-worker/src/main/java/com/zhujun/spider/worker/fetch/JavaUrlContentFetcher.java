@@ -85,7 +85,7 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			result.setData(byteOutputStream.toByteArray());
 			return result;
 		} catch (Exception e) {
-			throw new RuntimeException("获取内容失败", e);
+			throw new RuntimeException("fetch content fail", e);
 		} finally {
 			IOUtils.closeQuietly(urlInputStream);
 			
