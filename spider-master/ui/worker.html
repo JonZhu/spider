@@ -111,7 +111,7 @@
     		$tbody = $("#workerListTable tbody").empty();
     		
     		if (workList) {
-    			// 总计数据
+    			// 合计数据
     			var upBytesTotal = 0, upBytesPSTotal = 0, upMsgTotal = 0, upMsgPSTotal = 0,
     			    downBytesTotal = 0, downBytesPSTotal = 0, downMsgTotal = 0, downMsgPSTotal = 0;
     			
@@ -143,9 +143,9 @@
     			});
     			
     			if (workList.length > 1) {
-    				// worker数量大于1个, 显示总计行
+    				// worker数量大于1个, 显示合计行
     				$tr = $("<tr class='success'></tr>");
-    				$("<td colspan='4'>总计</td>").appendTo($tr); //总计
+    				$("<td colspan='4'>合计</td>").appendTo($tr); //合计
     				$("<td></td>").text(adaptByte(upBytesTotal)).appendTo($tr); //上行数据
     				$("<td></td>").text(adaptByte(upBytesPSTotal)).appendTo($tr); //每秒上行数据
     				$("<td></td>").text(upMsgTotal).appendTo($tr); //上行消息
