@@ -38,7 +38,6 @@ public class MinaServer implements IServer {
 		acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new NetMessageCodecFactory()));
 
 		acceptor.setHandler(new ServerHandler());
-		acceptor.getSessionConfig().setReadBufferSize(2048);
 		acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 10);
 		try {
 			acceptor.bind(new InetSocketAddress(port));

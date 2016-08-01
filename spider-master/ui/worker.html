@@ -60,6 +60,7 @@
 	          <th>ID</th>
 	          <th>主机</th>
 	          <th>端口</th>
+	          <th>连接时间</th>
 	          <th>上行数据</th>
 	          <th>每秒上行数据</th>
 	          <th>上行消息</th>
@@ -88,6 +89,7 @@
     <script src="jquery/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     
+    <script src="js/util.js"></script>
     <script type="text/javascript">
     $(function(){
     	
@@ -114,20 +116,34 @@
     				$("<td></td>").text(item.id).appendTo($tr); //ID
     				$("<td></td>").text(item.host).appendTo($tr); //主机
     				$("<td></td>").text(item.port).appendTo($tr); //端口
-    				$("<td></td>").text(item.upBytes).appendTo($tr); //上行数据
-    				$("<td></td>").text(item.upBytesPS).appendTo($tr); //每秒上行数据
+    				$("<td></td>").text(util.time.ms2Str(item.connectTime)).appendTo($tr); //连接时间
+    				$("<td></td>").text(adaptByte(item.upBytes)).appendTo($tr); //上行数据
+    				$("<td></td>").text(adaptByte(item.upBytesPS)).appendTo($tr); //每秒上行数据
     				$("<td></td>").text(item.upMsg).appendTo($tr); //上行消息
-    				$("<td></td>").text(item.upMsgPS).appendTo($tr); //每秒上行消息
-    				$("<td></td>").text(item.downBytes).appendTo($tr); //下行数据
-    				$("<td></td>").text(item.downBytesPS).appendTo($tr); //每秒下行数据
+    				$("<td></td>").text(item.upMsgPS.toFixed(2)).appendTo($tr); //每秒上行消息
+    				$("<td></td>").text(adaptByte(item.downBytes)).appendTo($tr); //下行数据
+    				$("<td></td>").text(adaptByte(item.downBytesPS)).appendTo($tr); //每秒下行数据
     				$("<td></td>").text(item.downMsg).appendTo($tr); //下行消息
-    				$("<td></td>").text(item.downMsgPS).appendTo($tr); //每秒下行消息
+    				$("<td></td>").text(item.downMsgPS.toFixed(2)).appendTo($tr); //每秒下行消息
     				
     				$tbody.append($tr);
     			});
     		}
     	}
     	
+    	// 适配bytes单位
+    	var byteUnits = ["G", "M", "K", "B"];
+    	var byteUnitSize = [Math.pow(1024,3), Math.pow(1024,2) ,1024, 1];
+    	function adaptByte(byteTotal) {
+    		for (var i = 0; i < byteUnitSize.length; i++) {
+    			var temp = byteTotal / byteUnitSize[i];
+    			if (temp >= 1) {
+    				return temp.toFixed(2) + byteUnits[i];
+    			}
+    		}
+    		
+    		return "0";
+    	}
     	
     	queryWorkList();
     	window.setInterval(queryWorkList, 5000);

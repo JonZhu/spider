@@ -54,6 +54,7 @@ public class WorkerListServlet  extends HttpServlet {
 			
 			for (Long sessionId : sessionIdList) {
 				IoSession session = clientSessionMap.get(sessionId);
+				session.updateThroughput(System.currentTimeMillis(), true);
 				Map<String, Object> clientData = new HashMap<>();
 				clientData.put("id", sessionId);
 				
