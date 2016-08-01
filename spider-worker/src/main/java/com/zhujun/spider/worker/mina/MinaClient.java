@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
@@ -47,6 +48,7 @@ public class MinaClient {
 		connector.setHandler(clientHandler);
 		
 		connector.setConnectTimeoutMillis(5000);
+		connector.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 10);
 		connectMaster();
 		
 	}
