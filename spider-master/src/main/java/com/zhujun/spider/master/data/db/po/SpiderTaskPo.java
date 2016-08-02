@@ -4,6 +4,20 @@ import java.sql.Time;
 
 public class SpiderTaskPo {
 
+	public static enum Status {
+		NEW(0), RUN(1), PAUSED(4), COMPLETE(6);
+		
+		private int value;
+		
+		private Status(int value) {
+			this.value = value;
+		}
+		
+		public static Status valueOf(int value) {
+			return value == 0 ? NEW : (value == 1 ? RUN : (value == 4 ? PAUSED : (value == 6 ? COMPLETE : null)));
+		}
+	}
+	
 	private String id;
 	
 	private String name;
@@ -13,6 +27,8 @@ public class SpiderTaskPo {
 	private String datadir;
 	
 	private Time createTime;
+	
+	private Status status;
 
 	public String getId() {
 		return id;
