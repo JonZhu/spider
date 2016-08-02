@@ -66,7 +66,7 @@ public class MinaClient {
 					break;
 				}
 			} catch (Exception e) {
-				LOG.error("connect master fail, try again after 5 secend, reason：{}", e.getMessage());
+				LOG.error("connect master fail, try again after 5 secend, reason: {}", e.getMessage());
 			}
 			
 			try {
