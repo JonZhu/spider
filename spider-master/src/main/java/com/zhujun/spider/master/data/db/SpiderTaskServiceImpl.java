@@ -184,6 +184,14 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 			po.setCreateTime(rs.getTime("createtime"));
 			po.setDatadir(rs.getString("datadir"));
 			po.setName(rs.getString("name"));
+			Object statusObj = null;
+			try {
+				statusObj = rs.getObject("status");
+			} catch (Exception e) {
+			}
+			if (statusObj != null) {
+				po.setStatus((int)statusObj);
+			}
 			
 			return po;
 		}

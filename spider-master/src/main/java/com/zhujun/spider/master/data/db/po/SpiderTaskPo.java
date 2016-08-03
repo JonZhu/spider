@@ -4,18 +4,14 @@ import java.sql.Time;
 
 public class SpiderTaskPo {
 
-	public static enum Status {
-		NEW(0), RUN(1), PAUSED(4), COMPLETE(6);
+	public static interface Status {
+		int NEW = 0;
 		
-		private int value;
+		int RUN = 1;
 		
-		private Status(int value) {
-			this.value = value;
-		}
+		int PAUSED = 4;
 		
-		public static Status valueOf(int value) {
-			return value == 0 ? NEW : (value == 1 ? RUN : (value == 4 ? PAUSED : (value == 6 ? COMPLETE : null)));
-		}
+		int COMPLETE = 6;
 	}
 	
 	private String id;
@@ -28,7 +24,7 @@ public class SpiderTaskPo {
 	
 	private Time createTime;
 	
-	private Status status;
+	private int status = Status.NEW;
 
 	public String getId() {
 		return id;
@@ -69,6 +65,13 @@ public class SpiderTaskPo {
 	public void setCreateTime(Time createTime) {
 		this.createTime = createTime;
 	}
-	
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
 	
 }

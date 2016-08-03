@@ -32,7 +32,8 @@ public class MasterDbInit implements DbInit {
 							+ "name varchar(200) not null,"
 							+ "author varchar(100),"
 							+ "datadir varchar(200) not null,"
-							+ "createtime datetime not null"
+							+ "createtime datetime not null,"
+							+ "status integer"
 							+ ");";
 					queryRunner.update(conn, spiderTaskSql);
 					

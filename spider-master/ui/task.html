@@ -66,32 +66,13 @@
 	          <th>作者</th>
 	          <th>数据目录</th>
 	          <th>创建时间</th>
+	          <th>状态</th>
 	          <th>操作</th>
 	        </tr>
 	      </thead>
 	      <tbody>
 	      </tbody>
       </table>
-      
-      <nav style="text-align: right;">
-		  <ul class="pagination">
-		    <li>
-		      <a href="#" aria-label="Previous">
-		        <span aria-hidden="true">&laquo;</span>
-		      </a>
-		    </li>
-		    <li><a href="#">1</a></li>
-		    <li><a href="#">2</a></li>
-		    <li><a href="#">3</a></li>
-		    <li><a href="#">4</a></li>
-		    <li><a href="#">5</a></li>
-		    <li>
-		      <a href="#" aria-label="Next">
-		        <span aria-hidden="true">&raquo;</span>
-		      </a>
-		    </li>
-		  </ul>
-	</nav>
       
     </div>
 
@@ -162,7 +143,8 @@
 	          <td class="task-author"></td>
 	          <td class="task-datadir"></td>
 	          <td class="task-createtime"></td>
-	          <td><button class="btn btn-default delete-task-btn">删除</button></td>
+	          <td class="task-status"></td>
+	          <td class="op"></td>
 	        </tr>
 		</table>
 	</div>
@@ -191,7 +173,7 @@
     	function getTaskList(pageNo) {
     		$.ajax({
         		url: "servlet/task/list.do",
-        		data: {pageSize: 20, pageNo: pageNo},
+        		data: {pageSize: 200, pageNo: pageNo},
         		dataType: "json",
         		
         		success: function(result) {
@@ -217,22 +199,44 @@
     				$(".task-author", $tr).text(item.author);
     				$(".task-datadir", $tr).text(item.datadir);
     				$(".task-createtime", $tr).text(util.time.ms2Str(item.createTime));
+    				$(".task-status", $tr).text(statusName(item.status));
+    				
+    				$delBtn = $('<button class="btn btn-default">删除</button>');
+    				$delBtn.click(deleteBtAction); // 绑定删除操作
+    				$(".op", $tr).append($delBtn);
+    				
+    				if (item.status === 1) {
+    					// 暂停
+    					$pauseBtn = $('<button class="btn btn-default">暂停</button>');
+        				$pauseBtn.click(pauseBtAction); // 绑定暂停操作
+        				$(".op", $tr).append($pauseBtn);
+    				} else if (item.status === 4) {
+    					// 恢复
+    					$resumeBtn = $('<button class="btn btn-default">恢复</button>');
+    					$resumeBtn.click(resumeBtAction); // 绑定恢复操作
+        				$(".op", $tr).append($resumeBtn);
+    				}
+    				
     				$tbody.append($tr);
     			});
     			
-    			bindDeleteBtAction();
     		}
     		
     	}
     	
+    	// 转换为status名称
+    	var statusNameObj = {0: "新建", 1: "运行中", 4: "暂停", 6: "完成"};
+    	function statusName(status) {
+    		var name = statusNameObj[status];
+    		return name ? name : "未知";
+    	}
+    	
     	// 绑定删除操作动作
     	var deleteTaskId; // 用于存储删除任务id
-    	function bindDeleteBtAction() {
-    		$("#taskListTable .delete-task-btn").click(function(){
-    			deleteTaskId = $(this).closest("tr").find(".task-id").text();
-    			// alert(deleteTaskId);
-    		    $("#deleteTaskConfirm").modal("show");
-    		});
+    	function deleteBtAction() {
+    		deleteTaskId = $(this).closest("tr").find(".task-id").text();
+			// alert(deleteTaskId);
+		    $("#deleteTaskConfirm").modal("show");
     	}
     	
     	// 执行分页数据获取
