@@ -31,7 +31,10 @@ public class ScheduleServiceImpl implements IScheduleService {
 	
 	private final static AtomicInteger SCHEDULE_THREAD_INDEX = new AtomicInteger(0);
 	
-	private final Map<String, SpiderScheduleThread> spiderScheduleThreadMap = new ConcurrentHashMap<>();
+	/**
+	 * 运行中的任务调度
+	 */
+	private final Map<String, SpiderScheduleThread> runningScheduleThreadMap = new ConcurrentHashMap<>();
 	
 	/**
 	 * 暂停的任务调度
@@ -79,15 +82,15 @@ public class ScheduleServiceImpl implements IScheduleService {
 		SpiderScheduleThread thread = new SpiderScheduleThread(id, spider);
 		thread.setName("SpiderScheduler-" + SCHEDULE_THREAD_INDEX.getAndIncrement());
 		thread.start();
-		spiderScheduleThreadMap.put(id, thread);
+		runningScheduleThreadMap.put(id, thread);
 	}
 
 	@Override
 	public void stopSchedule(String id) {
-		SpiderScheduleThread thread = spiderScheduleThreadMap.get(id);
+		SpiderScheduleThread thread = runningScheduleThreadMap.get(id);
 		if (thread != null) {
 			thread.stop();
-			spiderScheduleThreadMap.remove(id);
+			runningScheduleThreadMap.remove(id);
 		}
 	}
 	
@@ -95,21 +98,21 @@ public class ScheduleServiceImpl implements IScheduleService {
 	 * 随机获取一个正在执行的任务id
 	 * @return
 	 */
-	public Pair<String, Spider> randomScheduleTask() {
-		Set<String> keySet = spiderScheduleThreadMap.keySet();
+	public Pair<String, Spider> randomRunningScheduleTask() {
+		Set<String> keySet = runningScheduleThreadMap.keySet();
 		if (keySet.isEmpty()) {
 			return null;
 		}
 		Object[] arr = keySet.toArray();
 		String taskId = (String)arr[new Random().nextInt(arr.length)];
 		
-		SpiderScheduleThread thread = spiderScheduleThreadMap.get(taskId);
+		SpiderScheduleThread thread = runningScheduleThreadMap.get(taskId);
 		return ImmutablePair.of(taskId, thread.getSpider());
 	}
 
 	@Override
 	public void pauseSchedule(String id) {
-		SpiderScheduleThread thread = spiderScheduleThreadMap.remove(id);
+		SpiderScheduleThread thread = runningScheduleThreadMap.remove(id);
 		if (thread != null) {
 			pausedScheduleThreadMap.put(id, thread);
 		}
@@ -121,7 +124,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 		if (thread == null) {
 			startSchedule(id, spider);
 		} else {
-			spiderScheduleThreadMap.put(id, thread);
+			runningScheduleThreadMap.put(id, thread);
 		}
 	}
 

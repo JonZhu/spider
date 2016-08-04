@@ -115,7 +115,7 @@ public class ServerHandler implements IoHandler {
 		netMsg.setHeader("Content-type", "json");
 		String status = "200";
 		
-		Pair<String, Spider> task = scheduleService.randomScheduleTask();
+		Pair<String, Spider> task = scheduleService.randomRunningScheduleTask();
 		if (task != null) {
 			netMsg.setHeader("Task-id", task.getLeft());
 			try {

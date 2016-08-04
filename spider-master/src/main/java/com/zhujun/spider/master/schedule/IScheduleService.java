@@ -65,6 +65,6 @@ public interface IScheduleService {
 	 * 随机获取一个正在执行的任务
 	 * @return
 	 */
-	Pair<String, Spider> randomScheduleTask();
+	Pair<String, Spider> randomRunningScheduleTask();
 	
 }
