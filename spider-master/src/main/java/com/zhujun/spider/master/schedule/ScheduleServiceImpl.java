@@ -33,6 +33,12 @@ public class ScheduleServiceImpl implements IScheduleService {
 	
 	private final Map<String, SpiderScheduleThread> spiderScheduleThreadMap = new ConcurrentHashMap<>();
 	
+	/**
+	 * 暂停的任务调度
+	 */
+	private final Map<String, SpiderScheduleThread> pausedScheduleThreadMap = new ConcurrentHashMap<>();
+	
+	
 	@Inject
 	private ISpiderTaskService spiderTaskService;
 	
@@ -99,6 +105,24 @@ public class ScheduleServiceImpl implements IScheduleService {
 		
 		SpiderScheduleThread thread = spiderScheduleThreadMap.get(taskId);
 		return ImmutablePair.of(taskId, thread.getSpider());
+	}
+
+	@Override
+	public void pauseSchedule(String id) {
+		SpiderScheduleThread thread = spiderScheduleThreadMap.remove(id);
+		if (thread != null) {
+			pausedScheduleThreadMap.put(id, thread);
+		}
+	}
+
+	@Override
+	public void resumeSchedule(String id, Spider spider) {
+		SpiderScheduleThread thread = pausedScheduleThreadMap.remove(id);
+		if (thread == null) {
+			startSchedule(id, spider);
+		} else {
+			spiderScheduleThreadMap.put(id, thread);
+		}
 	}
 
 }

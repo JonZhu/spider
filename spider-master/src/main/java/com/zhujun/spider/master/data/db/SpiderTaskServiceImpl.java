@@ -1,6 +1,7 @@
 package com.zhujun.spider.master.data.db;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -26,8 +27,11 @@ import com.zhujun.spider.master.data.db.datasource.DataSourceType;
 import com.zhujun.spider.master.data.db.datasource.DsUtils;
 import com.zhujun.spider.master.data.db.datasource.DsUtils.IAction;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo.Status;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
+import com.zhujun.spider.master.dsl.DslParser;
+import com.zhujun.spider.master.dsl.XmlDslParserImpl;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.util.ReadWriteLockUtils;
 
@@ -215,6 +219,93 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	@Override
+	public void pauseTask(final String taskId) throws Exception {
+		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
+		Lock lock = ReadWriteLockUtils.getWriteLock(DB_FILE);
+		
+		try {
+			DsUtils.doInTrans(ds, new IAction<Void>() {
+				@Override
+				public Void action(Connection conn) throws Exception {
+					SpiderTaskPo task = getTaskById(conn, taskId);
+					if (task == null) {
+						throw new Exception("任务不存在");
+					}
+					
+					if (task.getStatus() != Status.RUN) {
+						throw new Exception("任务不能暂停");
+					}
+					
+					scheduleService.pauseSchedule(taskId);
+					
+					updateTaskStatus(conn, taskId, Status.PAUSED);
+					return null;
+				}
+				
+			});
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public void resumeTask(final String taskId) throws Exception {
+		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
+		Lock lock = ReadWriteLockUtils.getWriteLock(DB_FILE);
+		
+		try {
+			DsUtils.doInTrans(ds, new IAction<Void>() {
+				@Override
+				public Void action(Connection conn) throws Exception {
+					SpiderTaskPo task = getTaskById(conn, taskId);
+					if (task == null) {
+						throw new Exception("任务不存在");
+					}
+					
+					if (task.getStatus() != Status.PAUSED) {
+						throw new Exception("任务不能恢复");
+					}
+					
+					// 加载spider dsl
+					FileInputStream dslInputStream = null;
+					Spider spider = null;
+					
+					try {
+						final DslParser dslParser = new XmlDslParserImpl(); // xml dsl解析
+						File dslFile = new File(task.getDatadir(), "spiderdsl.xml");
+						dslInputStream = new FileInputStream(dslFile);
+						spider = dslParser.parse(dslInputStream);
+					} finally {
+						IOUtils.closeQuietly(dslInputStream);
+					}
+					
+					// 恢复调度
+					scheduleService.resumeSchedule(taskId, spider);
+					
+					updateTaskStatus(conn, taskId, Status.RUN);
+					return null;
+				}
+				
+			});
+		} finally {
+			lock.unlock();
+		}
+		
+	}
+	
+	protected SpiderTaskPo getTaskById(Connection conn, String taskId) throws SQLException {
+		String sql = "select id, name, author, datadir, createtime, status from spider_task where id=?";
+		List<SpiderTaskPo> list = QUERY_RUNNER.query(conn, sql, new SpiderTaskPoResultHandler());
+		return list == null || list.isEmpty() ? null : list.get(0);
+	}
+	
+	
+	protected int updateTaskStatus(Connection conn, String taskId, int status) throws SQLException {
+		String sql = "update spider_task set status = ? where id=?";
+		return QUERY_RUNNER.update(conn, sql, status, taskId);
 	}
 
 }

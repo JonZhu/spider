@@ -43,6 +43,25 @@ public interface IScheduleService {
 	void stopSchedule(String id);
 	
 	/**
+	 * 暂停调度
+	 * @author zhujun
+	 * @date 2016年8月4日
+	 *
+	 * @param id
+	 */
+	void pauseSchedule(String id);
+	
+	/**
+	 * 恢复调度
+	 * @author zhujun
+	 * @date 2016年8月4日
+	 *
+	 * @param id
+	 * @param spider
+	 */
+	void resumeSchedule(String id, Spider spider);
+	
+	/**
 	 * 随机获取一个正在执行的任务
 	 * @return
 	 */

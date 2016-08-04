@@ -31,4 +31,24 @@ public interface ISpiderTaskService {
 
 	void deleteSpiderTask(String taskId) throws Exception;
 
+	/**
+	 * 暂停任务
+	 * 
+	 * @author zhujun
+	 * @date 2016年8月4日
+	 *
+	 * @param taskId
+	 */
+	void pauseTask(String taskId) throws Exception;
+
+	/**
+	 * 从暂停状态恢复任务
+	 * 
+	 * @author zhujun
+	 * @date 2016年8月4日
+	 *
+	 * @param taskId
+	 */
+	void resumeTask(String taskId) throws Exception;
+
 }
