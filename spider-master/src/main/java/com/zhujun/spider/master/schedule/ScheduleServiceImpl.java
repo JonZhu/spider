@@ -50,7 +50,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 		LOG.debug("start boot all spider task");
 		List<SpiderTaskPo> taskList = null;
 		try {
-			taskList = spiderTaskService.findAllSpiderTask();
+			taskList = spiderTaskService.findAllScheduleSpiderTask();
 		} catch (Exception e) {
 			throw new RuntimeException("无法启动, 查询任务失败", e);
 		}

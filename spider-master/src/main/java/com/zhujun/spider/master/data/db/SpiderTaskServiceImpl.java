@@ -72,6 +72,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 					taskPo.setAuthor(spider.getAuthor());
 					taskPo.setDatadir(spider.getDataDir());
 					taskPo.setCreateTime(new Time(System.currentTimeMillis()));
+					taskPo.setStatus(Status.RUN);
 					insertSpiderTaskPo(conn, taskPo);
 					
 					// spider 数据目录
@@ -112,8 +113,9 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	}
 
 	protected void insertSpiderTaskPo(Connection conn, SpiderTaskPo taskPo) throws SQLException {
-		String sql = "insert into spider_task(id, name, author, datadir, createtime) values(?,?,?,?,?)";
-		QUERY_RUNNER.update(conn, sql, taskPo.getId(), taskPo.getName(), taskPo.getAuthor(), taskPo.getDatadir(), taskPo.getCreateTime());
+		String sql = "insert into spider_task(id, name, author, datadir, createtime, status) values(?,?,?,?,?,?)";
+		QUERY_RUNNER.update(conn, sql, taskPo.getId(), taskPo.getName(), taskPo.getAuthor(), 
+				taskPo.getDatadir(), taskPo.getCreateTime(), taskPo.getStatus());
 	}
 
 	protected int findTaskCountByDatadir(Connection conn, String dataDir) throws SQLException {
@@ -136,7 +138,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 					int count = QUERY_RUNNER.query(conn, countSql, new ScalarHandler<Integer>());
 					
 					if (count > 0) {
-						String dataSql = "select id, name, author, datadir, createtime from spider_task limit ? offset ?";
+						String dataSql = "select id, name, author, datadir, createtime, status from spider_task limit ? offset ?";
 						List<SpiderTaskPo> data = QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler(), pageSize, (pageNo - 1) * pageSize);
 						page.setPageData(data);
 					}
@@ -203,7 +205,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	}
 
 	@Override
-	public List<SpiderTaskPo> findAllSpiderTask() throws Exception {
+	public List<SpiderTaskPo> findAllScheduleSpiderTask() throws Exception {
 		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
 		
 		Lock lock = ReadWriteLockUtils.getReadLock(DB_FILE);
@@ -211,7 +213,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 			return DsUtils.doInTrans(ds, new IAction<List<SpiderTaskPo>>() {
 				@Override
 				public List<SpiderTaskPo> action(Connection conn) throws Exception {
-					String dataSql = "select id, name, author, datadir, createtime from spider_task";
+					String dataSql = "select id, name, author, datadir, createtime, status from spider_task where status = 1";
 					return QUERY_RUNNER.query(conn, dataSql, new SpiderTaskPoResultHandler());
 				}
 				
@@ -298,7 +300,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	
 	protected SpiderTaskPo getTaskById(Connection conn, String taskId) throws SQLException {
 		String sql = "select id, name, author, datadir, createtime, status from spider_task where id=?";
-		List<SpiderTaskPo> list = QUERY_RUNNER.query(conn, sql, new SpiderTaskPoResultHandler());
+		List<SpiderTaskPo> list = QUERY_RUNNER.query(conn, sql, new SpiderTaskPoResultHandler(), taskId);
 		return list == null || list.isEmpty() ? null : list.get(0);
 	}
 	

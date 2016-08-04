@@ -239,6 +239,42 @@
 		    $("#deleteTaskConfirm").modal("show");
     	}
     	
+    	// 暂停
+    	function pauseBtAction() {
+    		var taskId = $(this).closest("tr").find(".task-id").text();
+			$.ajax({
+				url: "servlet/task/toStatus.do",
+				data: {taskId: taskId, toStatus: 4},
+				dataType: "json",
+				success: function(result) {
+					if (result.status == 0) {
+						showAlert("暂停任务成功");
+						getTaskList(1);
+					} else {
+						showAlert(result.msg, "warning");
+					}
+				}
+			});
+    	}
+    	
+    	// 恢复
+    	function resumeBtAction() {
+    		var taskId = $(this).closest("tr").find(".task-id").text();
+			$.ajax({
+				url: "servlet/task/toStatus.do",
+				data: {taskId: taskId, toStatus: 1},
+				dataType: "json",
+				success: function(result) {
+					if (result.status == 0) {
+						showAlert("恢复任务成功");
+						getTaskList(1);
+					} else {
+						showAlert(result.msg, "warning");
+					}
+				}
+			});
+    	}
+    	
     	// 执行分页数据获取
     	getTaskList(1);
     	

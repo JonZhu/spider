@@ -27,7 +27,15 @@ public interface ISpiderTaskService {
 
 	Page<SpiderTaskPo> findSpiderTaskList(int pageNo, int pageSize) throws Exception;
 	
-	List<SpiderTaskPo> findAllSpiderTask() throws Exception;
+	/**
+	 * 查询所有能调度的任务
+	 * 
+	 * @author zhujun
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	List<SpiderTaskPo> findAllScheduleSpiderTask() throws Exception;
 
 	void deleteSpiderTask(String taskId) throws Exception;
 
