@@ -3,7 +3,7 @@ package com.zhujun.spider.worker;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
+import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
 
 /**
  * url抓取任务 全局队列

@@ -24,6 +24,6 @@ public interface SpiderDataWriter {
 	 * @param fetchTime 抓取时间
 	 * @param contentData 内容数据
 	 */
-	void write(String originUrl, Date fetchTime, byte[] contentData) throws IOException;
+	void write(String originUrl, String contentType, Date fetchTime, byte[] contentData) throws IOException;
 	
 }

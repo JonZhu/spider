@@ -77,7 +77,7 @@ public class CloneExecutor implements ActionExecutor {
 					
 					if (item.success) {
 						// 存储到文件
-						writer.write(item.url, item.fetchTime, item.data);
+						writer.write(item.url, item.contentType, item.fetchTime, item.data);
 						
 						// 解析连接的url
 						parseLinkedUrls(item.url, item.contentType, item.data, clone, c.getSpider());

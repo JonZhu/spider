@@ -133,7 +133,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 					// 从队列中获得数据
 					if (item.success) {
 						// 存储到文件
-						writer.write(item.url, item.fetchTime, item.data);
+						writer.write(item.url, item.contentType, item.fetchTime, item.data);
 						fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
 						
 						if (StringUtils.isNotBlank(urlSet.getId())) {

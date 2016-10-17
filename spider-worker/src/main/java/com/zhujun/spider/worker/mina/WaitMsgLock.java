@@ -1,6 +1,6 @@
 package com.zhujun.spider.worker.mina;
 
-import com.zhujun.spider.net.SpiderNetMessage;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
 
 /**
  * 等待消息锁

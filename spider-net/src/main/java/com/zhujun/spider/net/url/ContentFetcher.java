@@ -1,4 +1,4 @@
-package com.zhujun.spider.master.contentfetcher;
+package com.zhujun.spider.net.url;
 
 /**
  * 内容获取
@@ -14,6 +14,6 @@ public interface ContentFetcher {
 	 * @param url
 	 * @return
 	 */
-	byte[] fetch(String url);
+	IFetchResult fetch(String url);
 	
 }

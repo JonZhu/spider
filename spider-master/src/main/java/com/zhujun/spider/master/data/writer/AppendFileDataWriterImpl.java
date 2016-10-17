@@ -58,7 +58,7 @@ public class AppendFileDataWriterImpl implements SpiderDataWriter {
 	}
 	
 	@Override
-	synchronized public void write(String originUrl, Date fetchTime, byte[] contentData) {
+	synchronized public void write(String originUrl, String contentType, Date fetchTime, byte[] contentData) {
 		if (writingFile == null) {
 			// 还未初始化
 			
@@ -94,6 +94,7 @@ public class AppendFileDataWriterImpl implements SpiderDataWriter {
 			writeString(ScheduleConst.CRNL + "SPIDER" + ScheduleConst.CRNL); //包开始标识
 			writeString("Content-Length: " + contentData.length + ScheduleConst.CRNL);
 			writeString("Url: " + originUrl + ScheduleConst.CRNL);
+			writeString("ContentType: " + contentType + ScheduleConst.CRNL);
 			writeString("Time: " + HEADER_TIME_FORMAT.format(fetchTime) + ScheduleConst.CRNL);
 			writeString(ScheduleConst.CRNL); // header结束
 			

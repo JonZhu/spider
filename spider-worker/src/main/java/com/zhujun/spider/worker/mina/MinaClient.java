@@ -13,8 +13,8 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhujun.spider.net.NetMessageCodecFactory;
-import com.zhujun.spider.net.SpiderNetMessage;
+import com.zhujun.spider.net.mina.NetMessageCodecFactory;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
 
 /**
  * Mina实现的,与master通讯client

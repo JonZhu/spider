@@ -1,4 +1,4 @@
-package com.zhujun.spider.net;
+package com.zhujun.spider.net.mina;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;

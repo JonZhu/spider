@@ -12,7 +12,7 @@ import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import com.zhujun.spider.master.server.IServer;
-import com.zhujun.spider.net.NetMessageCodecFactory;
+import com.zhujun.spider.net.mina.NetMessageCodecFactory;
 
 /**
  * Mina实现的Shedule网络服务

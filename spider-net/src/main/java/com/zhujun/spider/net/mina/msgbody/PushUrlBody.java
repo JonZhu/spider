@@ -1,4 +1,4 @@
-package com.zhujun.spider.net.msgbody;
+package com.zhujun.spider.net.mina.msgbody;
 
 import java.util.ArrayList;
 

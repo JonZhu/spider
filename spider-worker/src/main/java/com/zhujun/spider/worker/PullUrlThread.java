@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zhujun.spider.net.SpiderNetMessage;
-import com.zhujun.spider.net.msgbody.PushUrlBody;
-import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
+import com.zhujun.spider.net.mina.msgbody.PushUrlBody;
+import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
 import com.zhujun.spider.worker.mina.MinaClient;
 
 /**

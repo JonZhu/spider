@@ -9,7 +9,7 @@ import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhujun.spider.net.SpiderNetMessage;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
 
 public class ClientHandler implements IoHandler {
 

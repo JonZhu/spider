@@ -18,9 +18,9 @@ import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.schedule.PushDataQueue;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
-import com.zhujun.spider.net.SpiderNetMessage;
-import com.zhujun.spider.net.msgbody.PushUrlBody;
-import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
+import com.zhujun.spider.net.mina.msgbody.PushUrlBody;
+import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
 
 public class ServerHandler implements IoHandler {
 

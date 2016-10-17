@@ -7,9 +7,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.zhujun.spider.master.contentfetcher.ContentFetcher;
-import com.zhujun.spider.master.contentfetcher.JavaUrlContentFetcher;
 import com.zhujun.spider.master.domain.Url;
+import com.zhujun.spider.net.url.ContentFetcher;
+import com.zhujun.spider.net.url.IFetchResult;
+import com.zhujun.spider.net.url.JavaUrlContentFetcher;
 
 public class UrlExecutor implements ActionExecutor {
 
@@ -23,13 +24,13 @@ public class UrlExecutor implements ActionExecutor {
 		Map<String, Serializable> dataScope = context.getDataScope();
 
 		ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
-		byte[] content = contentFetcher.fetch(urlAction.getHref());
+		IFetchResult result = contentFetcher.fetch(urlAction.getHref());
 		
 		//content写入文件
-		context.getDataWriter().write(urlAction.getHref(), new Date(), content);
+		context.getDataWriter().write(urlAction.getHref(), result.getContentType(), new Date(), result.getData());
 		
 		if (StringUtils.isNotBlank(urlAction.getId())) {
-			dataScope.put(urlAction.getId(), content); // content写入scope,供后面的action使用
+			dataScope.put(urlAction.getId(), result.getData()); // content写入scope,供后面的action使用
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.zhujun.spider.worker.fetch;
+package com.zhujun.spider.net.url;
 
 public class FetchResultImpl implements IFetchResult {
 

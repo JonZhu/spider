@@ -10,8 +10,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhujun.spider.net.SpiderNetMessage;
-import com.zhujun.spider.net.msgbody.PushUrlBodyItem;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
+import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
+import com.zhujun.spider.net.url.ContentFetcher;
+import com.zhujun.spider.net.url.IFetchResult;
+import com.zhujun.spider.net.url.JavaUrlContentFetcher;
 import com.zhujun.spider.worker.FetchUrlQueue;
 import com.zhujun.spider.worker.mina.MinaClient;
 

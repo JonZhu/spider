@@ -1,4 +1,4 @@
-package com.zhujun.spider.worker.fetch;
+package com.zhujun.spider.net.url;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

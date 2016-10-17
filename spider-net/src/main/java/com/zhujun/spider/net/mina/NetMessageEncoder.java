@@ -1,4 +1,4 @@
-package com.zhujun.spider.net;
+package com.zhujun.spider.net.mina;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Map.Entry;

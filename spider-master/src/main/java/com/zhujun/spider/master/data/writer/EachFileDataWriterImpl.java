@@ -25,7 +25,7 @@ public class EachFileDataWriterImpl implements SpiderDataWriter {
 	}
 	
 	@Override
-	public void write(String originUrl, Date fetchTime, byte[] contentData) throws IOException {
+	public void write(String originUrl, String contentType, Date fetchTime, byte[] contentData) throws IOException {
 
 		URL urlObj = new URL(originUrl);
 		File hostDir = new File(dir, urlObj.getHost());
