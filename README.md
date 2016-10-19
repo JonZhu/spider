@@ -26,6 +26,6 @@ mvn -f spider-build/pom.xml clean package <br/>
 将编译之后得到的zip包解压，执行 bin/run.bat，这是window的脚本。linux下可参考。
 
 ##其它文档
-[doc/计划.md|计划]<br/>
-[doc/数据结构.md|数据结构]<br/>
+[计划](doc/计划.md)<br/>
+[数据结构](doc/数据结构.md)<br/>
 
