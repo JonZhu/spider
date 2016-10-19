@@ -18,7 +18,7 @@ worker工作非常单纯，专注于最大努力地从url得到数据。
 
 ##编译
 命令：<br/>
-mvn -f spider-build/pom.xml clean package <br/>
+mvn -f spider-build/pom.xml -DskipTests clean package <br/>
 命令执行后，会生成发布文件：spider-master/target/spider-master-verion-bin.zip和spider-worker/target/spider-worker-verion-bin.zip
 
 
