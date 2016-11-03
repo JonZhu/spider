@@ -23,6 +23,17 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 	
 	private final static JavaUrlContentFetcher INSTANCE = new JavaUrlContentFetcher();
 	
+	/**
+	 * 连接超时, 5秒
+	 */
+	private final static int CONNECT_TIMEOUT = 5000;
+	
+	/**
+	 * 读数据超时, 60秒
+	 */
+	private final static int READ_TIMEOUT = 60000;
+	
+	
 	private final static String[] USER_AGENTS = new String[]{
 			// firefox
 			"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0",
@@ -62,7 +73,8 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			
 			URL urlObj = new URL(url);
 			connection = (HttpURLConnection)urlObj.openConnection();
-			connection.setConnectTimeout(5000); // 5秒连接超时
+			connection.setConnectTimeout(CONNECT_TIMEOUT); //设置连接超时
+			connection.setReadTimeout(READ_TIMEOUT); //设置读数据超时
 			connection.setDoOutput(false);
 			connection.setDoInput(true);
 			
