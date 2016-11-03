@@ -2,6 +2,7 @@ package com.zhujun.spider.master.ui.servlet;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.mina.core.service.IoServiceStatistics;
 import org.apache.mina.core.session.IoSession;
 
 import com.zhujun.spider.master.di.DIContext;
@@ -46,8 +48,11 @@ public class WorkerListServlet  extends HttpServlet {
 		Map<Long, IoSession> clientSessionMap = minaServer.getClientSessions();
 		
 		Result result = new Result();
+		Map<String, Object> data = new HashMap<>();
+		
+		// worker
 		if (clientSessionMap != null && !clientSessionMap.isEmpty()) {
-			List<Map<String, Object>> mapList = new ArrayList<>();
+			List<Map<String, Object>> workerList = new ArrayList<>();
 			
 			List<Long> sessionIdList = new ArrayList<>(clientSessionMap.keySet());
 			Collections.sort(sessionIdList); // sort
@@ -76,12 +81,33 @@ public class WorkerListServlet  extends HttpServlet {
 				clientData.put("upMsg", session.getReadMessages());
 				clientData.put("upMsgPS", session.getReadMessagesThroughput());
 				
-				mapList.add(clientData);
+				workerList.add(clientData);
 			}
 			
-			result.setData(mapList);
+			data.put("workerList", workerList);
 		}
 		
+		// 累计数据
+		IoServiceStatistics acceptorStatis = minaServer.getAcceptorStatistics();
+		if (acceptorStatis != null && acceptorStatis.getReadBytes() > 0) {
+			acceptorStatis.updateThroughput(System.currentTimeMillis());
+			Map<String, Object> accumTotal = new HashMap<>();
+			// 下行
+			accumTotal.put("downBytes", acceptorStatis.getWrittenBytes());
+			accumTotal.put("downBytesPS", acceptorStatis.getWrittenBytesThroughput());
+			accumTotal.put("downMsg", acceptorStatis.getWrittenMessages());
+			accumTotal.put("downMsgPS", acceptorStatis.getWrittenMessagesThroughput());
+			
+			// 上行
+			accumTotal.put("upBytes", acceptorStatis.getReadBytes());
+			accumTotal.put("upBytesPS", acceptorStatis.getReadBytesThroughput());
+			accumTotal.put("upMsg", acceptorStatis.getReadMessages());
+			accumTotal.put("upMsgPS", acceptorStatis.getReadMessagesThroughput());
+			
+			data.put("accumTotal", accumTotal);
+		}
+		
+		result.setData(data);
 		JsonUtils.writeValue(resp.getOutputStream(), result);
 	}
 }

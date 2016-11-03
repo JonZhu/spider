@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.core.service.IoServiceStatistics;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -63,6 +64,18 @@ public class MinaServer implements IServer {
 	 */
 	public Map<Long,IoSession> getClientSessions() {
 		return acceptor == null ? null : acceptor.getManagedSessions();
+	}
+	
+	/**
+	 * 获取Acceptor的统计信息
+	 * 
+	 * @author zhujun
+	 * @date 2016年11月3日
+	 *
+	 * @return
+	 */
+	public IoServiceStatistics getAcceptorStatistics() {
+		return acceptor == null ? null : acceptor.getStatistics();
 	}
 	
 	

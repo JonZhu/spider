@@ -107,7 +107,8 @@
     		});
     	}
     	
-    	function showTaskList(workList) {
+    	function showTaskList(data) {
+    		var workList = data.workerList;
     		$tbody = $("#workerListTable tbody").empty();
     		
     		if (workList) {
@@ -157,7 +158,28 @@
     				
     				$tbody.append($tr);
     			}
+    		} else {
+    			// 当前无worker
+    			$tbody.append("<tr><td colspan='13'>当前无worker连接</td></tr>");
     		}
+    		
+    		// 累计数据
+    		var accumTotal = data.accumTotal;
+    		if (accumTotal) {
+    			$tr = $("<tr class='success'></tr>");
+				$("<td colspan='4'>累计</td>").appendTo($tr); //累计
+				$("<td></td>").text(adaptByte(accumTotal.upBytes)).appendTo($tr); //上行数据
+				$("<td></td>").text(adaptByte(accumTotal.upBytesPS)).appendTo($tr); //每秒上行数据
+				$("<td></td>").text(accumTotal.upMsg).appendTo($tr); //上行消息
+				$("<td></td>").text(accumTotal.upMsgPS.toFixed(2)).appendTo($tr); //每秒上行消息
+				$("<td></td>").text(adaptByte(accumTotal.downBytes)).appendTo($tr); //下行数据
+				$("<td></td>").text(adaptByte(accumTotal.downBytesPS)).appendTo($tr); //每秒下行数据
+				$("<td></td>").text(accumTotal.downMsg).appendTo($tr); //下行消息
+				$("<td></td>").text(accumTotal.downMsgPS.toFixed(2)).appendTo($tr); //每秒下行消息
+				
+				$tbody.append($tr);
+    		}
+    		
     	}
     	
     	// 适配bytes单位
