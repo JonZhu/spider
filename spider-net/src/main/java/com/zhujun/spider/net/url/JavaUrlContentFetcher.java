@@ -62,6 +62,7 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			
 			URL urlObj = new URL(url);
 			connection = (HttpURLConnection)urlObj.openConnection();
+			connection.setConnectTimeout(5000); // 5秒连接超时
 			connection.setDoOutput(false);
 			connection.setDoInput(true);
 			
