@@ -1,27 +1,5 @@
 package com.zhujun.spider.master.data.db;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.sql.DataSource;
-
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.AbstractListHandler;
-import org.apache.commons.dbutils.handlers.ScalarHandler;
-import org.apache.commons.io.IOUtils;
-
 import com.zhujun.spider.master.data.db.datasource.DataSourceManager;
 import com.zhujun.spider.master.data.db.datasource.DataSourceType;
 import com.zhujun.spider.master.data.db.datasource.DsUtils;
@@ -34,8 +12,24 @@ import com.zhujun.spider.master.dsl.DslParser;
 import com.zhujun.spider.master.dsl.XmlDslParserImpl;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.util.ReadWriteLockUtils;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.AbstractListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Singleton
+import javax.sql.DataSource;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+
+@Service
 public class SpiderTaskServiceImpl implements ISpiderTaskService {
 
 	private final static QueryRunner QUERY_RUNNER = new QueryRunner();
@@ -48,7 +42,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 		DataSourceManager.regist(DB_FILE, DataSourceType.Master);
 	}
 	
-	@Inject
+	@Autowired
 	private IScheduleService scheduleService;
 	
 	@Override

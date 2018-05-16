@@ -1,23 +1,23 @@
 package com.zhujun.spider.master.schedule;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
-import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.UrlSet;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.schedule.progress.IStep;
 import com.zhujun.spider.master.schedule.progress.ProgressUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Url集合 执行器
@@ -26,11 +26,13 @@ import com.zhujun.spider.master.schedule.progress.ProgressUtils;
  * @date 2016年6月5日
  *
  */
+@Component
 public class UrlSetExecutor extends ParentActionExecutor implements ActionExecutor {
 
 	private final static Logger LOG = LoggerFactory.getLogger(UrlSetExecutor.class);
-	
-	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
+
+	@Autowired
+	private IFetchUrlService fetchUrlService;
 	
 	@Override
 	public void execute(IScheduleContext context) throws Exception {

@@ -1,19 +1,8 @@
 package com.zhujun.spider.master.mina;
 
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
-import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.schedule.PushDataQueue;
@@ -21,13 +10,28 @@ import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.net.mina.SpiderNetMessage;
 import com.zhujun.spider.net.mina.msgbody.PushUrlBody;
 import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.Date;
+import java.util.List;
+
+@Component
 public class ServerHandler implements IoHandler {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ServerHandler.class);
-	
-	private IScheduleService scheduleService = DIContext.getInstance(IScheduleService.class);
-	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
+
+	@Autowired
+	private IScheduleService scheduleService;
+
+	@Autowired
+	private IFetchUrlService fetchUrlService;
 	
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {

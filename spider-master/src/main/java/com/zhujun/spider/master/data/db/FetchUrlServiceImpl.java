@@ -1,5 +1,18 @@
 package com.zhujun.spider.master.data.db;
 
+import com.zhujun.spider.master.data.db.datasource.DataSourceManager;
+import com.zhujun.spider.master.data.db.datasource.DsUtils;
+import com.zhujun.spider.master.data.db.datasource.DsUtils.IAction;
+import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.util.ReadWriteLockUtils;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.AbstractListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,22 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-import javax.inject.Singleton;
-import javax.sql.DataSource;
-
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.AbstractListHandler;
-import org.apache.commons.dbutils.handlers.ScalarHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.zhujun.spider.master.data.db.datasource.DataSourceManager;
-import com.zhujun.spider.master.data.db.datasource.DsUtils;
-import com.zhujun.spider.master.data.db.datasource.DsUtils.IAction;
-import com.zhujun.spider.master.data.db.po.FetchUrlPo;
-import com.zhujun.spider.master.util.ReadWriteLockUtils;
-
-@Singleton
+@Service
 public class FetchUrlServiceImpl implements IFetchUrlService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(FetchUrlServiceImpl.class);

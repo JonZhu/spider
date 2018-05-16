@@ -1,8 +1,10 @@
 package com.zhujun.spider.master.schedule;
 
-import java.io.Serializable;
-import java.util.Map;
-
+import com.zhujun.spider.master.data.db.IFetchUrlService;
+import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.domain.Paging;
+import com.zhujun.spider.master.domain.Spider;
+import com.zhujun.spider.master.util.UrlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,19 +12,19 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import com.zhujun.spider.master.data.db.IFetchUrlService;
-import com.zhujun.spider.master.data.db.po.FetchUrlPo;
-import com.zhujun.spider.master.di.DIContext;
-import com.zhujun.spider.master.domain.Paging;
-import com.zhujun.spider.master.domain.Spider;
-import com.zhujun.spider.master.util.UrlUtils;
+import java.io.Serializable;
+import java.util.Map;
 
+@Component
 public class PagingExecutor implements ActionExecutor {
 
 	private final static Logger LOG = LoggerFactory.getLogger(PagingExecutor.class);
-	
-	private final IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
+
+	@Autowired
+	private IFetchUrlService fetchUrlService;
 	
 	@Override
 	public void execute(IScheduleContext context) throws Exception {

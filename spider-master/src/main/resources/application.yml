@@ -1,0 +1,17 @@
+server:
+  port: 8618
+
+logging:
+  level:
+    com:
+      zhujun:
+        spider: DEBUG
+
+spring:
+  resources:
+    static-locations: classpath:/ui/
+    chain:
+      cache: false
+
+spider:
+  port: 8619

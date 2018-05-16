@@ -14,6 +14,8 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import com.zhujun.spider.master.server.IServer;
 import com.zhujun.spider.net.mina.NetMessageCodecFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 /**
  * Mina实现的Shedule网络服务
@@ -22,15 +24,21 @@ import com.zhujun.spider.net.mina.NetMessageCodecFactory;
  * @date 2016年6月17日
  *
  */
+@Service
 public class MinaServer implements IServer {
 
 	private int port;
 	private IoAcceptor acceptor;
-	
-	public MinaServer(int port) {
-		this.port = port;
+
+
+	public MinaServer(@Value("${spider.port:8619}") int port) {
+	    this.port = port;
 	}
-	
+
+	public int getPort() {
+		return port;
+	}
+
 	public void start() {
 		
 		acceptor = new NioSocketAcceptor();

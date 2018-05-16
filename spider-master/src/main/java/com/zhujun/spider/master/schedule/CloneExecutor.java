@@ -1,10 +1,14 @@
 package com.zhujun.spider.master.schedule;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.zhujun.spider.master.data.db.IFetchUrlService;
+import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.data.writer.SpiderDataWriter;
+import com.zhujun.spider.master.domain.Clone;
+import com.zhujun.spider.master.domain.Spider;
+import com.zhujun.spider.master.schedule.PushDataQueue.Item;
+import com.zhujun.spider.master.schedule.progress.IStep;
+import com.zhujun.spider.master.schedule.progress.ProgressUtils;
+import com.zhujun.spider.master.util.UrlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,18 +16,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import com.zhujun.spider.master.data.db.IFetchUrlService;
-import com.zhujun.spider.master.data.db.po.FetchUrlPo;
-import com.zhujun.spider.master.data.writer.SpiderDataWriter;
-import com.zhujun.spider.master.di.DIContext;
-import com.zhujun.spider.master.domain.Clone;
-import com.zhujun.spider.master.domain.Spider;
-import com.zhujun.spider.master.schedule.PushDataQueue.Item;
-import com.zhujun.spider.master.schedule.progress.IStep;
-import com.zhujun.spider.master.schedule.progress.ProgressUtils;
-import com.zhujun.spider.master.util.UrlUtils;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+@Component
 public class CloneExecutor implements ActionExecutor {
 
 	private final static Logger LOG = LoggerFactory.getLogger(CloneExecutor.class);
@@ -34,8 +35,9 @@ public class CloneExecutor implements ActionExecutor {
 	private final static String[] PAGE_CONTENT_TYPES = new String[]{
 		"text/html"
 	};
-	
-	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
+
+	@Autowired
+	private IFetchUrlService fetchUrlService;
 	
 	@Override
 	public void execute(IScheduleContext context) throws Exception {

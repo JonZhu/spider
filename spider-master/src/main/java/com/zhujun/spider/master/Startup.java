@@ -1,12 +1,12 @@
 package com.zhujun.spider.master;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.zhujun.spider.master.di.DIContext;
 import com.zhujun.spider.master.mina.MinaServer;
 import com.zhujun.spider.master.schedule.IScheduleService;
-import com.zhujun.spider.master.ui.UIServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * 启动 master
@@ -14,30 +14,24 @@ import com.zhujun.spider.master.ui.UIServer;
  * @date 2016年6月3日
  *
  */
+@SpringBootApplication
 public class Startup {
 
 	private final static Logger LOG = LoggerFactory.getLogger(Startup.class);
 	
 	public static void main(String[] args) {
-		
+
+		ConfigurableApplicationContext context = SpringApplication.run(Startup.class, args);
+		// start ui server
+		LOG.debug("ui server is running on port:{}", context.getEnvironment().getProperty("server.port"));
+
 		// 启动任务调度
-		DIContext.getInstance(IScheduleService.class).startupAllSchedule();
+		context.getBean(IScheduleService.class).startupAllSchedule();
 		
 		// start mina server
-		int port  = args.length > 0 ? Integer.valueOf(args[0]) : 8619;
-		LOG.debug("start boot mina server on port:{}", port);
-		MinaServer minaServer = new MinaServer(port);
+		MinaServer minaServer = context.getBean(MinaServer.class);
 		minaServer.start();
-		LOG.debug("mina server is running on port:{}", port);
-		
-		// 注册到DI
-		DIContext.bind(MinaServer.class, minaServer);
-		
-		// start ui server
-		LOG.debug("start boot ui server on port:8618");
-		UIServer uiServer = new UIServer(8618);
-		uiServer.start();
-		LOG.debug("ui server is running on port:8618");
+		LOG.debug("mina server is running on port:{}", minaServer.getPort());
 		
 	}
 

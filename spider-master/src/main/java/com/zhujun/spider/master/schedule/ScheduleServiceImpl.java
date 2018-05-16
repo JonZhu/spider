@@ -1,5 +1,18 @@
 package com.zhujun.spider.master.schedule;
 
+import com.zhujun.spider.master.data.db.ISpiderTaskService;
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
+import com.zhujun.spider.master.domain.Spider;
+import com.zhujun.spider.master.dsl.DslParser;
+import com.zhujun.spider.master.dsl.XmlDslParserImpl;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
@@ -9,22 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.zhujun.spider.master.data.db.ISpiderTaskService;
-import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
-import com.zhujun.spider.master.domain.Spider;
-import com.zhujun.spider.master.dsl.DslParser;
-import com.zhujun.spider.master.dsl.XmlDslParserImpl;
-
-@Singleton
+@Service
 public class ScheduleServiceImpl implements IScheduleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ScheduleServiceImpl.class);
@@ -42,7 +40,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 	private final Map<String, SpiderScheduleThread> pausedScheduleThreadMap = new ConcurrentHashMap<>();
 	
 	
-	@Inject
+	@Autowired
 	private ISpiderTaskService spiderTaskService;
 	
 	@Override
