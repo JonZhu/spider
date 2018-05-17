@@ -1,15 +1,13 @@
 package com.zhujun.spider.worker;
 
-import java.util.concurrent.BlockingQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhujun.spider.net.mina.SpiderNetMessage;
 import com.zhujun.spider.net.mina.msgbody.PushUrlBody;
 import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
-import com.zhujun.spider.worker.mina.MinaClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.BlockingQueue;
 
 /**
  * 从master拉取url任务
@@ -22,14 +20,14 @@ public class PullUrlThread extends Thread {
 
 	private final static Logger LOG = LoggerFactory.getLogger(PullUrlThread.class);
 	
-	private final MinaClient minaClient;
+	private final MasterClient minaClient;
 	
 	/**
 	 * 连续空响应次数
 	 */
 	private int responseEmptyCount = 0;
 	
-	public PullUrlThread(MinaClient minaClient) {
+	public PullUrlThread(MasterClient minaClient) {
 		this.minaClient = minaClient;
 	}
 	

@@ -6,11 +6,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.zhujun.spider.worker.mina.MinaPassiveClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zhujun.spider.worker.fetch.FetchWorker;
-import com.zhujun.spider.worker.mina.MinaClient;
+import com.zhujun.spider.worker.mina.MinaInitiativeClient;
 
 /**
  * Worker 启动入口
@@ -24,42 +25,44 @@ public class Startup {
 	private final static Logger LOG = LoggerFactory.getLogger(Startup.class);
 	
 	private final static AtomicInteger FETCHER_INDEX = new AtomicInteger(0);
+
+	private final static String USAGE = "Usage: \n" +
+			"1.主动连接master：com.zhujun.spider.worker.Startup masterHost port\n" +
+			"2.被动连接master：com.zhujun.spider.worker.Startup listenPort";
 	
 	public static void main(String[] args) {
-		
-		if (args.length < 2) {
-			LOG.error("Usage: com.zhujun.spider.worker.Startup masterHost port");
+		if (args.length == 0 || args.length > 2) {
+			System.out.println(USAGE);
 			System.exit(-1);
 		}
-		
+
 		// 启动mina client 连接master
-		MinaClient client = null;
-		try {
-			
-			InetSocketAddress remoteAddress = new InetSocketAddress(args[0], Integer.valueOf(args[1]));
-			
-			LOG.debug("start boot mina client and connect master[{}:{}]", remoteAddress.getHostName(), remoteAddress.getPort());
-			
-			client = new MinaClient(remoteAddress);
-			client.start();
-			
-			LOG.debug("mina client connected to master");
-		} catch (Exception e) {
-			LOG.error("boot mina client fail", e);
-			System.exit(-1);
+		MasterClient client = null;
+		if (args.length == 2) {
+			String masterHost = args[0];
+			Integer masterPort = Integer.valueOf(args[1]);
+			LOG.info("主动连接方法启动, master: {}:{}", masterHost, masterPort);
+			InetSocketAddress remoteAddress = new InetSocketAddress(masterHost, masterPort);
+			client = new MinaInitiativeClient(remoteAddress);
+		} else if (args.length == 1) {
+			Integer listenPort = Integer.valueOf(args[0]);
+			client = new MinaPassiveClient(listenPort);
+			LOG.info("被动连接方法启动, listenPort: {}", listenPort);
 		}
+		client.init();
+		client.connectMaster();
+		LOG.debug("mina client connected to master");
 		
 		// 初始化从master拉取url线程
 		startupPullUrlThread(client);
 		
 		// 启动fetch线程
 		startupFetchThreads(client);
-		
-		
+
 	}
 
 	
-	private static void startupPullUrlThread(MinaClient client) {
+	private static void startupPullUrlThread(MasterClient client) {
 		PullUrlThread thread = new PullUrlThread(client);
 		thread.setName("PullUrlThread");
 		thread.start();
@@ -73,9 +76,8 @@ public class Startup {
 	 * @date 2016年6月22日
 	 *
 	 * @param client
-	 * @param fetchQueue
 	 */
-	private static void startupFetchThreads(MinaClient client) {
+	private static void startupFetchThreads(MasterClient client) {
 		int processorCount = Runtime.getRuntime().availableProcessors();
 		
 		ExecutorService fetchService = Executors.newFixedThreadPool(processorCount + 1, new ThreadFactory() {

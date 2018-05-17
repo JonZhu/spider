@@ -1,5 +1,5 @@
 server:
-  port: 8618
+  port: 8618 #ui port
 
 logging:
   level:
@@ -9,9 +9,14 @@ logging:
 
 spring:
   resources:
-    static-locations: classpath:/ui/
-    chain:
-      cache: false
+    static-locations: file:src/main/resources/ui/
 
 spider:
   port: 8619
+
+---
+spring:
+  profiles: prod
+
+  resources:
+    static-locations: classpath:/ui/

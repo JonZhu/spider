@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.zhujun.spider.worker.MasterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,6 @@ import com.zhujun.spider.net.url.ContentFetcher;
 import com.zhujun.spider.net.url.IFetchResult;
 import com.zhujun.spider.net.url.JavaUrlContentFetcher;
 import com.zhujun.spider.worker.FetchUrlQueue;
-import com.zhujun.spider.worker.mina.MinaClient;
 
 /**
  * 内容抓取线程
@@ -37,9 +37,9 @@ public class FetchWorker implements Runnable {
 	 */
 	private final static Map<String, Lock> HOST_LOCK_MAP = new HashMap<>();
 
-	private final MinaClient minaClient;
+	private final MasterClient minaClient;
 	
-	public FetchWorker(MinaClient minaClient) {
+	public FetchWorker(MasterClient minaClient) {
 		if (minaClient == null) {
 			throw new NullPointerException("minaClient不能为空");
 		}

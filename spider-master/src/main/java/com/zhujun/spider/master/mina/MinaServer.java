@@ -14,6 +14,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import com.zhujun.spider.master.server.IServer;
 import com.zhujun.spider.net.mina.NetMessageCodecFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,9 @@ public class MinaServer implements IServer {
 
 	private int port;
 	private IoAcceptor acceptor;
+
+	@Autowired
+	private ServerHandler serverHandler;
 
 
 	public MinaServer(@Value("${spider.port:8619}") int port) {
@@ -46,7 +50,7 @@ public class MinaServer implements IServer {
 		acceptor.getFilterChain().addLast("logger", new LoggingFilter());
 		acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new NetMessageCodecFactory()));
 
-		acceptor.setHandler(new ServerHandler());
+		acceptor.setHandler(serverHandler);
 		acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 10);
 		try {
 			acceptor.bind(new InetSocketAddress(port));
