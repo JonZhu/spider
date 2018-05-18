@@ -65,21 +65,22 @@ public class MinaPassiveClient extends AbstractClient {
 		acceptor.addListener(new IoServiceListener() {
 			@Override
 			public void serviceActivated(IoService ioService) throws Exception {
-
+				LOG.debug("serviceActivated");
 			}
 
 			@Override
 			public void serviceIdle(IoService ioService, IdleStatus idleStatus) throws Exception {
-
+				LOG.debug("serviceIdle :{}", idleStatus.toString());
 			}
 
 			@Override
 			public void serviceDeactivated(IoService ioService) throws Exception {
-
+				LOG.debug("serviceDeactivated");
 			}
 
 			@Override
 			public void sessionCreated(IoSession ioSession) throws Exception {
+				LOG.debug("session {} Created", ioSession.getId());
 				if (isConnected()) {
 					// 已经有一个master连接上，不允许第二个连接
 					ioSession.closeNow();
@@ -95,6 +96,7 @@ public class MinaPassiveClient extends AbstractClient {
 
 			@Override
 			public void sessionClosed(IoSession ioSession) throws Exception {
+				LOG.debug("session {} Closed", ioSession.getId());
 				if (MinaPassiveClient.this.session == ioSession) {
 					MinaPassiveClient.this.session = null;
 					isConnectMaster.set(false);
@@ -103,6 +105,7 @@ public class MinaPassiveClient extends AbstractClient {
 
 			@Override
 			public void sessionDestroyed(IoSession ioSession) throws Exception {
+				LOG.debug("session {} Destroyed", ioSession.getId());
 				if (MinaPassiveClient.this.session == ioSession) {
 					isConnectMaster.set(false);
 				}

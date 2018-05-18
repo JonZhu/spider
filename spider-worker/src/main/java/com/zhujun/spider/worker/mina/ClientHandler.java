@@ -19,31 +19,28 @@ public class ClientHandler implements IoHandler {
 	
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
-		// TODO Auto-generated method stub
+		LOG.debug("session {} Created", session.getId());
 
 	}
 
 	@Override
 	public void sessionOpened(IoSession session) throws Exception {
-		LOG.debug("sessionOpened");
+		LOG.debug("session {} Opened", session.getId());
 	}
 
 	@Override
 	public void sessionClosed(IoSession session) throws Exception {
-		// TODO Auto-generated method stub
-
+		LOG.debug("session {} Closed", session.getId());
 	}
 
 	@Override
 	public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
-		// TODO Auto-generated method stub
-
+		LOG.debug("session {} Idle:{}", session.getId(), status.toString());
 	}
 
 	@Override
 	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-		LOG.error("exceptionCaught", cause);
-
+		LOG.error("session {} exceptionCaught", session.getId(), cause);
 	}
 
 	@Override
