@@ -20,3 +20,7 @@ spring:
 
   resources:
     static-locations: classpath:/ui/
+
+spider:
+  mina:
+    log-filter: false

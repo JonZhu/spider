@@ -11,6 +11,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -39,10 +40,15 @@ public class InitiativeConnector {
     @Autowired
     private ServerHandler serverHandler;
 
+    @Value("${spider.mina.log-filter:true}")
+    private boolean enableLogFilter;
+
     @PostConstruct
     private void init() {
         connector = new NioSocketConnector();
-        connector.getFilterChain().addLast("logger", new LoggingFilter());
+        if (enableLogFilter) {
+            connector.getFilterChain().addLast("logger", new LoggingFilter());
+        }
         connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new NetMessageCodecFactory()));
         connector.setHandler(serverHandler);
         connector.setConnectTimeoutMillis(5000);

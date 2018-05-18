@@ -34,6 +34,8 @@ public class MinaServer implements IServer {
 	@Autowired
 	private ServerHandler serverHandler;
 
+	@Value("${spider.mina.log-filter:true}")
+	private boolean enableLogFilter;
 
 	public MinaServer(@Value("${spider.port:8619}") int port) {
 	    this.port = port;
@@ -47,7 +49,9 @@ public class MinaServer implements IServer {
 		
 		acceptor = new NioSocketAcceptor();
 
-		acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+		if (enableLogFilter) {
+			acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+		}
 		acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new NetMessageCodecFactory()));
 
 		acceptor.setHandler(serverHandler);
