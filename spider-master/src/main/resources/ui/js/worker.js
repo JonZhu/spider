@@ -134,7 +134,12 @@ $(function(){
             },
             dataType: "json",
             success: function(result){
-
+                if (result.status == 0) {
+                    alert("连接成功");
+                    $('#connectWorkerModal').modal('hide');
+                } else {
+                    alert(result.msg);
+                }
             }
         });
 
