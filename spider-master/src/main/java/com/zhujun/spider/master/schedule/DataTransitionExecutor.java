@@ -12,6 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.zhujun.spider.master.domain.DataTransition;
+import org.springframework.stereotype.Component;
 
 /**
  * 数据转换
@@ -20,6 +21,7 @@ import com.zhujun.spider.master.domain.DataTransition;
  * @date 2016年6月5日
  *
  */
+@Component
 public class DataTransitionExecutor implements ActionExecutor {
 
 	@Override

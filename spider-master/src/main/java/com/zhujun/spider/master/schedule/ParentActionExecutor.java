@@ -3,6 +3,7 @@ package com.zhujun.spider.master.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zhujun.spider.master.util.SpringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ import com.zhujun.spider.master.domain.Url;
 import com.zhujun.spider.master.domain.UrlSet;
 import com.zhujun.spider.master.schedule.progress.IStep;
 import com.zhujun.spider.master.schedule.progress.ProgressUtils;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * 主要执行children
@@ -82,25 +84,27 @@ public abstract class ParentActionExecutor implements ActionExecutor {
 		if (action == null) {
 			return null;
 		}
+
+		ConfigurableApplicationContext springContext = SpringUtil.getContext();
 		
 		if (action instanceof Url) {
-			return new UrlExecutor();
+			return springContext.getBean(UrlExecutor.class);
 		}
 		
 		if (action instanceof UrlSet) {
-			return new UrlSetExecutor();
+			return springContext.getBean(UrlSetExecutor.class);
 		}
 		
 		if (action instanceof DataTransition) {
-			return new DataTransitionExecutor();
+			return springContext.getBean(DataTransitionExecutor.class);
 		}
 		
 		if (action instanceof Paging) {
-			return new PagingExecutor();
+			return springContext.getBean(PagingExecutor.class);
 		}
 		
 		if (action instanceof Clone) {
-			return new CloneExecutor();
+			return springContext.getBean(CloneExecutor.class);
 		}
 		
 		return null;

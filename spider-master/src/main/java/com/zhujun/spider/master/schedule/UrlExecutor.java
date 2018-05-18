@@ -11,13 +11,11 @@ import com.zhujun.spider.master.domain.Url;
 import com.zhujun.spider.net.url.ContentFetcher;
 import com.zhujun.spider.net.url.IFetchResult;
 import com.zhujun.spider.net.url.JavaUrlContentFetcher;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UrlExecutor implements ActionExecutor {
 
-	
-//	private IFetchUrlService fetchUrlService = DIContext.getInstance(IFetchUrlService.class);
-	
-	
 	@Override
 	public void execute(IScheduleContext context) throws IOException {
 		Url urlAction = (Url)context.getAction();
