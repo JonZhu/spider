@@ -95,8 +95,8 @@ public class ClientHandler implements IoHandler {
 
 	@Override
 	public void inputClosed(IoSession session) throws Exception {
-		// TODO Auto-generated method stub
-
+		LOG.debug("input {} Closed", session.getId());
+		session.closeNow();
 	}
 
 	/**

@@ -13,6 +13,8 @@ spring:
 
 spider:
   port: 8619
+  mina:
+    log-filter: false
 
 ---
 spring:

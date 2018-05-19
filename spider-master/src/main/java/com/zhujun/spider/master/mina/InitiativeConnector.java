@@ -57,34 +57,34 @@ public class InitiativeConnector {
         connector.addListener(new IoServiceListener() {
             @Override
             public void serviceActivated(IoService ioService) throws Exception {
-
+                log.debug("serviceActivated");
             }
 
             @Override
             public void serviceIdle(IoService ioService, IdleStatus idleStatus) throws Exception {
-
+                log.debug("serviceIdle: {}", idleStatus.toString());
             }
 
             @Override
             public void serviceDeactivated(IoService ioService) throws Exception {
-
+                log.debug("serviceDeactivated");
             }
 
             @Override
             public void sessionCreated(IoSession ioSession) throws Exception {
-                log.info("add session {}", ioSession.getId());
+                log.info("session {} Created", ioSession.getId());
                 sessionMap.put(ioSession.getId(), ioSession);
             }
 
             @Override
             public void sessionClosed(IoSession ioSession) throws Exception {
-                log.info("remove session {}", ioSession.getId());
+                log.info("session {} Closed", ioSession.getId());
                 sessionMap.remove(ioSession.getId());
             }
 
             @Override
             public void sessionDestroyed(IoSession ioSession) throws Exception {
-                log.info("remove session {}", ioSession.getId());
+                log.info("session {} Destroyed", ioSession.getId());
                 sessionMap.remove(ioSession.getId());
             }
         });
