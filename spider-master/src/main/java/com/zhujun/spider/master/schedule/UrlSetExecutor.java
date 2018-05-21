@@ -57,6 +57,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 					FetchUrlPo urlPo = new FetchUrlPo();
 					urlPo.setUrl(urlSet.getUrltemplate());
 					urlPo.setActionId(urlSet.getId());
+					urlPoList.add(urlPo);
 				} else {
 					// 填充模板值
 					SequenceItem[] sequenceItems = new SequenceItem[indexList.size()];

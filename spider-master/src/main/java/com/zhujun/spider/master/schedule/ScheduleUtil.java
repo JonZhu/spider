@@ -5,6 +5,8 @@ import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.util.ThreadUtils;
 
+import java.nio.charset.Charset;
+
 /**
  * Schedule工具
  * 
@@ -15,7 +17,7 @@ import com.zhujun.spider.master.util.ThreadUtils;
 public class ScheduleUtil {
 
 	public static String obj2str(Object obj) {
-		return obj instanceof byte[] ? new String((byte[])obj) : String.valueOf(obj);
+		return obj instanceof byte[] ? new String((byte[])obj, Charset.forName("UTF-8")) : String.valueOf(obj);
 	}
 	
 	/**

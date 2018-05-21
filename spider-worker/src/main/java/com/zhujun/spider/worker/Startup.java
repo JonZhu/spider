@@ -31,7 +31,7 @@ public class Startup {
 			"2.被动连接master：com.zhujun.spider.worker.Startup listenPort";
 	
 	public static void main(String[] args) {
-		if (args.length == 0 || args.length > 2) {
+		if (args == null || args.length < 1 || args.length > 2) {
 			System.out.println(USAGE);
 			System.exit(-1);
 		}
@@ -44,7 +44,8 @@ public class Startup {
 			LOG.info("主动连接方法启动, master: {}:{}", masterHost, masterPort);
 			InetSocketAddress remoteAddress = new InetSocketAddress(masterHost, masterPort);
 			client = new MinaInitiativeClient(remoteAddress);
-		} else if (args.length == 1) {
+		} else {
+			// args.length == 1
 			Integer listenPort = Integer.valueOf(args[0]);
 			client = new MinaPassiveClient(listenPort);
 			LOG.info("被动连接方法启动, listenPort: {}", listenPort);

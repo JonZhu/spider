@@ -1,10 +1,6 @@
 package com.zhujun.export.appendfile;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -24,7 +20,7 @@ public class AppendFileReader implements Closeable {
 	private final static String START_LINE_FLAG = "SPIDER";
 	private final static String EMPTY_LINE = "";
 	
-	private final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	private final static String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
 	private String filePath;
 	private RandomAccessFile randomAccessFile;
@@ -127,12 +123,13 @@ public class AppendFileReader implements Closeable {
 		if ("Url".equals(headerName)) {
 			metaData.setUrl(headerValue);
 		} else if ("Content-Length".equals(headerName)) {
-			metaData.setSize(Long.valueOf(headerValue));
+			metaData.setSize(Long.parseLong(headerValue));
 		} else if ("ContentType".equals(headerName)) {
 			metaData.setContentType(headerValue);
 		} else if ("Time".equals(headerName)) {
 			try {
-				metaData.setFetchTime(TIME_FORMAT.parse(headerValue));
+				SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
+				metaData.setFetchTime(dateFormat.parse(headerValue));
 			} catch (ParseException e) {
 				// do nothing
 				e.printStackTrace();

@@ -81,7 +81,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 						File dslFile = new File(spiderDataDir, "spiderdsl.xml");
 						Writer dslWriter = null;
 						try {
-							dslWriter = new OutputStreamWriter(new FileOutputStream(dslFile));
+							dslWriter = new OutputStreamWriter(new FileOutputStream(dslFile), "UTF-8");
 							xmlSpider.getSpiderDslDoc().getRootElement().addAttribute("id", taskPo.getId());
 							xmlSpider.getSpiderDslDoc().write(dslWriter);
 						} finally {
