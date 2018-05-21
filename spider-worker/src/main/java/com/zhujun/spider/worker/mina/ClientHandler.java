@@ -43,6 +43,7 @@ public class ClientHandler implements IoHandler {
 	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
 		LOG.error("session {} exceptionCaught", session.getId(), cause);
 		if (cause instanceof IOException) {
+		    LOG.debug("invoke session.closeNow()");
 			session.closeNow();
 		}
 	}
