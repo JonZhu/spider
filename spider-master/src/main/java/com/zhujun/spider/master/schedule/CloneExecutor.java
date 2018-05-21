@@ -124,6 +124,7 @@ public class CloneExecutor implements ActionExecutor {
 		}
 		
 		List<FetchUrlPo> urlPoList = new ArrayList<>();
+		int paseUrlCount = 0;
 		
 		// 查询a标签
 		Elements aEles = doc.select("a[href]");
@@ -138,6 +139,7 @@ public class CloneExecutor implements ActionExecutor {
 						fetchUrl.setActionId(clone.getId());
 						fetchUrl.setUrl(absoluteUrl);
 						urlPoList.add(fetchUrl);
+                        paseUrlCount++;
 //						LOG.debug("增加关联url: {}", absoluteUrl);
 						
 						if (urlPoList.size() > 1000) {
@@ -159,6 +161,7 @@ public class CloneExecutor implements ActionExecutor {
 					fetchUrl.setActionId(clone.getId());
 					fetchUrl.setUrl(absUrl);
 					urlPoList.add(fetchUrl);
+                    paseUrlCount++;
 //					LOG.debug("增加关联css url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
@@ -180,6 +183,7 @@ public class CloneExecutor implements ActionExecutor {
 					fetchUrl.setActionId(clone.getId());
 					fetchUrl.setUrl(absUrl);
 					urlPoList.add(fetchUrl);
+                    paseUrlCount++;
 //					LOG.debug("增加关联js url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
@@ -201,6 +205,7 @@ public class CloneExecutor implements ActionExecutor {
 					fetchUrl.setActionId(clone.getId());
 					fetchUrl.setUrl(imageUrl);
 					urlPoList.add(fetchUrl);
+                    paseUrlCount++;
 //					LOG.debug("增加关联image url: {}", imageUrl);
 					
 					if (urlPoList.size() > 1000) {
@@ -217,7 +222,7 @@ public class CloneExecutor implements ActionExecutor {
 		}
 		
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("parse {} link url and insert into database cost {} ms", urlPoList.size(), System.currentTimeMillis() - startTime);
+			LOG.debug("parse {} link url and insert into database cost {} ms", paseUrlCount, System.currentTimeMillis() - startTime);
 		}
 		
 	}
