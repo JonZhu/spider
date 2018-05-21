@@ -95,7 +95,7 @@ public class ServerHandler implements IoHandler {
 		item.data = data;
 		item.success = success;
 		item.url = url;
-		item.fetchTime = new Date(Long.valueOf(netMsg.getHeader("Fetch-time")));
+		item.fetchTime = new Date(Long.parseLong(netMsg.getHeader("Fetch-time")));
 		item.taskId = taskId;
 		item.actionId = actionId;
 		item.urlId = urlId;

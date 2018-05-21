@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,7 +29,7 @@ public class FileLineQueue implements Queue<String> {
 	/**
 	 * 行分隔符
 	 */
-	private final static byte[] LINE_SEP = ScheduleConst.CRNL.getBytes();
+	private final static byte[] LINE_SEP = ScheduleConst.CRNL.getBytes(Charset.forName("UTF-8"));
 	
 	private File dataFile;
 	private File indexFile;
@@ -93,7 +94,7 @@ public class FileLineQueue implements Queue<String> {
 		String indexStr = readIndexContent();
 		
 		if (NumberUtils.isNumber(indexStr)) {
-			index = Integer.valueOf(indexStr);
+			index = Integer.parseInt(indexStr);
 		}
 		
 		try {

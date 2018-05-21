@@ -170,7 +170,7 @@ public class XmlDslParserImpl implements DslParser {
 		Pattern templateReg = Pattern.compile("\\{(\\d)\\}"); // \{(\d)\}
 		Matcher templateMacher = templateReg.matcher(urltemplate);
 		while (templateMacher.find()) {
-			int index = Integer.valueOf(templateMacher.group(1));
+			int index = Integer.parseInt(templateMacher.group(1));
 			if (typeMap.containsKey(index)) {
 				// 重复index
 				continue;

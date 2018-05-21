@@ -1,6 +1,7 @@
 package com.zhujun.spider.net.mina;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -25,13 +26,13 @@ public class NetMessageEncoder extends ProtocolEncoderAdapter implements Protoco
 		if (netMessage.getHeaders() != null && !netMessage.getHeaders().isEmpty()) {
 			Set<Entry<String, String>> headerEntrySet = netMessage.getHeaders().entrySet();
 			for (Entry<String, String> headerEntry : headerEntrySet) {
-				outputStream.write((headerEntry.getKey() + ":" + headerEntry.getValue()).getBytes());
+				outputStream.write((headerEntry.getKey() + ":" + headerEntry.getValue()).getBytes(Charset.forName("UTF-8")));
 				outputStream.write(Consts.CRNL_BYTES);
 			}
 		}
 		
 		if (netMessage.getBody() != null) {
-			outputStream.write((SpiderNetMessage.HEADER_BODY_LENGTH + ":" + netMessage.getBody().length).getBytes());
+			outputStream.write((SpiderNetMessage.HEADER_BODY_LENGTH + ":" + netMessage.getBody().length).getBytes(Charset.forName("UTF-8")));
 			outputStream.write(Consts.CRNL_BYTES);
 		}
 		outputStream.write(Consts.CRNL_BYTES); // header结束

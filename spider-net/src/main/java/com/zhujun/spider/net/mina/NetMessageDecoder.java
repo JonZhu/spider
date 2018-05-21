@@ -71,7 +71,7 @@ public class NetMessageDecoder extends CumulativeProtocolDecoder implements Prot
 					phase = Phase.COMPLETE;
 					setPhaseIntoSession(session, phase);
 				} else {
-					int bodyLength = Integer.valueOf(bodyLenStr);
+					int bodyLength = Integer.parseInt(bodyLenStr);
 					if (in.remaining() < bodyLength) {
 						return false;
 					}
