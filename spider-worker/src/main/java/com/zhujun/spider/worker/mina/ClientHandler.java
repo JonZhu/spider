@@ -1,5 +1,6 @@
 package com.zhujun.spider.worker.mina;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,6 +42,9 @@ public class ClientHandler implements IoHandler {
 	@Override
 	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
 		LOG.error("session {} exceptionCaught", session.getId(), cause);
+		if (cause instanceof IOException) {
+			session.closeNow();
+		}
 	}
 
 	@Override
