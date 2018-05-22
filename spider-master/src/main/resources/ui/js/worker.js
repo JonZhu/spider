@@ -14,8 +14,7 @@ $(function(){
         });
     }
 
-    function showTaskList(data) {
-        var workList = data.workerList;
+    function showTaskList(workList) {
         $tbody = $("#workerListTable tbody").empty();
 
         if (workList) {
