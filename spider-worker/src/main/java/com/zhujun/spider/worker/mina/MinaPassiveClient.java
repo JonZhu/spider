@@ -107,6 +107,7 @@ public class MinaPassiveClient extends AbstractClient {
 			public void sessionDestroyed(IoSession ioSession) throws Exception {
 				LOG.debug("session {} Destroyed", ioSession.getId());
 				if (MinaPassiveClient.this.session == ioSession) {
+					MinaPassiveClient.this.session = null;
 					isConnectMaster.set(false);
 				}
 			}
