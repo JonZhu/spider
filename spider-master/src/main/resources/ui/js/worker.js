@@ -134,8 +134,13 @@ $(function(){
             dataType: "json",
             success: function(result){
                 if (result.status == 0) {
-                    alert("连接成功");
-                    $('#connectWorkerModal').modal('hide');
+                    var session = result.data;
+                    if (session.isConnected) {
+                        $('#connectWorkerModal').modal('hide');
+                        alert("连接成功");
+                    } else {
+                        alert("连接失败");
+                    }
                 } else {
                     alert(result.msg);
                 }

@@ -78,6 +78,9 @@ public class WorkerController {
         clientData.put("upMsg", session.getReadMessages());
         clientData.put("upMsgPS", session.getReadMessagesThroughput());
 
+        // 状态
+        clientData.put("isConnected", session.isConnected());
+
         return clientData;
     }
 
