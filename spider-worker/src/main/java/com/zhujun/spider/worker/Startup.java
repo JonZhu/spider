@@ -67,6 +67,7 @@ public class Startup {
 		PullUrlThread thread = new PullUrlThread(client);
 		thread.setName("PullUrlThread");
 		thread.start();
+		LOG.info("启动PullUrlThread");
 	}
 
 
@@ -79,20 +80,24 @@ public class Startup {
 	 * @param client
 	 */
 	private static void startupFetchThreads(MasterClient client) {
+		LOG.info("开始 初始化fetcher线程池");
 		int processorCount = Runtime.getRuntime().availableProcessors();
+		int min = 16;
+		int fetcherCount = Math.max(min, processorCount * 2 + 1);
 		
-		ExecutorService fetchService = Executors.newFixedThreadPool(processorCount + 1, new ThreadFactory() {
+		ExecutorService fetchService = Executors.newFixedThreadPool(fetcherCount, new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {
 				return new Thread(r, "fetcher-" + FETCHER_INDEX.getAndIncrement());
 			}
 		});
 		
-		for (int i = 0; i < processorCount + 1; i++) {
+		for (int i = 0; i < fetcherCount; i++) {
 			FetchWorker fetcher = new FetchWorker(client);
 			fetchService.execute(fetcher);
 		}
-		
+
+		LOG.info("结束 初始化fetcher线程池, fetcherCount: {}", fetcherCount);
 	}
 	
 }
