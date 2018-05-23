@@ -29,7 +29,7 @@ public class MinaPassiveClient extends AbstractClient {
 
 	private int listenPort;
 	private IoAcceptor acceptor;
-	private IoSession session;
+	private volatile IoSession session;
 	private ClientHandler clientHandler;
 
 	/**

@@ -73,7 +73,7 @@ public abstract class AbstractClient implements MasterClient {
     }
 
     @Override
-    synchronized public boolean isConnected() {
+    public boolean isConnected() {
         IoSession session = getSession();
         return session != null && session.isConnected();
     }

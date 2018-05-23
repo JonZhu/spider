@@ -27,7 +27,7 @@ public class MinaInitiativeClient extends AbstractClient {
 	
 	private SocketAddress remoteAddress;
 	private IoConnector connector;
-	private IoSession session;
+	private volatile IoSession session;
 	private ClientHandler clientHandler;
 	
 	public MinaInitiativeClient(SocketAddress remoteAddress) {
