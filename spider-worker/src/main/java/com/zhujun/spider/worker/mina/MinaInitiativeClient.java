@@ -1,8 +1,6 @@
 package com.zhujun.spider.worker.mina;
 
-import java.net.SocketAddress;
-import java.util.UUID;
-
+import com.zhujun.spider.net.mina.NetMessageCodecFactory;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.session.IdleStatus;
@@ -13,8 +11,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhujun.spider.net.mina.NetMessageCodecFactory;
-import com.zhujun.spider.net.mina.SpiderNetMessage;
+import java.net.SocketAddress;
 
 /**
  * Mina实现的,与master通讯client
@@ -53,9 +50,12 @@ public class MinaInitiativeClient extends AbstractClient {
 	}
 
 
-	public void connectMaster() {
+	synchronized public void connectMaster() {
+		if (isConnected()) {
+			return;
+		}
+
 		ConnectFuture connectFuture = null;
-		
 		while (true) {
 			try {
 				connectFuture = connector.connect(remoteAddress);

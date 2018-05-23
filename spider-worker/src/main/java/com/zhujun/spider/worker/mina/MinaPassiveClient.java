@@ -1,8 +1,6 @@
 package com.zhujun.spider.worker.mina;
 
 import com.zhujun.spider.net.mina.NetMessageCodecFactory;
-import com.zhujun.spider.net.mina.SpiderNetMessage;
-import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.IoServiceListener;
@@ -16,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Mina实现的,与master通讯client
@@ -35,7 +31,11 @@ public class MinaPassiveClient extends AbstractClient {
 	private IoAcceptor acceptor;
 	private IoSession session;
 	private ClientHandler clientHandler;
-	private final AtomicBoolean isConnectMaster = new AtomicBoolean(false);
+
+	/**
+	 * 连接上master时通知等待线程
+	 */
+	private final Object connectMasterNofifier = new Object();
 
 	public MinaPassiveClient(int listenPort) {
 		this.listenPort = listenPort;
@@ -88,9 +88,8 @@ public class MinaPassiveClient extends AbstractClient {
 				}
 
 				MinaPassiveClient.this.session = ioSession;
-				isConnectMaster.set(true);
-				synchronized (isConnectMaster) {
-					isConnectMaster.notifyAll();
+				synchronized (connectMasterNofifier) {
+					connectMasterNofifier.notifyAll();
 				}
 			}
 
@@ -99,7 +98,6 @@ public class MinaPassiveClient extends AbstractClient {
 				LOG.debug("session {} Closed", ioSession.getId());
 				if (MinaPassiveClient.this.session == ioSession) {
 					MinaPassiveClient.this.session = null;
-					isConnectMaster.set(false);
 				}
 			}
 
@@ -108,31 +106,27 @@ public class MinaPassiveClient extends AbstractClient {
 				LOG.debug("session {} Destroyed", ioSession.getId());
 				if (MinaPassiveClient.this.session == ioSession) {
 					MinaPassiveClient.this.session = null;
-					isConnectMaster.set(false);
 				}
 			}
 		});
 	}
 
 
-	public void connectMaster() {
-		synchronized (isConnectMaster) {
-			if (isConnectMaster.get()) {
+	synchronized public void connectMaster() {
+		while (true) {
+			if (isConnected()) {
+				// 已经连接上、退出
+				InetSocketAddress masterAddress = (InetSocketAddress)session.getRemoteAddress();
+				LOG.info("master({}:{}) 连接上worker", masterAddress.getHostName(), masterAddress.getPort());
 				return;
 			}
 
-			while (true) {
-				LOG.info("等待master连接");
+			LOG.info("等待master连接");
+			synchronized (connectMasterNofifier) {
 				try {
-					isConnectMaster.wait(5000); // 等待5秒或其它线程notify
+					connectMasterNofifier.wait(5000); // 等待5秒或其它线程notify
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}
-				if (isConnectMaster.get()) {
-					// 已经连接上、退出
-					InetSocketAddress masterAddress = (InetSocketAddress)session.getRemoteAddress();
-					LOG.info("master({}:{}) 连接上worker", masterAddress.getHostName(), masterAddress.getPort());
-					return;
 				}
 			}
 		}

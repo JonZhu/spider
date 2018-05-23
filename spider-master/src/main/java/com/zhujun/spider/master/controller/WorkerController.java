@@ -2,7 +2,6 @@ package com.zhujun.spider.master.controller;
 
 import com.zhujun.spider.master.mina.InitiativeConnector;
 import com.zhujun.spider.master.mina.MinaServer;
-import org.apache.mina.core.service.IoServiceStatistics;
 import org.apache.mina.core.session.IoSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,29 +51,7 @@ public class WorkerController {
             workerList.add(getWorkerInfo(session));
         }
 
-        data.put("workerList", workerList);
-
-        // 累计数据
-        IoServiceStatistics acceptorStatis = minaServer.getAcceptorStatistics();
-        if (acceptorStatis != null && acceptorStatis.getReadBytes() > 0) {
-            acceptorStatis.updateThroughput(System.currentTimeMillis());
-            Map<String, Object> accumTotal = new HashMap<>();
-            // 下行
-            accumTotal.put("downBytes", acceptorStatis.getWrittenBytes());
-            accumTotal.put("downBytesPS", acceptorStatis.getWrittenBytesThroughput());
-            accumTotal.put("downMsg", acceptorStatis.getWrittenMessages());
-            accumTotal.put("downMsgPS", acceptorStatis.getWrittenMessagesThroughput());
-
-            // 上行
-            accumTotal.put("upBytes", acceptorStatis.getReadBytes());
-            accumTotal.put("upBytesPS", acceptorStatis.getReadBytesThroughput());
-            accumTotal.put("upMsg", acceptorStatis.getReadMessages());
-            accumTotal.put("upMsgPS", acceptorStatis.getReadMessagesThroughput());
-
-            data.put("accumTotal", accumTotal);
-        }
-
-        result.setData(data);
+        result.setData(workerList);
         return result;
     }
 
