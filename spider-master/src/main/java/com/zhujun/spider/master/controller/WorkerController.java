@@ -61,8 +61,10 @@ public class WorkerController {
         clientData.put("id", session.getId());
 
         InetSocketAddress address = (InetSocketAddress)session.getRemoteAddress();
-        clientData.put("host", address.getHostName());
-        clientData.put("port", address.getPort());
+        if (address != null) {
+            clientData.put("host", address.getHostName());
+            clientData.put("port", address.getPort());
+        }
 
         clientData.put("connectTime", session.getCreationTime());
 
