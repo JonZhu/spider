@@ -16,7 +16,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,8 +36,9 @@ public class InitiativeConnector {
     private static final Logger log = LoggerFactory.getLogger(InitiativeConnector.class);
 
     private final Map<Long, IoSession> sessionMap = new ConcurrentHashMap<>();
+    private final Map<InetSocketAddress, IoSession> addressIoSessionMap = new ConcurrentHashMap<>();
 
-    public NioSocketConnector connector;
+    private NioSocketConnector connector;
 
     @Autowired
     private ServerHandler serverHandler;
@@ -91,17 +94,86 @@ public class InitiativeConnector {
     }
 
     public IoSession connectWorker(String host, int port) {
+        InetSocketAddress workerAddress = new InetSocketAddress(host, port);
+        validateWorkerExist(workerAddress);
         IoSession session = null;
         try {
-            session = connector.connect(new InetSocketAddress(host, port)).await().getSession();
+            session = connector.connect(workerAddress).await().getSession();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return session;
     }
 
+    private void validateWorkerExist(InetSocketAddress workerAddress) {
+        if (addressIoSessionMap.containsKey(workerAddress)) {
+            throw new RuntimeException("worker已存在");
+        }
+    }
+
+    /**
+     * 添加自动重连work
+     * @param host
+     * @param port
+     */
+    public void autoReConnectWorker(String host, int port) {
+        InetSocketAddress workerAddress = new InetSocketAddress(host, port);
+        validateWorkerExist(workerAddress);
+        addressIoSessionMap.put(workerAddress, null); // 添加到map
+        IoSession session = null;
+        try {
+            session = connector.connect(new InetSocketAddress(host, port)).await().getSession();
+            // 设置自动重连
+            session.setAttribute("reConnect", true);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Map<Long, IoSession> getSessionMap() {
         return Collections.unmodifiableMap(this.sessionMap);
+    }
+
+
+    /**
+     * 自动重连线程
+     */
+    private static class AutoReConnectThread extends Thread {
+        private final NioSocketConnector connector;
+        private final Map<InetSocketAddress, IoSession> addressIoSessionMap;
+        private final Object notifier;
+
+        public AutoReConnectThread(NioSocketConnector connector, Map<InetSocketAddress, IoSession> addressIoSessionMap, Object notifier) {
+            super("AutoReConnectWorker");
+            this.connector = connector;
+            this.addressIoSessionMap = addressIoSessionMap;
+            this.notifier = notifier;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                if (addressIoSessionMap.isEmpty()) {
+                    synchronized (notifier) {
+                        try {
+                            notifier.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                for(Map.Entry<InetSocketAddress, IoSession> entry : addressIoSessionMap.entrySet()) {
+                    if (entry.getValue() == null) {
+                        // address未分配到session，需要重连
+                        connector.connect(entry.getKey());
+                    }
+                }
+
+                // todo 重连
+            }
+
+        }
     }
 
 }
