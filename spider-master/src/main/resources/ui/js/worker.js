@@ -18,6 +18,31 @@ $(function(){
         return value == null ? null : value.toFixed(fix);
     }
 
+    // 创建连接源组件
+    function createConnectSourceComp(worker) {
+        return $("<div class='connect-src-btn'></div>").text(worker.connectSource).click(function(){
+            if (confirm("确认要删除worker " + worker.host + ":" + worker.port + " 吗?")) {
+                removeWorker(worker);
+            }
+        });
+    }
+
+    // 删除worker
+    function removeWorker(worker) {
+        $.ajax({
+            url: "api/worker/removeWorker?host=" + worker.host + "&port=" + worker.port,
+            method: "delete",
+            dataType: "json",
+            success: function(result){
+                if (result.status == 0) {
+                    alert("删除成功");
+                } else {
+                    alert(result.msg);
+                }
+            }
+        });
+    }
+
     function showTaskList(workList) {
         $tbody = $("#workerListTable tbody").empty();
 
@@ -31,6 +56,12 @@ $(function(){
                 $("<td></td>").text(item.id).appendTo($tr); //ID
                 $("<td></td>").text(item.host).appendTo($tr); //主机
                 $("<td></td>").text(item.port).appendTo($tr); //端口
+                if (item.connectSource == "master") {
+                    // 连接源为master可删除
+                    $("<td></td>").append(createConnectSourceComp(item)).appendTo($tr)
+                } else {
+                    $("<td></td>").text(item.connectSource).appendTo($tr); //连接源
+                }
                 $("<td style='border-right: 2px solid #dff0d8'></td>")
                     .text(item.isConnected === true ? util.time.ms2Str(item.connectTime) : '未连接')
                     .appendTo($tr); //连接时间
