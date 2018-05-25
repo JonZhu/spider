@@ -59,7 +59,7 @@ public class ServerHandler implements IoHandler {
 
 	@Override
 	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-		LOG.debug("exceptionCaught, session: {}", session.getId());
+		LOG.debug("exceptionCaught, session: {}", session.getId(), cause);
 
 	}
 
