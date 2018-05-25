@@ -89,7 +89,7 @@ $(function(){
             if (workList.length > 1) {
                 // worker数量大于1个, 显示合计行
                 $tr = $("<tr class='success'></tr>");
-                $("<td colspan='4'>合计</td>").appendTo($tr); //合计
+                $("<td colspan='5'>合计</td>").appendTo($tr); //合计
                 $("<td></td>").text(adaptByte(upBytesTotal)).appendTo($tr); //上行数据
                 $("<td></td>").text(adaptByte(upBytesPSTotal)).appendTo($tr); //每秒上行数据
                 $("<td></td>").text(upMsgTotal).appendTo($tr); //上行消息
