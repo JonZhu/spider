@@ -157,9 +157,17 @@ public class InitiativeConnector {
     public void onWorkerSessionOffline(IoSession ioSession) {
         // 设置为null，连接线程会重连
         InetSocketAddress workerAddress = (InetSocketAddress)ioSession.getRemoteAddress();
+        boolean needNotify = false; // 是否需要通知重连线程
         synchronized (addressIoSessionMap) {
-            if (addressIoSessionMap.containsKey(workerAddress)) {
-                addressIoSessionMap.put(workerAddress, null);
+            if (addressIoSessionMap.containsKey(workerAddress)) { // 判断key，以防worker其它地方删除后，在这里又添加
+                addressIoSessionMap.put(workerAddress, UN_CONNECTED);
+                needNotify = true;
+            }
+        }
+
+        if (needNotify) {
+            synchronized (autoReConnectNotifier) {
+                autoReConnectNotifier.notifyAll(); // 通知重连线程
             }
         }
     }
