@@ -45,10 +45,11 @@ public class WorkerController {
                 } else {
                     // worker未关联session
                     workerInfo = new HashMap<>();
-                    workerInfo.put("host", entry.getKey().getHostName());
-                    workerInfo.put("port", entry.getKey().getPort());
                     workerInfo.put("isConnected", false);
                 }
+                // 使用key address数据, session remote addresss 可能为null
+                workerInfo.put("host", entry.getKey().getHostName());
+                workerInfo.put("port", entry.getKey().getPort());
 
                 workerInfo.put("connectSource", "master"); // 连接来源
 
