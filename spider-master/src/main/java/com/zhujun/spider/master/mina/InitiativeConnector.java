@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.mina;
 
+import com.zhujun.spider.master.util.ThreadUtils;
 import com.zhujun.spider.net.mina.NetMessageCodecFactory;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.IoServiceListener;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +36,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InitiativeConnector {
     private static final Logger log = LoggerFactory.getLogger(InitiativeConnector.class);
 
-    private final Map<Long, IoSession> sessionMap = new ConcurrentHashMap<>();
-    private final Map<InetSocketAddress, IoSession> addressIoSessionMap = new ConcurrentHashMap<>();
+    /**
+     * InetSocketAddress -> session
+     * InetSocketAddress -> string
+     */
+    private final Map<InetSocketAddress, Object> addressIoSessionMap = new ConcurrentHashMap<>();
+
+    /**
+     * 未连接状态
+     */
+    private final static String UN_CONNECTED = "unConnected";
+
+    private final Object autoReConnectNotifier = new Object();
 
     private NioSocketConnector connector;
 
@@ -76,74 +87,104 @@ public class InitiativeConnector {
             @Override
             public void sessionCreated(IoSession ioSession) throws Exception {
                 log.info("session {} Created", ioSession.getId());
-                sessionMap.put(ioSession.getId(), ioSession);
+                InetSocketAddress workerAdress = (InetSocketAddress)ioSession.getRemoteAddress();
+                synchronized (addressIoSessionMap) {
+                    if (addressIoSessionMap.containsKey(workerAdress)) {
+                        addressIoSessionMap.put((InetSocketAddress)ioSession.getRemoteAddress(), ioSession);
+                    } else {
+                        log.debug("worker({}:{})已经被删除, 关闭session", workerAdress.getHostName(), workerAdress.getPort());
+                        // 关闭session
+                        ioSession.closeNow();
+                    }
+                }
             }
 
             @Override
             public void sessionClosed(IoSession ioSession) throws Exception {
                 log.info("session {} Closed", ioSession.getId());
-                sessionMap.remove(ioSession.getId());
+                onWorkerSessionOffline(ioSession);
             }
 
             @Override
             public void sessionDestroyed(IoSession ioSession) throws Exception {
                 log.info("session {} Destroyed", ioSession.getId());
-                sessionMap.remove(ioSession.getId());
+                onWorkerSessionOffline(ioSession);
             }
         });
-    }
 
-    public IoSession connectWorker(String host, int port) {
-        InetSocketAddress workerAddress = new InetSocketAddress(host, port);
-        validateWorkerExist(workerAddress);
-        IoSession session = null;
-        try {
-            session = connector.connect(workerAddress).await().getSession();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return session;
+        // 启动重连线程
+        new AutoReConnectThread(connector, addressIoSessionMap, autoReConnectNotifier).start();
     }
 
     private void validateWorkerExist(InetSocketAddress workerAddress) {
-        if (addressIoSessionMap.containsKey(workerAddress)) {
-            throw new RuntimeException("worker已存在");
+        synchronized (addressIoSessionMap) {
+            if (addressIoSessionMap.containsKey(workerAddress)) {
+                throw new RuntimeException("worker已存在");
+            }
         }
     }
 
     /**
-     * 添加自动重连work
+     * 添加workor
      * @param host
      * @param port
      */
-    public void autoReConnectWorker(String host, int port) {
+    public void addWorker(String host, int port) {
         InetSocketAddress workerAddress = new InetSocketAddress(host, port);
         validateWorkerExist(workerAddress);
-        addressIoSessionMap.put(workerAddress, null); // 添加到map
-        IoSession session = null;
-        try {
-            session = connector.connect(new InetSocketAddress(host, port)).await().getSession();
-            // 设置自动重连
-            session.setAttribute("reConnect", true);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        addressIoSessionMap.put(workerAddress, UN_CONNECTED); // 添加到map
+
+        // 通知重连线程
+        synchronized (autoReConnectNotifier) {
+            autoReConnectNotifier.notifyAll();
         }
     }
 
-    public Map<Long, IoSession> getSessionMap() {
-        return Collections.unmodifiableMap(this.sessionMap);
+    /**
+     * 删除worker
+     *
+     * @param host
+     * @param port
+     */
+    public void removeWorker(String host, int port) {
+        addressIoSessionMap.remove(new InetSocketAddress(host, port));
     }
 
+    /**
+     * session掉线
+     * @param ioSession
+     */
+    public void onWorkerSessionOffline(IoSession ioSession) {
+        // 设置为null，连接线程会重连
+        InetSocketAddress workerAddress = (InetSocketAddress)ioSession.getRemoteAddress();
+        synchronized (addressIoSessionMap) {
+            if (addressIoSessionMap.containsKey(workerAddress)) {
+                addressIoSessionMap.put(workerAddress, null);
+            }
+        }
+    }
+
+    public Map<InetSocketAddress, IoSession> getSessionMap() {
+        if (addressIoSessionMap.isEmpty()) {
+            return null;
+        }
+
+        Map<InetSocketAddress, IoSession> sessionMap = new HashMap<>();
+        for (Map.Entry<InetSocketAddress, Object> entry : addressIoSessionMap.entrySet()) {
+            sessionMap.put(entry.getKey(), entry.getValue() instanceof IoSession ? (IoSession)entry.getValue() : null);
+        }
+        return sessionMap;
+    }
 
     /**
      * 自动重连线程
      */
     private static class AutoReConnectThread extends Thread {
         private final NioSocketConnector connector;
-        private final Map<InetSocketAddress, IoSession> addressIoSessionMap;
+        private final Map<InetSocketAddress, Object> addressIoSessionMap;
         private final Object notifier;
 
-        public AutoReConnectThread(NioSocketConnector connector, Map<InetSocketAddress, IoSession> addressIoSessionMap, Object notifier) {
+        public AutoReConnectThread(NioSocketConnector connector, Map<InetSocketAddress, Object> addressIoSessionMap, Object notifier) {
             super("AutoReConnectWorker");
             this.connector = connector;
             this.addressIoSessionMap = addressIoSessionMap;
@@ -152,8 +193,26 @@ public class InitiativeConnector {
 
         @Override
         public void run() {
+            List<InetSocketAddress> needReConnectList = null;
             while (true) {
-                if (addressIoSessionMap.isEmpty()) {
+                needReConnectList = null;
+                if (!addressIoSessionMap.isEmpty()) {
+                    needReConnectList = new ArrayList<>();
+                    for(Map.Entry<InetSocketAddress, Object> entry : addressIoSessionMap.entrySet()) {
+                        if (entry.getValue() == UN_CONNECTED) {
+                            // 需要重连的address，加入列表
+                            needReConnectList.add(entry.getKey());
+                        } else {
+                            IoSession session = (IoSession)entry.getValue();
+                            if (!session.isConnected()) {
+                                needReConnectList.add(entry.getKey());
+                            }
+                        }
+                    }
+                }
+
+                if (needReConnectList == null || needReConnectList.isEmpty()) {
+                    log.debug("没有需要重连的worker，wait");
                     synchronized (notifier) {
                         try {
                             notifier.wait();
@@ -161,18 +220,18 @@ public class InitiativeConnector {
                             e.printStackTrace();
                         }
                     }
+
+                    continue;
                 }
 
-                for(Map.Entry<InetSocketAddress, IoSession> entry : addressIoSessionMap.entrySet()) {
-                    if (entry.getValue() == null) {
-                        // address未分配到session，需要重连
-                        connector.connect(entry.getKey());
-                    }
+                for(InetSocketAddress address : needReConnectList) {
+                    // 重连
+                    log.debug("连接worker {}:{}", address.getHostName(), address.getPort());
+                    connector.connect(address);
                 }
 
-                // todo 重连
+                ThreadUtils.sleep(5000); // 等待5秒
             }
-
         }
     }
 

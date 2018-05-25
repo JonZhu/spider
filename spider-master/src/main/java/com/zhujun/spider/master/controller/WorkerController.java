@@ -31,24 +31,42 @@ public class WorkerController {
         Map<Long, IoSession> clientSessionMap = minaServer.getClientSessions();
 
         Result result = new Result();
-        Map<String, Object> data = new HashMap<>();
 
-        // worker
         List<Map<String, Object>> workerList = new ArrayList<>();
-        if (clientSessionMap != null && !clientSessionMap.isEmpty()) {
 
+        // 增加主动连接的worker
+        Map<InetSocketAddress, IoSession> initiativeConnectMap = initiativeConnector.getSessionMap();
+        if (initiativeConnectMap != null && !initiativeConnectMap.isEmpty()) {
+            for (Map.Entry<InetSocketAddress, IoSession> entry : initiativeConnectMap.entrySet()) {
+                Map<String, Object> workerInfo = null;
+                if (entry.getValue() != null) {
+                    // worker已创建session
+                    workerInfo = getWorkerInfo(entry.getValue());
+                } else {
+                    // worker未关联session
+                    workerInfo = new HashMap<>();
+                    workerInfo.put("host", entry.getKey().getHostName());
+                    workerInfo.put("port", entry.getKey().getPort());
+                    workerInfo.put("isConnected", false);
+                }
+
+                workerInfo.put("connectSource", "master"); // 连接来源
+
+                workerList.add(workerInfo);
+            }
+        }
+
+        // worker连接上来的
+        if (clientSessionMap != null && !clientSessionMap.isEmpty()) {
             List<Long> sessionIdList = new ArrayList<>(clientSessionMap.keySet());
             Collections.sort(sessionIdList); // sort
 
             for (Long sessionId : sessionIdList) {
                 IoSession session = clientSessionMap.get(sessionId);
-                workerList.add(getWorkerInfo(session));
+                Map<String, Object> workerInfo = getWorkerInfo(session);
+                workerInfo.put("connectSource", "worker"); // 连接来源
+                workerList.add(workerInfo);
             }
-        }
-
-        // 增加主动连接的worker
-        for (IoSession session : initiativeConnector.getSessionMap().values()) {
-            workerList.add(getWorkerInfo(session));
         }
 
         result.setData(workerList);
@@ -96,12 +114,20 @@ public class WorkerController {
     @RequestMapping(value = "/connectWorker", method = RequestMethod.POST)
     public Result connectWorker(String host, int port) {
         Result result = new Result();
-        IoSession session = initiativeConnector.connectWorker(host, port);
-        if (session != null) {
-            result.setData(getWorkerInfo(session));
-        }
-
+        initiativeConnector.addWorker(host, port);
         return result;
+    }
+
+    /**
+     * 删除主动连接的客户端
+     * @param host
+     * @param port
+     * @return
+     */
+    @RequestMapping(value = "/removeWorker", method = RequestMethod.DELETE)
+    public Result removeWorker(String host, int port) {
+        initiativeConnector.removeWorker(host, port);
+        return new Result();
     }
 
 }

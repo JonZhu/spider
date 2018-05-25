@@ -14,6 +14,10 @@ $(function(){
         });
     }
 
+    function toFixed(value, fix) {
+        return value == null ? null : value.toFixed(fix);
+    }
+
     function showTaskList(workList) {
         $tbody = $("#workerListTable tbody").empty();
 
@@ -27,15 +31,17 @@ $(function(){
                 $("<td></td>").text(item.id).appendTo($tr); //ID
                 $("<td></td>").text(item.host).appendTo($tr); //主机
                 $("<td></td>").text(item.port).appendTo($tr); //端口
-                $("<td style='border-right: 2px solid #dff0d8'></td>").text(util.time.ms2Str(item.connectTime)).appendTo($tr); //连接时间
+                $("<td style='border-right: 2px solid #dff0d8'></td>")
+                    .text(item.isConnected === true ? util.time.ms2Str(item.connectTime) : '未连接')
+                    .appendTo($tr); //连接时间
                 $("<td></td>").text(adaptByte(item.upBytes)).appendTo($tr); //上行数据
                 $("<td></td>").text(adaptByte(item.upBytesPS)).appendTo($tr); //每秒上行数据
                 $("<td></td>").text(item.upMsg).appendTo($tr); //上行消息
-                $("<td style='border-right: 2px solid #dff0d8'></td>").text(item.upMsgPS.toFixed(2)).appendTo($tr); //每秒上行消息
+                $("<td style='border-right: 2px solid #dff0d8'></td>").text(toFixed(item.upMsgPS, 2)).appendTo($tr); //每秒上行消息
                 $("<td></td>").text(adaptByte(item.downBytes)).appendTo($tr); //下行数据
                 $("<td></td>").text(adaptByte(item.downBytesPS)).appendTo($tr); //每秒下行数据
                 $("<td></td>").text(item.downMsg).appendTo($tr); //下行消息
-                $("<td></td>").text(item.downMsgPS.toFixed(2)).appendTo($tr); //每秒下行消息
+                $("<td></td>").text(toFixed(item.downMsgPS, 2)).appendTo($tr); //每秒下行消息
 
                 $tbody.append($tr);
 
@@ -69,29 +75,16 @@ $(function(){
             $tbody.append("<tr><td colspan='13'>当前无worker连接</td></tr>");
         }
 
-        // 累计数据
-        var accumTotal = data.accumTotal;
-        if (accumTotal) {
-            $tr = $("<tr class='success'></tr>");
-            $("<td colspan='4'>累计</td>").appendTo($tr); //累计
-            $("<td></td>").text(adaptByte(accumTotal.upBytes)).appendTo($tr); //上行数据
-            $("<td></td>").text(adaptByte(accumTotal.upBytesPS)).appendTo($tr); //每秒上行数据
-            $("<td></td>").text(accumTotal.upMsg).appendTo($tr); //上行消息
-            $("<td></td>").text(accumTotal.upMsgPS.toFixed(2)).appendTo($tr); //每秒上行消息
-            $("<td></td>").text(adaptByte(accumTotal.downBytes)).appendTo($tr); //下行数据
-            $("<td></td>").text(adaptByte(accumTotal.downBytesPS)).appendTo($tr); //每秒下行数据
-            $("<td></td>").text(accumTotal.downMsg).appendTo($tr); //下行消息
-            $("<td></td>").text(accumTotal.downMsgPS.toFixed(2)).appendTo($tr); //每秒下行消息
-
-            $tbody.append($tr);
-        }
-
     }
 
     // 适配bytes单位
     var byteUnits = ["G", "M", "K", "B"];
     var byteUnitSize = [Math.pow(1024,3), Math.pow(1024,2) ,1024, 1];
     function adaptByte(byteTotal) {
+        if (!byteTotal) {
+            return null;
+        }
+
         for (var i = 0; i < byteUnitSize.length; i++) {
             var temp = byteTotal / byteUnitSize[i];
             if (temp >= 1) {
@@ -99,7 +92,7 @@ $(function(){
             }
         }
 
-        return "0";
+        return null;
     }
 
     queryWorkList();
@@ -134,13 +127,8 @@ $(function(){
             dataType: "json",
             success: function(result){
                 if (result.status == 0) {
-                    var session = result.data;
-                    if (session.isConnected) {
-                        $('#connectWorkerModal').modal('hide');
-                        alert("连接成功");
-                    } else {
-                        alert("连接失败");
-                    }
+                    $('#connectWorkerModal').modal('hide');
+                    alert("连接成功");
                 } else {
                     alert(result.msg);
                 }
