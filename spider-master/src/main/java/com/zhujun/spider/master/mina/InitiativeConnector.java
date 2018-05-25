@@ -147,7 +147,11 @@ public class InitiativeConnector {
      * @param port
      */
     public void removeWorker(String host, int port) {
-        addressIoSessionMap.remove(new InetSocketAddress(host, port));
+        Object value = addressIoSessionMap.remove(new InetSocketAddress(host, port));
+        if (value instanceof IoSession) {
+            // 删除时关闭连接
+            ((IoSession) value).closeNow();
+        }
     }
 
     /**
