@@ -26,9 +26,9 @@ import com.zhujun.spider.master.schedule.ScheduleConst;
 public class AppendFileDataWriterImpl implements SpiderDataWriter {
 
 	/**
-	 * 文件大小128M
+	 * 文件大小512M
 	 */
-	private static final int FILE_SIZE = 128 * 1024 *1024;
+	private static final int FILE_SIZE = 512 * 1024 *1024;
 	
 	/**
 	 * 数据文件中, spider haeder time的格式化, 如：2016-06-06T15:38:08
