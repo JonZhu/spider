@@ -19,6 +19,19 @@ public class MetaData {
 	
 	private Date fetchTime;
 
+	/**
+	 * 在append文件中的偏移位置, 通过该文件可以直接读到文件MetaData
+	 */
+	private long offset;
+
+	public long getOffset() {
+		return offset;
+	}
+
+	public void setOffset(long offset) {
+		this.offset = offset;
+	}
+
 	public String getUrl() {
 		return url;
 	}

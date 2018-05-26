@@ -22,7 +22,7 @@ public class AppendFileReader implements Closeable {
 	
 	private final static String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
-	private String filePath;
+	private final String filePath;
 	private RandomAccessFile randomAccessFile;
 	
 	/**
@@ -67,11 +67,16 @@ public class AppendFileReader implements Closeable {
 		}
 		
 		status = STATUS_READ_SPIDER; // 重置状态
+		isReadFile = false;
+		currentFileSize = 0;
+
 		MetaData metaData = null;
 		String line = null;
+		long offset = 0; // 用于标记数据位置
 		while(true) {
 			if (status == STATUS_READ_SPIDER) {
 				// 读取spider标识
+				offset = randomAccessFile.getFilePointer(); //标记metadata开始位置
 				line = randomAccessFile.readLine();
 				if (line == null) {
 					// 文件结束
@@ -82,6 +87,7 @@ public class AppendFileReader implements Closeable {
 					// 读到起始标识行
 					status = STATUS_READ_HEADER;
 					metaData = new MetaData();
+					metaData.setOffset(offset);
 				}
 				
 			} else if (status == STATUS_READ_HEADER) {
@@ -108,8 +114,7 @@ public class AppendFileReader implements Closeable {
 				fillMetaData(metaData, headerPair[0].trim(), headerPair[1].trim());
 			}
 		}
-		
-		
+
 	}
 	
 	/**
