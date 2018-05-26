@@ -68,6 +68,7 @@ public class ServerHandler implements IoHandler {
 		if (message instanceof SpiderNetMessage) {
 			SpiderNetMessage netMsg = (SpiderNetMessage)message;
 			String action = netMsg.getHeader("Action");
+			LOG.debug("messageReceived SpiderNetMessage {}", action);
 			
 			if ("Pull-url".equals(action)) {
 				pushUrl2client(session, netMsg);
