@@ -22,7 +22,7 @@ public class AppendFileReader implements Closeable {
 	
 	private final static String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
-	private final String filePath;
+	private final File file;
 	private RandomAccessFile randomAccessFile;
 	
 	/**
@@ -41,15 +41,17 @@ public class AppendFileReader implements Closeable {
 	private boolean isReadFile = false;
 	
 	public AppendFileReader(String filePath) throws FileNotFoundException {
-		this.filePath = filePath;
-		
-		File file = new File(filePath);
-		if (!file.isFile() || !file.exists()) {
-			throw new FileNotFoundException("文件不存在");
-		}
-		
-		this.randomAccessFile = new RandomAccessFile(file, "r");
+		this(new File(filePath));
 	}
+
+    public AppendFileReader(File file) throws FileNotFoundException {
+        if (!file.exists() || !file.isFile()) {
+            throw new FileNotFoundException("文件不存在");
+        }
+
+        this.file = file;
+        this.randomAccessFile = new RandomAccessFile(file, "r");
+    }
 	
 	/**
 	 * 读取下一个文件元数据
@@ -183,7 +185,7 @@ public class AppendFileReader implements Closeable {
 	}
 
 	public String getFilePath() {
-		return filePath;
+		return this.file.getAbsolutePath();
 	}
 
 }

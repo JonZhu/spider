@@ -18,6 +18,12 @@ public class Result<T> {
 	
 	private T data;
 
+	public Result(){}
+
+	public Result(T data) {
+		this.data = data;
+	}
+
 	public int getStatus() {
 		return status;
 	}

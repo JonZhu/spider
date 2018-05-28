@@ -1,5 +1,7 @@
 package com.zhujun.spider.master.controller;
 
+import com.zhujun.export.appendfile.AppendFileReader;
+import com.zhujun.export.appendfile.MetaData;
 import com.zhujun.spider.master.controller.vo.DataFileVo;
 import com.zhujun.spider.master.data.db.ISpiderTaskService;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -39,20 +42,8 @@ public class TaskDataController {
      * @return
      */
     @RequestMapping(value = "/datafilelist", method = RequestMethod.GET)
-    public List<DataFileVo> getDataFileList(String taskId) throws Exception {
-        SpiderTaskPo spiderTask = spiderTaskService.getSpiderTask(taskId);
-        if (spiderTask == null) {
-            throw new RuntimeException("task不存在");
-        }
-
-        if (spiderTask.getDatadir() == null) {
-            throw new RuntimeException("task目录数据不正确");
-        }
-
-        File dataDir = new File(spiderTask.getDatadir());
-        if (!dataDir.isDirectory()) {
-            throw new RuntimeException("task目录不存在");
-        }
+    public Result<List<DataFileVo>> getDataFileList(String taskId) throws Exception {
+        File dataDir = getTaskDataDir(taskId);
 
         File[] dataFileArray = dataDir.listFiles(new FileFilter() {
             @Override
@@ -75,7 +66,24 @@ public class TaskDataController {
             dataFileList.add(dataFileVo);
         }
 
-        return dataFileList;
+        return new Result(dataFileList);
+    }
+
+    private File getTaskDataDir(String taskId) throws Exception {
+        SpiderTaskPo spiderTask = spiderTaskService.getSpiderTask(taskId);
+        if (spiderTask == null) {
+            throw new RuntimeException("task不存在");
+        }
+
+        if (spiderTask.getDatadir() == null) {
+            throw new RuntimeException("task目录数据不正确");
+        }
+
+        File dataDir = new File(spiderTask.getDatadir());
+        if (!dataDir.isDirectory()) {
+            throw new RuntimeException("task目录不存在");
+        }
+        return dataDir;
     }
 
     private Date getFileCreateTime(File file) {
@@ -91,6 +99,69 @@ public class TaskDataController {
     }
 
 
+    /**
+     * 获取文件元数据
+     * @return
+     */
+    @RequestMapping(value = "/metadata")
+    public Result<List<MetaData>> getMetaData(String taskId, String dataFileName, Long offset, long count) throws Exception {
+        File dataDir = getTaskDataDir(taskId);
+        File appendFile = new File(dataDir, dataFileName);
+        if (!appendFile.isFile()) {
+            throw new RuntimeException("文件名错误");
+        }
 
+        AppendFileReader reader = new AppendFileReader(appendFile);
+        if (offset != null) {
+            reader.setOffset(offset);
+        }
+
+        List<MetaData> metaDataList = new ArrayList<>();
+        MetaData metaData = null;
+        for (int i = 0; i < count; i++) {
+            metaData = reader.readMetaData();
+            if (metaData == null) {
+                // 读完数据文件
+                break;
+            }
+            metaDataList.add(metaData);
+        }
+
+        return new Result<>(metaDataList);
+    }
+
+    /**
+     * 获取文件数据
+     * @param httpResponse
+     * @param taskId
+     * @param dataFileName
+     * @param offset 用于定位
+     * @throws Exception
+     */
+    @RequestMapping(value = "/filedata")
+    public void getMetaData(HttpServletResponse httpResponse,
+                            String taskId, String dataFileName, Long offset) throws Exception {
+        File dataDir = getTaskDataDir(taskId);
+        File appendFile = new File(dataDir, dataFileName);
+        if (!appendFile.isFile()) {
+            throw new RuntimeException("文件名错误");
+        }
+
+        AppendFileReader reader = new AppendFileReader(appendFile);
+        if (offset != null) {
+            reader.setOffset(offset);
+        }
+
+        MetaData metaData = reader.readMetaData();
+        if (metaData == null) {
+            throw new RuntimeException("获取不到文件metadata信息");
+        }
+        httpResponse.setHeader("Content-Type", metaData.getContentType());
+
+        byte[] fileData = reader.readFileData();
+        if (fileData != null) {
+            httpResponse.getOutputStream().write(fileData);
+        }
+    }
 
 }
