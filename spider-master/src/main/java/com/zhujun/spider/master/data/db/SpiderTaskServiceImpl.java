@@ -291,7 +291,25 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 		}
 		
 	}
-	
+
+	@Override
+	public SpiderTaskPo getSpiderTask(final String taskId) throws Exception {
+		DataSource ds = DataSourceManager.getDataSource(DB_FILE);
+		Lock lock = ReadWriteLockUtils.getReadLock(DB_FILE);
+
+		try {
+			return DsUtils.doInTrans(ds, new IAction<SpiderTaskPo>() {
+				@Override
+				public SpiderTaskPo action(Connection conn) throws Exception {
+					return getTaskById(conn, taskId);
+				}
+			});
+		} finally {
+			lock.unlock();
+		}
+
+	}
+
 	protected SpiderTaskPo getTaskById(Connection conn, String taskId) throws SQLException {
 		String sql = "select id, name, author, datadir, createtime, status from spider_task where id=?";
 		List<SpiderTaskPo> list = QUERY_RUNNER.query(conn, sql, new SpiderTaskPoResultHandler(), taskId);

@@ -59,4 +59,10 @@ public interface ISpiderTaskService {
 	 */
 	void resumeTask(String taskId) throws Exception;
 
+	/**
+	 * 获取任务数据
+	 * @param taskId
+	 * @return
+	 */
+	SpiderTaskPo getSpiderTask(String taskId) throws Exception;
 }
