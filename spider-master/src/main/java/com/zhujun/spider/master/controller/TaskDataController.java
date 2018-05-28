@@ -103,7 +103,7 @@ public class TaskDataController {
      * 获取文件元数据
      * @return
      */
-    @RequestMapping(value = "/metadata")
+    @RequestMapping(value = "/metadata", method = RequestMethod.GET)
     public Result<List<MetaData>> getMetaData(String taskId, String dataFileName, Long offset, long count) throws Exception {
         File dataDir = getTaskDataDir(taskId);
         File appendFile = new File(dataDir, dataFileName);
@@ -138,7 +138,7 @@ public class TaskDataController {
      * @param offset 用于定位
      * @throws Exception
      */
-    @RequestMapping(value = "/filedata")
+    @RequestMapping(value = "/filedata", method = RequestMethod.GET)
     public void getMetaData(HttpServletResponse httpResponse,
                             String taskId, String dataFileName, Long offset) throws Exception {
         File dataDir = getTaskDataDir(taskId);

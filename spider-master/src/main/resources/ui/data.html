@@ -22,6 +22,19 @@
       <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <style>
+      #urlListModal .modal-dialog {
+        width: 1024px;
+      }
+
+      #urlListModal .modal-dialog .modal-body {
+        min-height: 400px;
+        max-height: 800px;
+        overflow: scroll;
+      }
+
+    </style>
   </head>
 
   <body>
@@ -85,6 +98,38 @@
         <p class="text-muted">分布式网络数据抓取 &copy; zhujun 2016年6月</p>
       </div>
     </footer>
+
+    <!--datafile中url显示框-->
+    <div id="urlListModal" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">数据文件url</h4>
+          </div>
+          <div class="modal-body">
+
+            <table id="urlListTable" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th style="max-width: 500px">url</th>
+                <th>Content-Type</th>
+                <th>大小</th>
+                <th>抓取时间</th>
+                <th>offset</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+
+          </div>
+          <!--<div class="modal-footer">-->
+            <!--<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>-->
+          <!--</div>-->
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
 
     <!-- Bootstrap core JavaScript
