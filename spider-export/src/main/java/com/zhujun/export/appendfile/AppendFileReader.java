@@ -143,6 +143,15 @@ public class AppendFileReader implements Closeable {
 	}
 
 	/**
+	 * 设置偏移量, 方便直接定位数据
+	 * @param offset
+	 * @throws IOException
+	 */
+	public void setOffset(long offset) throws IOException {
+		this.randomAccessFile.seek(offset);
+	}
+
+	/**
 	 * 读取当前元数据的文件数据
 	 * 
 	 * @author zhujun

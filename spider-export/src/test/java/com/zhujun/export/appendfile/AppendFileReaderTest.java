@@ -9,19 +9,23 @@ import org.junit.Test;
 
 public class AppendFileReaderTest {
 
+	private final static String APPEND_FILE = "E:\\tmp\\spider\\baike_clone\\data-20180518101708";
+
 	@Test
 	public void testReadMetaData() throws FileNotFoundException {
-		AppendFileReader reader = new AppendFileReader("D:/spider/meituan_clone/data-20161104220641");
+		AppendFileReader reader = new AppendFileReader(APPEND_FILE);
 		try {
 			MetaData metaData = null;
+			int count = 0;
 			while (true) {
 				metaData = reader.readMetaData();
 				if (metaData == null) {
 					break;
 				}
-				
-				System.out.println(metaData.getUrl() + " | " + metaData.getSize() + " | " 
-						+ metaData.getContentType() + " | " + metaData.getFetchTime());
+
+				count++;
+
+				printMetaData(metaData, count);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -34,11 +38,24 @@ public class AppendFileReaderTest {
 			}
 		}
 	}
+
+	private void printMetaData(MetaData metaData, int index) {
+		System.out.println("count:" + index + " | " +  metaData.getUrl() + " | " + metaData.getSize() + " | "
+                + metaData.getContentType() + " | " + metaData.getFetchTime() + " | " + metaData.getOffset());
+	}
+
+
+	@Test
+	public void testSetOffset() throws IOException {
+		AppendFileReader reader = new AppendFileReader(APPEND_FILE);
+		reader.setOffset(134023992);
+		printMetaData(reader.readMetaData(), 1);
+	}
 	
 	
 	@Test
 	public void testReadMetaAndData() throws FileNotFoundException {
-		AppendFileReader reader = new AppendFileReader("D:/spider/meituan_clone/data-20161104220641");
+		AppendFileReader reader = new AppendFileReader(APPEND_FILE);
 		try {
 			MetaData metaData = null;
 			while (true) {
