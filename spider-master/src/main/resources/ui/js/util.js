@@ -30,5 +30,53 @@
 		};
 	})();
 	
-	
+	// url 工具
+    window.util.url = (function(){
+    	// 解析url
+    	function parseParam(url) {
+    		var paramObj = {};
+			if (url) {
+				var index = url.indexOf('?');
+				if (index > -1) {
+					url = url.substring(index + 1);
+				}
+
+				url.split('&').forEach(function (value) {
+					var paramArray = value.split('=');
+					paramObj[paramArray[0]] = paramArray.length > 1 ? paramArray[1] : "";
+				});
+			}
+			return paramObj;
+		}
+
+    	return {
+            param: parseParam
+		}
+	})();
+
+    // byte工具
+    window.util.byte = (function () {
+		// 适配bytes单位
+		var byteUnits = ["G", "M", "K", "B"];
+		var byteUnitSize = [Math.pow(1024,3), Math.pow(1024,2) ,1024, 1];
+		function adaptByte(byteTotal) {
+			if (!byteTotal) {
+				return null;
+			}
+
+			for (var i = 0; i < byteUnitSize.length; i++) {
+				var temp = byteTotal / byteUnitSize[i];
+				if (temp >= 1) {
+					return temp.toFixed(2) + byteUnits[i];
+				}
+			}
+
+			return null;
+		}
+
+		return {
+            adapt: adaptByte
+		}
+    })();
+
 })();
