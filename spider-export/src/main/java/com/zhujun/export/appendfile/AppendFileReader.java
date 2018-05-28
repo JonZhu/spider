@@ -60,7 +60,7 @@ public class AppendFileReader implements Closeable {
 	 * @return 返回null，表示数据结束
 	 * @throws IOException 
 	 */
-	public MetaData readMetaData() throws IOException {
+	synchronized public MetaData readMetaData() throws IOException {
 		if (status == STATUS_READ_FILE && !isReadFile && currentFileSize > 0) {
 			// 有文件数据未读, 跳过文件数据
 			randomAccessFile.skipBytes((int)currentFileSize);
@@ -147,7 +147,7 @@ public class AppendFileReader implements Closeable {
 	 * @param offset
 	 * @throws IOException
 	 */
-	public void setOffset(long offset) throws IOException {
+    synchronized public void setOffset(long offset) throws IOException {
 		this.randomAccessFile.seek(offset);
 	}
 
@@ -160,7 +160,7 @@ public class AppendFileReader implements Closeable {
 	 * @return
 	 * @throws IOException 
 	 */
-	public byte[] readFileData() throws IOException {
+    synchronized public byte[] readFileData() throws IOException {
 		if (status != STATUS_READ_FILE || currentFileSize == 0 || isReadFile) {
 			return null;
 		}
