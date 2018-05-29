@@ -1,5 +1,12 @@
 $(function(){
 
+    var urlPageOffset = []; // url分页offset
+    var currentShowTaskId; // 当前显示的任务id
+    var currentShowDatafileName; // 当前显示的数据文件
+    var currentUrlPageNo = 0; // 当前url页号
+    var urlPageSize = 100; // url数据分页大小
+    var maxUrlOffset = 0; // 最大url offset位置
+
     // 获取url参数
     var urlParams = util.url.param(window.location.href);
 
@@ -23,13 +30,14 @@ $(function(){
 
     // 显示数据列表
     function showDataFileList(taskId, fileList) {
+        currentShowTaskId = taskId;
         var $tbody = $("#dataListTable tbody");
         $tbody.empty();
         if (fileList != null && fileList.length > 0) {
             fileList.forEach(function (dataFile, i) {
                 var $tr = $('<tr></tr>');
                 var $name = $("<a></a>").text(dataFile.name).click(function(){
-                    queryUrlList(taskId, dataFile.name, 0, 50);
+                    queryUrlList(taskId, dataFile.name, 0);
                 });
                 $('<td></td>').append($name).appendTo($tr); // 名称
                 $('<td></td>').text(util.byte.adapt(dataFile.size)).appendTo($tr); // 大小
@@ -46,7 +54,7 @@ $(function(){
     }
 
     // 查询datafile中的url
-    function queryUrlList(taskId, dataFileName, offset, count) {
+    function queryUrlList(taskId, dataFileName, offset, pageNo) {
         $.ajax({
             url: 'api/data/metadata',
             method: 'get',
@@ -54,12 +62,12 @@ $(function(){
                 taskId: taskId,
                 dataFileName: dataFileName,
                 offset: offset,
-                count: count
+                count: urlPageSize
             },
             dataType: 'json',
             success: function(result) {
                 if (result.status == 0) {
-                    showUrlList(taskId, dataFileName, result.data)
+                    showUrlList(taskId, dataFileName, result.data, pageNo)
                 } else {
                     alert(result.msg);
                 }
@@ -68,11 +76,20 @@ $(function(){
     }
 
     // 显示url数据列表
-    function showUrlList(taskId, dataFileName, urlList) {
+    function showUrlList(taskId, dataFileName, urlList, pageNo) {
+        currentShowDatafileName = dataFileName;
         var $tbody = $("#urlListTable tbody");
         $tbody.empty();
         $("#urlListModal").modal("show");
         if (urlList != null && urlList.length > 0) {
+            pageNo = (pageNo == null || pageNo < 1 ? 1 : pageNo);
+            setCurrentUrlPageNo(pageNo);
+            if (pageNo == 1) {
+                urlPageOffset = []; // 重置分页数据
+            }
+            urlPageOffset[pageNo] = urlList[0].offset;
+            maxUrlOffset = urlList[urlList.length - 1].offset;
+
             urlList.forEach(function (data, i) {
                 var $tr = $('<tr></tr>');
                 var dataUrl = 'api/data/filedata?taskId='+taskId + "&offset="+data.offset+"&dataFileName="+dataFileName;
@@ -87,6 +104,27 @@ $(function(){
         }
     }
 
-    // $("#urlListModal").modal("show");
+    // 设置当前url分页号
+    function setCurrentUrlPageNo(pageNo) {
+        currentUrlPageNo = pageNo;
+        $("#urlPageNo").text(pageNo);
+    }
+
+    // 绑定url分页按钮，上一页
+    $("#urlPrePageBtn").click(function(){
+        if (currentUrlPageNo < 2) {
+            alert("没有上页");
+            return;
+        }
+
+        var newPage = currentUrlPageNo - 1;
+        queryUrlList(currentShowTaskId, currentShowDatafileName, urlPageOffset[newPage], newPage);
+    });
+
+    // 绑定url分页按钮，下一页
+    $("#urlNextPageBtn").click(function(){
+        var newPage = currentUrlPageNo + 1;
+        queryUrlList(currentShowTaskId, currentShowDatafileName, maxUrlOffset + 7, newPage);
+    });
 
 });

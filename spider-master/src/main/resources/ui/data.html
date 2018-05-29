@@ -31,7 +31,7 @@
       #urlListModal .modal-dialog .modal-body {
         min-height: 400px;
         max-height: 800px;
-        overflow: scroll;
+        overflow: auto;
       }
 
     </style>
@@ -124,9 +124,12 @@
             </table>
 
           </div>
-          <!--<div class="modal-footer">-->
+          <div class="modal-footer">
+            当前第<span id="urlPageNo">0</span>页
+            <button id="urlPrePageBtn" type="button" class="btn btn-default">上页</button>
+            <button id="urlNextPageBtn" type="button" class="btn btn-default">下页</button>
             <!--<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>-->
-          <!--</div>-->
+          </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
