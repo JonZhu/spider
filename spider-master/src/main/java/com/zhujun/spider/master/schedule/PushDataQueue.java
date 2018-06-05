@@ -25,19 +25,21 @@ public class PushDataQueue {
 	 *
 	 * @param taskId
 	 * @param actionId
-	 * @param data
+	 * @param item
 	 */
 	public static void addPushData(String taskId, String actionId, Item item) {
 		String queueKey = getQueueKey(taskId, actionId);
-		Queue<Item> queue = null;
-		synchronized (QUEUE_MAP) {
-			queue = QUEUE_MAP.get(queueKey);
-			if (queue == null) {
-				queue = new ConcurrentLinkedQueue<>();
-				QUEUE_MAP.put(queueKey, queue);
+		Queue<Item> queue = QUEUE_MAP.get(queueKey);
+		if (queue == null) {
+			synchronized (QUEUE_MAP) {
+				queue = QUEUE_MAP.get(queueKey);
+				if (queue == null) {
+					queue = new ConcurrentLinkedQueue<>();
+					QUEUE_MAP.put(queueKey, queue);
+				}
 			}
 		}
-		
+
 		queue.add(item);
 	}
 	
