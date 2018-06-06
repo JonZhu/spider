@@ -33,8 +33,9 @@ public class HtmlExtractorTest {
         String url = "https://baike.baidu.com/item/%E9%95%BF%E6%B1%9F%E4%B8%89%E8%A7%92%E6%B4%B2%E5%9F%8E%E5%B8%82%E7%BE%A4/5973620";
         ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
         IFetchResult fetchResult = contentFetcher.fetch(url);
+        long startTime = System.currentTimeMillis();
         ExtractResult result = extractor.extract(url, fetchResult.getContentType(), fetchResult.getData());
-        System.out.println(result);
+        System.out.println("ms: " + (System.currentTimeMillis() - startTime));
     }
 
     @Test
@@ -65,11 +66,11 @@ public class HtmlExtractorTest {
 
     @Test
     public void testPattern() {
-        Pattern fun = Pattern.compile(":((next-one|pre-one)(\\([^()]*\\)))");
+        Pattern fun = Pattern.compile(":((next-one|pre-one)\\(([^()]*)\\))");
         String searchString = "$name:next-one(.basicInfo-item.value)dafa:pre-one(.test p h1)";
         Matcher matcher = fun.matcher(searchString);
         while (matcher.find()) {
-            System.out.println(matcher.group(2) + "|" + matcher.start() + "|" + matcher.end());
+            System.out.println(matcher.group(3) + "|" + matcher.start() + "|" + matcher.end());
         }
     }
 

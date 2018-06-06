@@ -7,7 +7,7 @@ package com.zhujun.spider.master.extract.html;
  * @desc DataItemConfig
  * @time 2018/6/6 10:27
  */
-public interface DataItemConfig {
+public interface DataItemConfig extends Cloneable {
     String DATA_TYPE_STRING = "string";
     String DATA_TYPE_NUMBER = "number";
     String DATA_TYPE_DATE = "date";

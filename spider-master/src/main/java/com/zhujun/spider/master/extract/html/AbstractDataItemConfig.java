@@ -49,4 +49,9 @@ public abstract class AbstractDataItemConfig implements DataItemConfig {
     public void setSelector(String selector) {
         this.selector = selector;
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

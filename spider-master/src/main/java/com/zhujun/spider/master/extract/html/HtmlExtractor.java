@@ -2,6 +2,7 @@ package com.zhujun.spider.master.extract.html;
 
 import com.zhujun.spider.master.extract.ExtractResult;
 import com.zhujun.spider.master.extract.Extractor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
@@ -38,7 +39,7 @@ public class HtmlExtractor implements Extractor {
      * group(2) 函数名
      * group(3) 参数
      */
-    private final static Pattern EXT_DEFINE_FUN = Pattern.compile(":((next-one|pre-one)(\\([^()]*\\)))");
+    private final static Pattern EXT_DEFINE_FUN = Pattern.compile(":((next-one|pre-one)\\(([^()]*)\\))");
 
     private final DataItemConfig config;
 
@@ -140,7 +141,15 @@ public class HtmlExtractor implements Extractor {
     }
 
     private Object extractObjectDynamicPropValue(Document root, Element parent, Element nameEle, DataItemConfig propConfig) {
-        return extractCurrentConfig(root, nameEle, propConfig);
+        String valueSelector = propConfig.getSelector();
+        if (valueSelector.startsWith("$name")) {
+            // 相对于name selector搜索
+            AbstractDataItemConfig newConfig = (AbstractDataItemConfig)ObjectUtils.clone(propConfig);
+            newConfig.setSelector(valueSelector.substring(5)); // 去除扩展元素$name
+            return extractCurrentConfig(root, nameEle, newConfig);
+        } else {
+            return extractCurrentConfig(root, parent, propConfig);
+        }
     }
 
     /**
@@ -155,7 +164,6 @@ public class HtmlExtractor implements Extractor {
      */
     private Elements jsoupSelect(Document root, Element parent, String selector) {
         Element searchEle = null;
-        Elements resultElements = null;
         String currentSelector = null;
         if (selector.startsWith("/")) {
             // 绝对路径
@@ -176,9 +184,10 @@ public class HtmlExtractor implements Extractor {
             }
         }
 
+        Elements currentResults = new Elements(searchEle); // 当前中间结果
         // 自定义函数处理
         Matcher matcher = EXT_DEFINE_FUN.matcher(currentSelector);
-        while (matcher.find()) {
+        while (currentResults != null && !currentResults.isEmpty() && matcher.find()) {
             // 查询到扩展函数
             String funName = matcher.group(2);
             String funArgu = matcher.group(3);
@@ -186,14 +195,74 @@ public class HtmlExtractor implements Extractor {
             String preSelector = currentSelector.substring(0, matcher.start());
             if (StringUtils.isNotBlank(preSelector)) {
                 // 执行函数前的结果
-                // todo
+                currentResults = currentResults.select(preSelector);
+            }
+
+            // 执行函数
+            currentResults = executeExtFunction(currentResults, funName, funArgu);
+
+            // 去除已执行表达式
+            currentSelector = currentSelector.substring(matcher.end());
+        }
+
+        if (currentResults != null && !currentResults.isEmpty() && StringUtils.isNoneBlank(currentSelector)) {
+            // 执行剩余selector
+            currentResults = currentResults.select(currentSelector);
+        }
+
+        return currentResults;
+    }
+
+    /**
+     * 执行扩展函数
+     *
+     * @param elements 源数据结点
+     * @param funName 函数名
+     * @param funArgu 函数值
+     * @return
+     */
+    private Elements executeExtFunction(Elements elements, String funName, String funArgu) {
+        if ("next-one".equalsIgnoreCase(funName)) {
+            return executeNextOneFunction(elements, funArgu);
+        }
+
+        throw new RuntimeException("不支持的扩展函数: " + funName);
+    }
+
+    /**
+     * 执行 next-one 函数
+     * @param elements
+     * @param funArgu
+     * @return
+     */
+    private Elements executeNextOneFunction(Elements elements, String funArgu) {
+        boolean hasArgu = StringUtils.isNotBlank(funArgu); // 是否包含参数
+        for (Element element : elements) {
+            Element eleParent = element.parent();
+            if (eleParent == null) {
+                continue;
+            }
+
+            List<Element> siblingList = eleParent.children(); // 兄弟节点
+            int eleIndex = siblingList.indexOf(element); // 查询节点位置
+            if (eleIndex < siblingList.size() - 1) {
+                for (int i = eleIndex + 1; i < siblingList.size(); i++) {
+                    Element nextEle = siblingList.get(i); // 后续兄弟节点
+                    if (!hasArgu) {
+                        // 没有参数
+                        return new Elements(nextEle);
+                    } else {
+                        // 使用参数搜索
+                        Elements arguSelectResult = jsoupSelect(null, nextEle, funArgu);
+                        if (arguSelectResult != null && !arguSelectResult.isEmpty()) {
+                            return new Elements(arguSelectResult.first()); // 返回第一个
+                        }
+                    }
+                }
             }
         }
 
-        // 搜索
-        resultElements = searchEle.select(currentSelector);
-
-        return resultElements;
+        return null;
     }
 
     private String extractString(Document root, Element parent, String selector) {
