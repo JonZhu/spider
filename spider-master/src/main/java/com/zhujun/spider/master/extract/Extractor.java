@@ -19,6 +19,6 @@ public interface Extractor {
      * @param content
      * @return
      */
-    Map extract(String url, String conentType, byte[] content);
+    ExtractResult extract(String url, String conentType, byte[] content);
 
 }
