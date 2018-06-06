@@ -10,6 +10,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.Regexp;
 
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -17,6 +18,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * html数据抽取
@@ -28,6 +31,14 @@ import java.util.Map;
 public class HtmlExtractor implements Extractor {
 
     private final static Logger log = LoggerFactory.getLogger(HtmlExtractor.class);
+
+    /**
+     * 扩展 函数模式
+     * group(1) 函数声明
+     * group(2) 函数名
+     * group(3) 参数
+     */
+    private final static Pattern EXT_DEFINE_FUN = Pattern.compile(":((next-one|pre-one)(\\([^()]*\\)))");
 
     private final DataItemConfig config;
 
@@ -117,27 +128,86 @@ public class HtmlExtractor implements Extractor {
      * @param objValue 向该value中增加动态属性
      */
     private void extractObjectDynamicProp(Document root, Element parent, DataItemConfig propConfig, Map objValue) {
+        // 搜索prop name结点
+        Elements nameElements = jsoupSelect(root, parent, propConfig.getNameSelector());
+        if (nameElements == null || nameElements.isEmpty()) {
+            return;
+        }
+
+        for (Element nameEle : nameElements) {
+            objValue.put(nameEle.text(), extractObjectDynamicPropValue(root, parent, nameEle, propConfig));
+        }
+    }
+
+    private Object extractObjectDynamicPropValue(Document root, Element parent, Element nameEle, DataItemConfig propConfig) {
+        return extractCurrentConfig(root, nameEle, propConfig);
+    }
+
+    /**
+     * jsoup搜索
+     *
+     * <p>支持绝对路径和相对路径</p>
+     *
+     * @param root
+     * @param parent
+     * @param selector
+     * @return
+     */
+    private Elements jsoupSelect(Document root, Element parent, String selector) {
+        Element searchEle = null;
+        Elements resultElements = null;
+        String currentSelector = null;
+        if (selector.startsWith("/")) {
+            // 绝对路径
+            searchEle = root;
+            currentSelector = selector.replaceAll("^/+", "");
+        } else {
+            // 相对路径
+            searchEle = parent;
+            currentSelector = selector;
+            while (true) {
+                if (currentSelector.startsWith("../")) {
+                    // 父级导航
+                    searchEle = searchEle.parent();
+                    currentSelector = currentSelector.substring(3);
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // 自定义函数处理
+        Matcher matcher = EXT_DEFINE_FUN.matcher(currentSelector);
+        while (matcher.find()) {
+            // 查询到扩展函数
+            String funName = matcher.group(2);
+            String funArgu = matcher.group(3);
+
+            String preSelector = currentSelector.substring(0, matcher.start());
+            if (StringUtils.isNotBlank(preSelector)) {
+                // 执行函数前的结果
+                // todo
+            }
+        }
+
+        // 搜索
+        resultElements = searchEle.select(currentSelector);
+
+        return resultElements;
     }
 
     private String extractString(Document root, Element parent, String selector) {
-        Elements selectElements = null;
-        if (selector.startsWith("/")) {
-            // 绝对路径
-            selectElements = root.select(selector.replaceAll("^/+", ""));
-        } else {
-            // 相对路径
-            selectElements = parent.select(selector);
-        }
+        Elements selectElements = jsoupSelect(root, parent, selector);
         return selectElements == null || selectElements.isEmpty() ? null : selectElements.text();
     }
 
     private Double extractNumber(Document root, Element parent, String selector) {
-        String stringValue = parent.select(selector).text();
+        String stringValue = extractString(root, parent, selector);
         return stringValue == null ? null : Double.parseDouble(stringValue);
     }
 
     private Date extractDate(Document root, Element parent, String selector, DateDataConfig config){
-        String stringValue = parent.select(selector).text();
+        String stringValue = extractString(root, parent, selector);
         try {
             return stringValue == null ? null : DateUtils.parseDate(stringValue, config.getDateFormat());
         } catch (ParseException e) {

@@ -2,17 +2,17 @@
 
 basicInfo = {
   dataType: 'object', //object|array|number|string|date
-  selector: '',
+  selector: '.basic-info',
   properties: [{
     // 静态属性
-    name: 'title',
+    name: 'html-title',
 	dataType: 'string',
-	selector: '/html title h1'
+	selector: '/html title'
   },{
 	name: null,
 	nameSelector: '.basicInfo-item.name', // 动态属性
 	dataType: 'string',
-	selector: '$name/../' // 以名称为起点搜索
+	selector: '$name:next-one(.basicInfo-item.value)' // 以名称为起点搜索 $name:next-one(.basicInfo-item.value)
   }]
 }
 
@@ -27,6 +27,6 @@ root = {
   },{
     name: 'title',
 	dataType: 'string',
-	selector: '.lemmaWgt-lemmaTitle-title'
+	selector: '.lemmaWgt-lemmaTitle-title h1'
   }]
 }

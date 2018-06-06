@@ -21,6 +21,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HtmlExtractorTest {
 
@@ -59,6 +61,16 @@ public class HtmlExtractorTest {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(configInputStream, byteArrayOutputStream);
         return ConfigParseUtil.parseJsConfig(new String(byteArrayOutputStream.toByteArray(), Charset.forName("UTF-8")));
+    }
+
+    @Test
+    public void testPattern() {
+        Pattern fun = Pattern.compile(":((next-one|pre-one)(\\([^()]*\\)))");
+        String searchString = "$name:next-one(.basicInfo-item.value)dafa:pre-one(.test p h1)";
+        Matcher matcher = fun.matcher(searchString);
+        while (matcher.find()) {
+            System.out.println(matcher.group(2) + "|" + matcher.start() + "|" + matcher.end());
+        }
     }
 
 }
