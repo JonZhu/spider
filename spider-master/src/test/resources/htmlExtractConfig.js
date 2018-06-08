@@ -41,6 +41,20 @@ region = {
     }
 }
 
+// test
+test = {
+    dataType: 'object',
+    properties: [{
+        dataType: 'string',
+        name: 'city-region-title',
+        selector: '/body > div.body-wrapper > div.content-wrapper > div > div.main-content > div:nth-child(22) > h2'
+    }, {
+        dataType: 'string',
+        name: 'city-region-content',
+        selector: '/body > div.body-wrapper > div.content-wrapper > div > div.main-content > div:nth-child(23)'
+    }]
+}
+
 // 根对象,必需定义在最下面
 root = {
   dataType: 'object',
@@ -55,5 +69,8 @@ root = {
   },{
     name: "region",
     ref: region
-  }]
+  },{
+       name: "test",
+       ref: test
+   }]
 }
