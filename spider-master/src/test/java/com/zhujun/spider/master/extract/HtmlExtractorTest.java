@@ -42,7 +42,9 @@ public class HtmlExtractorTest {
     public void testParseBasicInfo() throws Exception {
 
         String url = "https://baike.baidu.com/item/%E9%95%BF%E6%B1%9F%E4%B8%89%E8%A7%92%E6%B4%B2%E5%9F%8E%E5%B8%82%E7%BE%A4/5973620";
-        Document document = Jsoup.parse(new URL(url), 5000);
+        String content = IOUtils.toString(new URL(url), "UTF-8");
+        long startTime = System.currentTimeMillis();
+        Document document = Jsoup.parse(content, url);
 //        Element basicInfoDiv = document.select(".basic-info").first();
         Elements dtElements = document.select(".basic-info dt");
         Map<String, String> data = new HashMap<>();
@@ -50,7 +52,7 @@ public class HtmlExtractorTest {
             Element valueEle = dtEle.nextElementSibling();
             data.put(dtEle.text(), valueEle == null ? null : valueEle.text());
         }
-
+        System.out.println("ms: " + (System.currentTimeMillis() - startTime));
         System.out.println(data.toString());
 
     }

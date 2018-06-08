@@ -11,14 +11,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Regexp;
 
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,7 +84,24 @@ public class HtmlExtractor implements Extractor {
     }
 
     private List extractArray(Document root, Element parent, String selector, ArrayDataConfig config) {
-        return null;
+        Elements itemElements = jsoupSelect(root, parent, selector);
+        if (itemElements == null || itemElements.isEmpty()) {
+            return null;
+        }
+
+        DataItemConfig itemConfig = config.getItemData();
+        if (itemConfig == null) {
+            throw new RuntimeException("数组itemData不能为空");
+        }
+
+        List arrayData = new ArrayList();
+        int startSkip = config.getStartSkip() == null ? 0 : config.getStartSkip();
+        int endSkip = config.getEndSkip() == null ? 0 : config.getEndSkip();
+        for (int i = startSkip; i < itemElements.size() - endSkip; i++) {
+            Element itemEle = itemElements.get(i);
+            arrayData.add(extractCurrentConfig(root, itemEle, itemConfig));
+        }
+        return arrayData;
     }
 
     private Map extractObject(Document root, Element parent, String selector, ObjectDataConfig config) {

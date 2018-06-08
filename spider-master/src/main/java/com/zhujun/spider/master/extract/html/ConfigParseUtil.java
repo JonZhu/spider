@@ -48,6 +48,8 @@ public class ConfigParseUtil {
                     dataItemConfig = new BasicDataConfig();
                 } else if (DataItemConfig.DATA_TYPE_OBJECT.equals(dataType)) {
                     dataItemConfig = convertObjectConfig(scriptObjectMirror);
+                } else if (DataItemConfig.DATA_TYPE_ARRAY.equals(dataType)) {
+                    dataItemConfig = convertArrayConfig(scriptObjectMirror);
                 } else {
                     throw new RuntimeException("不支持的dataType: " + dataType);
                 }
@@ -61,6 +63,39 @@ public class ConfigParseUtil {
         }
 
         return dataItemConfig;
+    }
+
+    private static ArrayDataConfig convertArrayConfig(ScriptObjectMirror scriptObjectMirror) {
+        DataItemConfig itemConfig = convertConfigData(scriptObjectMirror.get("itemData"));
+
+        if (itemConfig == null) {
+            throw new RuntimeException("数组itemData配置不正确");
+        }
+
+        ArrayDataConfig config = new ArrayDataConfig();
+        config.setItemData(itemConfig);
+
+        // startSkip
+        Object tempValue = scriptObjectMirror.get("startSkip");
+        if (tempValue != null) {
+            if (tempValue instanceof Number) {
+                config.setStartSkip(((Number) tempValue).intValue());
+            } else {
+                throw new RuntimeException("数组startSkip必需为数字");
+            }
+        }
+
+        // endSkip
+        tempValue = scriptObjectMirror.get("endSkip");
+        if (tempValue != null) {
+            if (tempValue instanceof Number) {
+                config.setEndSkip(((Number) tempValue).intValue());
+            } else {
+                throw new RuntimeException("数组endSkip必需为数字");
+            }
+        }
+
+        return config;
     }
 
     private static ObjectDataConfig convertObjectConfig(ScriptObjectMirror scriptObjectMirror) {
