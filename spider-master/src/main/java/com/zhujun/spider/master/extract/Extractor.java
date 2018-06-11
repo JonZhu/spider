@@ -1,7 +1,5 @@
 package com.zhujun.spider.master.extract;
 
-import java.util.Map;
-
 /**
  * 数据抽取器
  *
@@ -19,6 +17,6 @@ public interface Extractor {
      * @param content
      * @return
      */
-    ExtractResult extract(String url, String conentType, byte[] content);
+    Object extract(String url, String conentType, byte[] content);
 
 }

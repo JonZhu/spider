@@ -1,6 +1,5 @@
 package com.zhujun.spider.master.extract.html;
 
-import com.zhujun.spider.master.extract.ExtractResult;
 import com.zhujun.spider.master.extract.Extractor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,12 +47,9 @@ public class HtmlExtractor implements Extractor {
 
 
     @Override
-    public ExtractResult extract(String url, String conentType, byte[] content) {
+    public Object extract(String url, String conentType, byte[] content) {
         Document document = Jsoup.parse(new String(content, Charset.forName("UTF-8")), url);
-        Object data = extractCurrentConfig(document, document, this.config);
-        ExtractResult result = new ExtractResult();
-        result.setData(data);
-        return result;
+        return extractCurrentConfig(document, document, this.config);
     }
 
     /**
