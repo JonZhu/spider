@@ -12,29 +12,6 @@ basicInfo = {
   }]
 }
 
-// 行政区域
-region = {
-    dataType: 'array',
-    selector: 'table tr',
-    startSkip: 1, // 开始跳过的项目数量
-    endSkip: 0, //结束跳过的项目数量
-    itemData: { // 数据项
-        dataType: 'object',
-        properties: [{
-            name: 'province',
-            dataType: 'string',
-            selector: 'td:nth-child(1)'
-        },{
-          name: 'shi',
-          dataType: 'string',
-          selector: 'td:nth-child(2)'
-      },{
-         name: 'qu',
-         dataType: 'string',
-         selector: 'td:nth-child(3)'
-     }]
-    }
-}
 
 // 根对象,必需定义在最下面
 root = {
@@ -47,5 +24,12 @@ root = {
     name: 'title',
 	dataType: 'string',
 	selector: '.lemmaWgt-lemmaTitle-title h1'
+  },{
+      name: 'tag', // 标签
+      dataType: 'array',
+      selector: '#open-tag-item .taglist',
+      itemData: {
+          dataType: 'string'
+      }
   }]
 }
