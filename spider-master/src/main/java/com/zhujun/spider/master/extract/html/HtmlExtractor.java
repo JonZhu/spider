@@ -176,6 +176,11 @@ public class HtmlExtractor implements Extractor {
      * @return
      */
     private Elements jsoupSelect(Document root, Element parent, String selector) {
+        if (StringUtils.isBlank(selector)) {
+            // selector为空,直接返回父级
+            return new Elements(parent);
+        }
+
         Element searchEle = null;
         String currentSelector = null;
         if (selector.startsWith("/")) {
