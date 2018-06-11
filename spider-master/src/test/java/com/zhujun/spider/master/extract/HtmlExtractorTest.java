@@ -1,5 +1,12 @@
 package com.zhujun.spider.master.extract;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoCollection;
+import com.zhujun.export.appendfile.AppendFileReader;
+import com.zhujun.export.appendfile.MetaData;
 import com.zhujun.spider.master.extract.html.ConfigParseUtil;
 import com.zhujun.spider.master.extract.html.DataItemConfig;
 import com.zhujun.spider.master.extract.html.HtmlExtractor;
@@ -19,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -28,7 +36,7 @@ public class HtmlExtractorTest {
 
     @Test
     public void extract() throws ScriptException, IOException {
-        DataItemConfig config = parseConfig();
+        DataItemConfig config = parseConfig("/htmlExtractConfig.js");
         HtmlExtractor extractor = new HtmlExtractor(config);
         String url = "https://baike.baidu.com/item/%E9%95%BF%E6%B1%9F%E4%B8%89%E8%A7%92%E6%B4%B2%E5%9F%8E%E5%B8%82%E7%BE%A4/5973620";
         ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
@@ -58,9 +66,8 @@ public class HtmlExtractorTest {
     }
 
 
-    public DataItemConfig parseConfig() throws ScriptException, IOException {
-        String config = "/htmlExtractConfig.js";
-        InputStream configInputStream = getClass().getResourceAsStream(config);
+    public DataItemConfig parseConfig(String classPath) throws ScriptException, IOException {
+        InputStream configInputStream = getClass().getResourceAsStream(classPath);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(configInputStream, byteArrayOutputStream);
         return ConfigParseUtil.parseJsConfig(new String(byteArrayOutputStream.toByteArray(), Charset.forName("UTF-8")));
@@ -74,6 +81,59 @@ public class HtmlExtractorTest {
         while (matcher.find()) {
             System.out.println(matcher.group(3) + "|" + matcher.start() + "|" + matcher.end());
         }
+    }
+
+    @Test
+    public void testExtract2Mongo() throws IOException, ScriptException {
+        DataItemConfig config = parseConfig("/bd_baike_ExtractConfig.js");
+        HtmlExtractor extractor = new HtmlExtractor(config);
+
+        MongoClient mongoClient = createMongoClient();
+
+        MongoCollection<org.bson.Document> baikeCollection = mongoClient.getDatabase("bd_baike").getCollection("baike");
+
+        String appendDataFile = "E:\\tmp\\spider\\baike_clone\\data-20180518101708";
+        AppendFileReader appendFileReader = new AppendFileReader(appendDataFile);
+        MetaData metaData = null;
+        int count = 0;
+        while (true) {
+            metaData = appendFileReader.readMetaData();
+            if (metaData == null) {
+                break;
+            }
+
+            if (metaData.getContentType() != null && metaData.getContentType().startsWith("text/html")) {
+                byte[] content = appendFileReader.readFileData();
+                if (content != null) {
+                    ExtractResult extractResult = extractor.extract(metaData.getUrl(), metaData.getContentType(), content);
+                    saveData2Mongo(baikeCollection, extractResult);
+                    System.out.println(++count);
+                }
+            }
+        }
+
+        mongoClient.close();
+
+        System.out.println("complete, count: " + count);
+    }
+
+    private void saveData2Mongo(MongoCollection<org.bson.Document> baikeCollection, ExtractResult extractResult) {
+        if (extractResult == null || !(extractResult.getData() instanceof Map)) {
+            return;
+        }
+
+        org.bson.Document doc = new org.bson.Document((Map<String, Object>) extractResult.getData());
+        baikeCollection.insertOne(doc);
+    }
+
+
+    private MongoClient createMongoClient() {
+        MongoCredential credential = MongoCredential.createScramSha1Credential("root", "admin", "qwer1234".toCharArray());
+        MongoClient mongoClient = new MongoClient(new ServerAddress("42.123.99.34", 27017), Collections.singletonList(credential));
+//        MongoClientURI uri = new MongoClientURI("mongodb://root:qwer1234@42.123.99.34:27017/?authSource=admin&authMechanism=SCRAM-SHA-1");
+//        MongoClient mongoClient = new MongoClient(uri);
+//        mongoClient.fsync(false);
+        return mongoClient;
     }
 
 }
