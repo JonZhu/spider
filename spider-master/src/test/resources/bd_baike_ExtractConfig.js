@@ -18,12 +18,16 @@ root = {
   dataType: 'object',
   selector: 'html body',
   properties: [{
+    name: 'htmlTitle', // html标题
+    dataType: 'string',
+    selector: '/html title'
+  },{
+       name: 'baikeTitle', // 百科标题
+   	dataType: 'string',
+   	selector: '.lemmaWgt-lemmaTitle-title h1'
+  },{
     name: 'basicInfo',
 	ref: basicInfo // 配置引用
-  },{
-    name: 'title',
-	dataType: 'string',
-	selector: '.lemmaWgt-lemmaTitle-title h1'
   },{
       name: 'tag', // 标签
       dataType: 'array',

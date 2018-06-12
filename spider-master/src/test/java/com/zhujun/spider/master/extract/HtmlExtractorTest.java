@@ -20,14 +20,16 @@ import org.jsoup.select.Elements;
 import org.junit.Test;
 
 import javax.script.ScriptException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,7 +119,7 @@ public class HtmlExtractorTest {
         System.out.println("complete, count: " + count);
     }
 
-    private void saveData2Mongo(MongoCollection<org.bson.Document> baikeCollection, Object extractResult) {
+    private static void saveData2Mongo(MongoCollection<org.bson.Document> baikeCollection, Object extractResult) {
         if (extractResult == null || !(extractResult instanceof Map)) {
             return;
         }
@@ -134,6 +136,105 @@ public class HtmlExtractorTest {
 //        MongoClient mongoClient = new MongoClient(uri);
 //        mongoClient.fsync(false);
         return mongoClient;
+    }
+
+
+    /**
+     * 转换数据目录下所有appendFile到mongo
+     */
+    @Test
+    public void textExtractDataDir2Mongo() throws ScriptException, IOException, InterruptedException {
+
+        String dirPath = "E:\\tmp\\spider\\baike_clone\\";
+        File dir = new File(dirPath);
+        if (!dir.isDirectory()) {
+            throw new RuntimeException(dirPath + " 不是目录");
+        }
+
+        long startTime = System.currentTimeMillis();
+
+        File[] dataFiles = dir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().startsWith("data-");
+            }
+        });
+
+        if (dataFiles == null || dataFiles.length == 0) {
+            return;
+        }
+
+        DataItemConfig config = parseConfig("/bd_baike_ExtractConfig.js");
+        HtmlExtractor extractor = new HtmlExtractor(config);
+
+        MongoClient mongoClient = createMongoClient();
+
+        MongoCollection<org.bson.Document> baikeCollection = mongoClient.getDatabase("bd_baike").getCollection("baike");
+
+        int threadCount = Runtime.getRuntime().availableProcessors() * 2 + 1;
+        Executor pool = Executors.newFixedThreadPool(threadCount);
+        System.out.println("创建线程池, size:" + threadCount);
+
+        AtomicInteger count = new AtomicInteger(0);
+        CountDownLatch countDownLatch = new CountDownLatch(dataFiles.length);
+        for (File appendFile : dataFiles) {
+            pool.execute(new ExtractAppendFileThread(appendFile, baikeCollection, extractor, count, countDownLatch));
+        }
+
+        countDownLatch.await();
+
+        System.out.println("time:"+ (System.currentTimeMillis() - startTime) +", count:" + count.get());
+    }
+
+    public static class ExtractAppendFileThread implements Runnable {
+        private File appendFile;
+        private MongoCollection<org.bson.Document> baikeCollection;
+        private HtmlExtractor extractor;
+        private AtomicInteger count;
+        private CountDownLatch countDownLatch;
+
+        public ExtractAppendFileThread(File appendFile, MongoCollection<org.bson.Document> baikeCollection, HtmlExtractor extractor, AtomicInteger count, CountDownLatch countDownLatch) {
+            this.appendFile = appendFile;
+            this.baikeCollection = baikeCollection;
+            this.extractor = extractor;
+            this.count = count;
+            this.countDownLatch = countDownLatch;
+        }
+
+        @Override
+        public void run() {
+            AppendFileReader appendFileReader = null;
+            try {
+                appendFileReader = new AppendFileReader(appendFile);
+                while (true) {
+                    MetaData metaData = appendFileReader.readMetaData();
+                    if (metaData == null) {
+                        break;
+                    }
+
+                    if (metaData.getContentType() != null && metaData.getContentType().startsWith("text/html")) {
+                        byte[] content = appendFileReader.readFileData();
+                        if (content != null) {
+                            Object extractResult = extractor.extract(metaData.getUrl(), metaData.getContentType(), content);
+                            if (extractResult instanceof Map) {
+                                Map map = (Map) extractResult;
+                                map.put("url", metaData.getUrl());
+                                map.put("contentType", metaData.getContentType());
+                                map.put("fetchTime", metaData.getFetchTime());
+                            }
+                            saveData2Mongo(baikeCollection, extractResult);
+                            System.out.println(count.incrementAndGet());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                countDownLatch.countDown();
+                IOUtils.closeQuietly(appendFileReader);
+            }
+
+        }
     }
 
 }
