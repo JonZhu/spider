@@ -6,6 +6,8 @@ package com.zhujun.spider.master.extract.html;
  * @time 2018/6/6 10:30
  */
 public abstract class AbstractDataItemConfig implements DataItemConfig {
+    private Condition condition;
+
     private String name;
 
     private String nameSelector;
@@ -13,6 +15,15 @@ public abstract class AbstractDataItemConfig implements DataItemConfig {
     private String dataType;
 
     private String selector;
+
+    @Override
+    public Condition getCondition() {
+        return condition;
+    }
+
+    public void setCondition(Condition condition) {
+        this.condition = condition;
+    }
 
     @Override
     public String getName() {

@@ -15,6 +15,12 @@ public interface DataItemConfig extends Cloneable {
     String DATA_TYPE_ARRAY = "array";
 
     /**
+     * 条件， 在条件满足时才抽取该数据
+     * @return
+     */
+    Condition getCondition();
+
+    /**
      * 名称, 做为object的属性时必需
      * @return
      */

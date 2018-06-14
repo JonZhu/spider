@@ -12,8 +12,18 @@ basicInfo = {
   }]
 }
 
+// 条件
+humanCondition = {
+    // element: 依赖于element存在
+    elementSelector: '/#open-tag-item:contains(人物)',
+
+    // url: 依赖于url模式
+    urlPattern: null
+}
+
 // 关系
 relations = {
+    condition: humanCondition,
     name: 'relations',
     dataType: 'array',
     selector: '.relations #slider_relations ul li',
@@ -35,6 +45,26 @@ relations = {
     }
 }
 
+// 作品
+works = {
+    condition: humanCondition,
+    name: 'works',
+    dataType: 'array',
+    selector: '#slider_works ul li',
+    itemData: {
+        dataType: 'object',
+        properties: [{
+            name: 'name',
+            dataType: 'string',
+            selector: 'div.name'
+        },{
+            name: 'image',
+            dataType: 'string',
+            selector: 'img@src'
+        }]
+    }
+}
+
 // 根对象,必需定义在最下面
 root = {
   dataType: 'object',
@@ -44,9 +74,13 @@ root = {
     dataType: 'string',
     selector: '/html title'
   },{
-       name: 'baikeTitle', // 百科标题
+    name: 'baikeTitle', // 百科标题
    	dataType: 'string',
    	selector: '.lemmaWgt-lemmaTitle-title h1'
+  },{
+    name: 'summary', // 简介
+    dataType: 'string',
+    selector: '.lemma-summary'
   },{
     name: 'basicInfo',
 	ref: basicInfo // 配置引用
@@ -58,6 +92,7 @@ root = {
           dataType: 'string'
       }
   },
-  relations // 关系
+  relations, // 关系
+  works // 作品
   ]
 }

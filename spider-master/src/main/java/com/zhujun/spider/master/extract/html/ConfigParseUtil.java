@@ -7,6 +7,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 配置解析工具
@@ -60,9 +61,40 @@ public class ConfigParseUtil {
             dataItemConfig.setName((String)scriptObjectMirror.get("name"));
             dataItemConfig.setNameSelector((String)scriptObjectMirror.get("nameSelector"));
             dataItemConfig.setSelector((String)scriptObjectMirror.get("selector"));
+            dataItemConfig.setCondition(convertCondition(scriptObjectMirror));
         }
 
         return dataItemConfig;
+    }
+
+    /**
+     * 解析condition
+     * @param scriptObjectMirror
+     * @return
+     */
+    private static Condition convertCondition(ScriptObjectMirror scriptObjectMirror) {
+        Object conditionConfig = scriptObjectMirror.get("condition");
+        if (conditionConfig == null) {
+            return null;
+        }
+
+        if (!(conditionConfig instanceof ScriptObjectMirror)) {
+            throw new RuntimeException("condition应该为对象");
+        }
+
+        ScriptObjectMirror conditionObj = (ScriptObjectMirror)conditionConfig;
+        String elementSelector = (String)conditionObj.get("elementSelector");
+        String urlPattern = (String)conditionObj.get("urlPattern");
+        if (elementSelector == null && urlPattern == null) {
+            throw new RuntimeException("condition的属性elementSelector、urlPattern至少需要一个");
+        }
+
+        Condition condition = new Condition();
+        condition.setElementSelector(elementSelector);
+        if (urlPattern != null) {
+            condition.setUrlPatter(Pattern.compile(urlPattern));
+        }
+        return condition;
     }
 
     private static ArrayDataConfig convertArrayConfig(ScriptObjectMirror scriptObjectMirror) {

@@ -115,6 +115,9 @@ public class HtmlExtractor implements Extractor {
         Element propParentEle = StringUtils.isBlank(selector) ? parent : parent.select(selector).first();
         propParentEle = propParentEle == null ? parent : propParentEle;
         for (DataItemConfig propConfig : propList) {
+            if (!validateCondition(root, parent, propConfig.getCondition())) {
+                continue;
+            }
             if (propConfig instanceof ReferenceDataConfig) {
                 // 引用属性
                 ReferenceDataConfig referenceDataConfig = (ReferenceDataConfig) propConfig;
@@ -132,6 +135,33 @@ public class HtmlExtractor implements Extractor {
         }
 
         return objValue;
+    }
+
+    /**
+     * 验证条件
+     * @param condition
+     * @return
+     */
+    private boolean validateCondition(Document root, Element parent, Condition condition) {
+        if (condition == null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(condition.getElementSelector())) {
+            // 验证element
+            Elements elements = jsoupSelect(root, parent, condition.getElementSelector());
+            if (elements == null || elements.isEmpty()) {
+                return false;
+            }
+        }
+
+        if (condition.getUrlPatter() != null) {
+            // 验证urlpattern
+            // todo
+        }
+
+        // 通过验证
+        return true;
     }
 
     /**
