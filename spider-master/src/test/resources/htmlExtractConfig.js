@@ -1,4 +1,4 @@
-// https://baike.baidu.com/item/%E9%95%BF%E6%B1%9F%E4%B8%89%E8%A7%92%E6%B4%B2%E5%9F%8E%E5%B8%82%E7%BE%A4/5973620
+// https://jsoup.org/apidocs/org/jsoup/select/Selector.html
 
 // 基本信息
 basicInfo = {

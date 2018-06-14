@@ -1,4 +1,4 @@
-// https://baike.baidu.com/item/%E9%95%BF%E6%B1%9F%E4%B8%89%E8%A7%92%E6%B4%B2%E5%9F%8E%E5%B8%82%E7%BE%A4/5973620
+// https://baike.baidu.com/item/%E6%9D%8E%E5%B9%BC%E6%96%8C/12503
 
 // 基本信息
 basicInfo = {
@@ -12,6 +12,28 @@ basicInfo = {
   }]
 }
 
+// 关系
+relations = {
+    name: 'relations',
+    dataType: 'array',
+    selector: '.relations #slider_relations ul li',
+    itemData: {
+        dataType: 'object',
+        properties: [{
+            name: 'name',
+            dataType: 'string',
+            selector: 'div.name em'
+        },{
+            name: 'relation',
+            dataType: 'string',
+            selector: 'div.name'
+        },{
+            name: 'image',
+            dataType: 'string',
+            selector: 'img@src'
+        }]
+    }
+}
 
 // 根对象,必需定义在最下面
 root = {
@@ -35,5 +57,7 @@ root = {
       itemData: {
           dataType: 'string'
       }
-  }]
+  },
+  relations // 关系
+  ]
 }

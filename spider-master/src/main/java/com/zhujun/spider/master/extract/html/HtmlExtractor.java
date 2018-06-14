@@ -36,6 +36,11 @@ public class HtmlExtractor implements Extractor {
      */
     private final static Pattern EXT_DEFINE_FUN = Pattern.compile(":((next-one|pre-one)\\(([^()]*)\\))");
 
+    /**
+     * 取属性值表达式, 如：a@href
+     */
+    private final static Pattern ATTR_PATTERN = Pattern.compile("@([\\w-]+)$");
+
     private final DataItemConfig config;
 
     public HtmlExtractor(DataItemConfig config) {
@@ -280,8 +285,44 @@ public class HtmlExtractor implements Extractor {
     }
 
     private String extractString(Document root, Element parent, String selector) {
+        boolean isAttr = false;
+        String attrName = null;
+        if (selector != null) {
+            Matcher attrMatcher = ATTR_PATTERN.matcher(selector);
+            isAttr = attrMatcher.find();
+            if (isAttr) {
+                // 抽取属性
+                selector = selector.substring(0, attrMatcher.start()); // 去除属性表达式
+                attrName = attrMatcher.group(1);
+            }
+        }
+
+        // 搜索
         Elements selectElements = jsoupSelect(root, parent, selector);
-        return selectElements == null || selectElements.isEmpty() ? null : selectElements.text();
+
+        if (selectElements == null || selectElements.isEmpty()) {
+            return null;
+        }
+
+        String result = null;
+        if (isAttr) {
+            // 获取属性值
+            StringBuilder attrBuilder = new StringBuilder();
+            String attrValue = null;
+            for (Element ele : selectElements) {
+                attrValue = ele.attr(attrName);
+                if (StringUtils.isNotBlank(attrValue)) {
+                    if (attrBuilder.length() > 0) {
+                        attrBuilder.append(' ');
+                    }
+                    attrBuilder.append(attrValue);
+                }
+            }
+            result = attrBuilder.toString();
+        } else {
+            result = selectElements.text();
+        }
+        return result;
     }
 
     private Double extractNumber(Document root, Element parent, String selector) {
