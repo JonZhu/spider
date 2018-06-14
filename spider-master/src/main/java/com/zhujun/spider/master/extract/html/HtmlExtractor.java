@@ -54,6 +54,10 @@ public class HtmlExtractor implements Extractor {
     @Override
     public Object extract(String url, String conentType, byte[] content) {
         Document document = Jsoup.parse(new String(content, Charset.forName("UTF-8")), url);
+        if (!validateCondition(document, document, this.config.getCondition())) {
+            // 根数据条件验证不通过
+            return null;
+        }
         return extractCurrentConfig(document, document, this.config);
     }
 
