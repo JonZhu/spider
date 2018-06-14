@@ -39,7 +39,7 @@ public class HtmlExtractor implements Extractor {
     /**
      * 取属性值表达式, 如：a@href
      */
-    private final static Pattern ATTR_PATTERN = Pattern.compile("@([\\w-]+)$");
+    private final static Pattern ATTR_PATTERN = Pattern.compile("@([\\w-_]+)$");
 
     private final DataItemConfig config;
 
