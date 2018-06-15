@@ -4,6 +4,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 import com.zhujun.export.appendfile.AppendFileReader;
 import com.zhujun.export.appendfile.MetaData;
 import com.zhujun.spider.master.extract.html.ConfigParseUtil;
@@ -18,6 +20,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
+import org.springframework.util.DigestUtils;
 
 import javax.script.ScriptException;
 import java.io.*;
@@ -39,8 +42,8 @@ public class HtmlExtractorTest {
     public void extract() throws ScriptException, IOException {
         DataItemConfig config = parseConfig("/bd_baike_ExtractConfig.js");
         HtmlExtractor extractor = new HtmlExtractor(config);
-//        String url = "https://baike.baidu.com/item/%E9%95%BF%E6%B1%9F%E4%B8%89%E8%A7%92%E6%B4%B2%E5%9F%8E%E5%B8%82%E7%BE%A4/5973620";
-        String url = "https://baike.baidu.com/item/%E6%9D%8E%E5%B9%BC%E6%96%8C/12503";
+        String url = "https://baike.baidu.com/item/%E9%95%BF%E6%B1%9F%E4%B8%89%E8%A7%92%E6%B4%B2%E5%9F%8E%E5%B8%82%E7%BE%A4/5973620";
+//        String url = "https://baike.baidu.com/item/%E6%9D%8E%E5%B9%BC%E6%96%8C/12503";
         ContentFetcher contentFetcher = JavaUrlContentFetcher.getInstance();
         IFetchResult fetchResult = contentFetcher.fetch(url);
         long startTime = System.currentTimeMillis();
@@ -119,13 +122,21 @@ public class HtmlExtractorTest {
         System.out.println("complete, count: " + count);
     }
 
+    private final static UpdateOptions UPSERT_OPTIONS = new UpdateOptions().upsert(true);
     private static void saveData2Mongo(MongoCollection<org.bson.Document> baikeCollection, Object extractResult) {
         if (extractResult == null || !(extractResult instanceof Map)) {
             return;
         }
 
         org.bson.Document doc = new org.bson.Document((Map<String, Object>) extractResult);
-        baikeCollection.insertOne(doc);
+        Object id = doc.get("_id");
+        if (id != null) {
+            // update
+            baikeCollection.replaceOne(Filters.eq(id), doc, UPSERT_OPTIONS);
+        } else {
+            // insert
+            baikeCollection.insertOne(doc);
+        }
     }
 
 
@@ -218,6 +229,7 @@ public class HtmlExtractorTest {
                             Object extractResult = extractor.extract(metaData.getUrl(), metaData.getContentType(), content);
                             if (extractResult instanceof Map) {
                                 Map map = (Map) extractResult;
+                                map.put("_id", DigestUtils.md5DigestAsHex(metaData.getUrl().getBytes(Charset.forName("utf-8")))); // 使用url md5为id
                                 map.put("url", metaData.getUrl());
                                 map.put("contentType", metaData.getContentType());
                                 map.put("fetchTime", metaData.getFetchTime());
