@@ -49,7 +49,7 @@ public class PagingExecutor implements ActionExecutor {
 				FetchUrlPo fetchUrl = new FetchUrlPo();
 				fetchUrl.setUrl(pagingUrl);
 				fetchUrl.setActionId(context.getParentAction().getId());
-				fetchUrlService.createFetchUrl(spider.getDataDir(), fetchUrl);
+				fetchUrlService.createFetchUrl(context.getSpiderTaskPo(), fetchUrl);
 				LOG.debug(pagingUrl);
 			}
 		}

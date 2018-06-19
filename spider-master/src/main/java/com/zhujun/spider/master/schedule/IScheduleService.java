@@ -1,8 +1,8 @@
 package com.zhujun.spider.master.schedule;
 
-import org.apache.commons.lang3.tuple.Pair;
-
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.domain.Spider;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * 调度服务, 调度系统与外部的接口
@@ -28,10 +28,10 @@ public interface IScheduleService {
 	 * @author zhujun
 	 * @date 2016年7月1日
 	 *
-	 * @param id 唯一编号
+	 * @param spiderTaskPo
 	 * @param spider spider定义
 	 */
-	void startSchedule(String id, Spider spider);
+	void startSchedule(SpiderTaskPo spiderTaskPo, Spider spider);
 	
 	/**
 	 * 停止 spider
@@ -56,15 +56,15 @@ public interface IScheduleService {
 	 * @author zhujun
 	 * @date 2016年8月4日
 	 *
-	 * @param id
+	 * @param spiderTaskPo
 	 * @param spider
 	 */
-	void resumeSchedule(String id, Spider spider);
+	void resumeSchedule(SpiderTaskPo spiderTaskPo, Spider spider);
 	
 	/**
 	 * 随机获取一个正在执行的任务
 	 * @return
 	 */
-	Pair<String, Spider> randomRunningScheduleTask();
+	Pair<String, SpiderTaskPo> randomRunningScheduleTask();
 	
 }

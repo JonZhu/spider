@@ -2,9 +2,9 @@ package com.zhujun.spider.master.schedule;
 
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Clone;
-import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.schedule.progress.IStep;
 import com.zhujun.spider.master.schedule.progress.ProgressUtils;
@@ -54,7 +54,7 @@ public class CloneExecutor implements ActionExecutor {
 						FetchUrlPo fetchUrl = new FetchUrlPo();
 						fetchUrl.setActionId(clone.getId());
 						fetchUrl.setUrl(seed);
-						fetchUrlService.createFetchUrl(c.getSpider().getDataDir(), fetchUrl);
+						fetchUrlService.createFetchUrl(c.getSpiderTaskPo(), fetchUrl);
 						LOG.debug("seed入库: {}", seed);
 					}
 				}
@@ -72,7 +72,7 @@ public class CloneExecutor implements ActionExecutor {
 				
 				Item item = null;
 				while (true) {
-					item = ScheduleUtil.waitPushData(c.getSpider(), clone.getId(), fetchUrlService);
+					item = ScheduleUtil.waitPushData(c.getSpiderTaskPo(), clone.getId(), fetchUrlService);
 					if (item == null) {
 						break;
 					}
@@ -82,12 +82,12 @@ public class CloneExecutor implements ActionExecutor {
 						writer.write(item.url, item.contentType, item.fetchTime, item.data);
 						
 						// 解析连接的url
-						parseLinkedUrls(item.url, item.contentType, item.data, clone, c.getSpider());
+						parseLinkedUrls(item.url, item.contentType, item.data, clone, c.getSpiderTaskPo());
 						
-						fetchUrlService.setFetchUrlStatus(c.getSpider().getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
+						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
 					} else {
 						// 抓取失败
-						fetchUrlService.setFetchUrlStatus(c.getSpider().getDataDir(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
+						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
 					}
 				}
 			}
@@ -109,7 +109,7 @@ public class CloneExecutor implements ActionExecutor {
 	 * @param data
 	 * @throws Exception 
 	 */
-	protected void parseLinkedUrls(String url, String contentType, byte[] data, Clone clone, Spider spider) throws Exception {
+	protected void parseLinkedUrls(String url, String contentType, byte[] data, Clone clone, SpiderTaskPo spider) throws Exception {
 		if (!pageCanParsed(contentType)) {
 			return;
 		}
@@ -143,7 +143,7 @@ public class CloneExecutor implements ActionExecutor {
 //						LOG.debug("增加关联url: {}", absoluteUrl);
 						
 						if (urlPoList.size() > 1000) {
-							fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+							fetchUrlService.createFetchUrl(spider, urlPoList);
 							urlPoList = new ArrayList<>();
 						}
 					}
@@ -165,7 +165,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联css url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+						fetchUrlService.createFetchUrl(spider, urlPoList);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -187,7 +187,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联js url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+						fetchUrlService.createFetchUrl(spider, urlPoList);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -209,7 +209,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联image url: {}", imageUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+						fetchUrlService.createFetchUrl(spider, urlPoList);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -218,7 +218,7 @@ public class CloneExecutor implements ActionExecutor {
 		}
 		
 		if (urlPoList.size() > 0) {
-			fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+			fetchUrlService.createFetchUrl(spider, urlPoList);
 		}
 		
 		if (LOG.isDebugEnabled()) {

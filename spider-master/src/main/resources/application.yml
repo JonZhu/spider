@@ -16,6 +16,9 @@ spider:
   mina:
     log-filter: false
 
+  mongo:
+    url: mongodb://root:qwer1234@42.123.99.34:27017/?authSource=admin&authMechanism=SCRAM-SHA-1
+
 ---
 spring:
   profiles: prod

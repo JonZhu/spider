@@ -95,7 +95,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 						
 						if (urlPoList.size() > 1000) {
 							// 100条数据入库
-							fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+							fetchUrlService.createFetchUrl(c.getSpiderTaskPo(), urlPoList);
 							urlPoList = new ArrayList<>();
 						}
 					}
@@ -103,7 +103,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				}
 				
 				if (!urlPoList.isEmpty()) {
-					fetchUrlService.createFetchUrl(spider.getDataDir(), urlPoList);
+					fetchUrlService.createFetchUrl(c.getSpiderTaskPo(), urlPoList);
 				}
 				
 				LOG.debug("结束url入库, time:{}", System.currentTimeMillis() - startInsertUrlTime);
@@ -119,7 +119,6 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 			@Override
 			public void execute(IScheduleContext c) throws Exception {
 				UrlSet urlSet = (UrlSet)c.getAction();
-				Spider spider = c.getSpider();
 				Map<String, Serializable> dataScope = c.getDataScope();
 				
 				SpiderDataWriter writer = c.getDataWriter();
@@ -127,7 +126,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
 				Item item = null;
 				while (true) {
-					item = ScheduleUtil.waitPushData(spider, urlSet.getId(), fetchUrlService);
+					item = ScheduleUtil.waitPushData(c.getSpiderTaskPo(), urlSet.getId(), fetchUrlService);
 					if (item == null) {
 						break;
 					}
@@ -137,7 +136,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 					if (item.success) {
 						// 存储到文件
 						writer.write(item.url, item.contentType, item.fetchTime, item.data);
-						fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
+						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
 						
 						if (StringUtils.isNotBlank(urlSet.getId())) {
 							dataScope.put(urlSet.getId(), item.data);
@@ -151,7 +150,7 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 						executeChildren(c);
 					} else {
 						// 抓取失败
-						fetchUrlService.setFetchUrlStatus(spider.getDataDir(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
+						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
 					}
 					
 				}

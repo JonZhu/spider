@@ -65,7 +65,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 				File dslFile = new File(spiderTaskPo.getDatadir(), "spiderdsl.xml");
 				dslInputStream = new FileInputStream(dslFile);
 				Spider spider = dslParser.parse(dslInputStream);
-				startSchedule(spiderTaskPo.getId(), spider);
+				startSchedule(spiderTaskPo, spider);
 			} catch (Exception e) {
 				LOG.error("boot task fail, name:{}, datadir:{}", spiderTaskPo.getName(), spiderTaskPo.getDatadir(), e);
 			} finally {
@@ -76,11 +76,11 @@ public class ScheduleServiceImpl implements IScheduleService {
 	}
 
 	@Override
-	public void startSchedule(String id, Spider spider) {
-		SpiderScheduleThread thread = new SpiderScheduleThread(id, spider);
+	public void startSchedule(SpiderTaskPo spiderTaskPo, Spider spider) {
+		SpiderScheduleThread thread = new SpiderScheduleThread(spiderTaskPo, spider);
 		thread.setName("SpiderScheduler-" + SCHEDULE_THREAD_INDEX.getAndIncrement());
 		thread.start();
-		runningScheduleThreadMap.put(id, thread);
+		runningScheduleThreadMap.put(spiderTaskPo.getId(), thread);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 	 * 随机获取一个正在执行的任务id
 	 * @return
 	 */
-	public Pair<String, Spider> randomRunningScheduleTask() {
+	public Pair<String, SpiderTaskPo> randomRunningScheduleTask() {
 		Set<String> keySet = runningScheduleThreadMap.keySet();
 		if (keySet.isEmpty()) {
 			return null;
@@ -105,7 +105,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 		String taskId = (String)arr[new Random().nextInt(arr.length)];
 		
 		SpiderScheduleThread thread = runningScheduleThreadMap.get(taskId);
-		return ImmutablePair.of(taskId, thread.getSpider());
+		return ImmutablePair.of(taskId, thread.getSpiderTaskPo());
 	}
 
 	@Override
@@ -117,10 +117,11 @@ public class ScheduleServiceImpl implements IScheduleService {
 	}
 
 	@Override
-	public void resumeSchedule(String id, Spider spider) {
+	public void resumeSchedule(SpiderTaskPo spiderTaskPo, Spider spider) {
+		String id = spider.getId();
 		SpiderScheduleThread thread = pausedScheduleThreadMap.remove(id);
 		if (thread == null) {
-			startSchedule(id, spider);
+			startSchedule(spiderTaskPo, spider);
 		} else {
 			runningScheduleThreadMap.put(id, thread);
 		}

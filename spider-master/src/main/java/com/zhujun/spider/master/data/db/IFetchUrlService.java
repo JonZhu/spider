@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 
 /**
  * 抓取url服务
@@ -20,12 +21,12 @@ public interface IFetchUrlService {
 	 * @author zhujun
 	 * @date 2016年7月4日
 	 *
-	 * @param dataDir
+	 * @param task
 	 * @param fetchUrl
 	 * @return
 	 * @throws Exception 
 	 */
-	void createFetchUrl(String dataDir, FetchUrlPo fetchUrl) throws Exception;
+	void createFetchUrl(SpiderTaskPo task, FetchUrlPo fetchUrl) throws Exception;
 	
 	/**
 	 * 批量创建url
@@ -33,11 +34,11 @@ public interface IFetchUrlService {
 	 * @author zhujun
 	 * @date 2016年7月5日
 	 *
-	 * @param dataDir
+	 * @param task
 	 * @param fetchUrlList
 	 * @throws Exception
 	 */
-	void createFetchUrl(String dataDir, List<FetchUrlPo> fetchUrlList) throws Exception;
+	void createFetchUrl(SpiderTaskPo task, List<FetchUrlPo> fetchUrlList) throws Exception;
 	
 	/**
 	 * 获取要分发的url
@@ -45,11 +46,11 @@ public interface IFetchUrlService {
 	 * @author zhujun
 	 * @date 2016年7月4日
 	 *
-	 * @param dataDir
+	 * @param task
 	 * @return
 	 * @throws Exception 
 	 */
-	List<FetchUrlPo> getGiveOutUrls(String dataDir) throws Exception;
+	List<FetchUrlPo> getGiveOutUrls(SpiderTaskPo task) throws Exception;
 
 	/**
 	 * 判断action中是否还有未抓取的url
@@ -57,12 +58,12 @@ public interface IFetchUrlService {
 	 * @author zhujun
 	 * @date 2016年7月8日
 	 *
-	 * @param dataDir
+	 * @param task
 	 * @param actionId
 	 * @return
 	 * @throws Exception 
 	 */
-	boolean existUnFetchUrlInAction(String dataDir, String actionId) throws Exception;
+	boolean existUnFetchUrlInAction(SpiderTaskPo task, String actionId) throws Exception;
 
 	/**
 	 * 设置url状态
@@ -70,13 +71,13 @@ public interface IFetchUrlService {
 	 * @author zhujun
 	 * @date 2016年7月8日
 	 *
-	 * @param dataDir
+	 * @param task
 	 * @param urlId
 	 * @param status
 	 * @param time
 	 * @return 影响数据行数
 	 * @throws Exception 
 	 */
-	int setFetchUrlStatus(String dataDir, Integer urlId, int status, Date time) throws Exception;
+	int setFetchUrlStatus(SpiderTaskPo task, Integer urlId, int status, Date time) throws Exception;
 	
 }

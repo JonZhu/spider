@@ -1,43 +1,38 @@
 package com.zhujun.spider.master.schedule;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.writer.AppendFileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.EachFileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SpiderScheduleThread extends Thread {
 
 	private final static Logger LOG = LoggerFactory.getLogger(SpiderScheduleThread.class);
 	
-	private String taskId;
+	private SpiderTaskPo spiderTaskPo;
 	private Spider spider;
 	
-	public SpiderScheduleThread(String taskId, Spider spider) {
+	public SpiderScheduleThread(SpiderTaskPo spiderTaskPo, Spider spider) {
 		super();
-		if (taskId == null) {
-			throw new NullPointerException("taskId不能为空");
+		if (spiderTaskPo == null) {
+			throw new NullPointerException("spiderTaskPo不能为空");
 		}
 		if (spider == null) {
 			throw new NullPointerException("spider不能为空");
 		}
-		this.taskId = taskId;
+		this.spiderTaskPo = spiderTaskPo;
 		this.spider = spider;
 		if (spider instanceof XmlSpider) {
-			((XmlSpider) spider).setId(taskId);
+			((XmlSpider) spider).setId(spiderTaskPo.getId());
 		}
 	}
 
@@ -56,7 +51,7 @@ public class SpiderScheduleThread extends Thread {
 			// 设置history progress
 			setHistoryProgress(dataScope);
 		}
-		dataScope.put(ScheduleConst.TASK_ID_KEY, taskId); // 任务id
+		dataScope.put(ScheduleConst.TASK_ID_KEY, spiderTaskPo.getId()); // 任务id
 		dataScope.put(ScheduleConst.TASK_DATA_DIR_KEY, spider.getDataDir());
 		
 		// 构建数据存储写入器
@@ -128,7 +123,11 @@ public class SpiderScheduleThread extends Thread {
 	public Spider getSpider() {
 		return this.spider;
 	}
-	
+
+	public SpiderTaskPo getSpiderTaskPo() {
+		return spiderTaskPo;
+	}
+
 	private static class SpiderActionExecutor extends ParentActionExecutor implements ActionExecutor {
 
 	}

@@ -64,5 +64,5 @@ public interface ISpiderTaskService {
 	 * @param taskId
 	 * @return
 	 */
-	SpiderTaskPo getSpiderTask(String taskId) throws Exception;
+	SpiderTaskPo getSpiderTask(String taskId);
 }

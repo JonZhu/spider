@@ -3,6 +3,7 @@ package com.zhujun.spider.master.schedule;
 import java.io.Serializable;
 import java.util.Map;
 
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
@@ -17,12 +18,21 @@ import com.zhujun.spider.master.domain.Spider;
 public class ScheduleContextImpl implements IScheduleContext {
 
 	private Spider spider;
+	private SpiderTaskPo spiderTaskPo;
 	private DslAction action;
 	private DslAction parentAction;
 	
 	private Map<String, Serializable> dataScope;
 	
 	private SpiderDataWriter dataWriter;
+
+	public SpiderTaskPo getSpiderTaskPo() {
+		return spiderTaskPo;
+	}
+
+	public void setSpiderTaskPo(SpiderTaskPo spiderTaskPo) {
+		this.spiderTaskPo = spiderTaskPo;
+	}
 
 	public Spider getSpider() {
 		return spider;

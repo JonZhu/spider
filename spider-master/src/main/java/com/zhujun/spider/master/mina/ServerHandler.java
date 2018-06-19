@@ -3,7 +3,7 @@ package com.zhujun.spider.master.mina;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
-import com.zhujun.spider.master.domain.Spider;
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.schedule.PushDataQueue;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
@@ -120,11 +120,11 @@ public class ServerHandler implements IoHandler {
 		netMsg.setHeader("Content-type", "json");
 		String status = "200";
 		
-		Pair<String, Spider> task = scheduleService.randomRunningScheduleTask();
+		Pair<String, SpiderTaskPo> task = scheduleService.randomRunningScheduleTask();
 		if (task != null) {
 			netMsg.setHeader("Task-id", task.getLeft());
 			try {
-				List<FetchUrlPo> urlList = fetchUrlService.getGiveOutUrls(task.getRight().getDataDir());
+				List<FetchUrlPo> urlList = fetchUrlService.getGiveOutUrls(task.getRight());
 				PushUrlBody body = new PushUrlBody();
 				for (FetchUrlPo urlPo : urlList) {
 					PushUrlBodyItem item = new PushUrlBodyItem();

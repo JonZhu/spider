@@ -1,8 +1,9 @@
 package com.zhujun.spider.master.data.db;
 
-import com.zhujun.spider.master.data.db.datasource.DataSourceManager;
-import com.zhujun.spider.master.data.db.datasource.DsUtils;
-import com.zhujun.spider.master.data.db.datasource.DsUtils.IAction;
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
+import com.zhujun.spider.master.data.db.sqlite.DataSourceManager;
+import com.zhujun.spider.master.data.db.sqlite.DsUtils;
+import com.zhujun.spider.master.data.db.sqlite.DsUtils.IAction;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.util.ReadWriteLockUtils;
 import org.apache.commons.dbutils.QueryRunner;
@@ -31,7 +32,8 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	private final static QueryRunner QUERY_RUNNER = new QueryRunner();
 	
 	@Override
-	public void createFetchUrl(String dataDir, final FetchUrlPo fetchUrl) throws Exception {
+	public void createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl) throws Exception {
+		String dataDir = task.getDatadir();
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
 		
 		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
@@ -49,10 +51,11 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 		
 	}
 	
-	public void createFetchUrl(String dataDir, final List<FetchUrlPo> fetchUrlList) throws Exception {
+	public void createFetchUrl(SpiderTaskPo task, final List<FetchUrlPo> fetchUrlList) throws Exception {
 		if (fetchUrlList == null || fetchUrlList.isEmpty()) {
 			return;
 		}
+		String dataDir = task.getDatadir();
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
 		
 		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
@@ -87,7 +90,8 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	
 
 	@Override
-	public List<FetchUrlPo> getGiveOutUrls(String dataDir) throws Exception {
+	public List<FetchUrlPo> getGiveOutUrls(SpiderTaskPo task) throws Exception {
+		String dataDir = task.getDatadir();
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
 		
 		LOG.debug(dataDir);
@@ -169,7 +173,8 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 
 
 	@Override
-	public boolean existUnFetchUrlInAction(String dataDir, final String actionId) throws Exception {
+	public boolean existUnFetchUrlInAction(SpiderTaskPo task, final String actionId) throws Exception {
+		String dataDir = task.getDatadir();
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
 		Lock lock = ReadWriteLockUtils.getReadLock(dataDir);
 		try {
@@ -190,7 +195,8 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	}
 
 	@Override
-	public int setFetchUrlStatus(String dataDir, final Integer urlId, final int status, final Date time) throws Exception {
+	public int setFetchUrlStatus(SpiderTaskPo task, final Integer urlId, final int status, final Date time) throws Exception {
+		String dataDir = task.getDatadir();
 		DataSource ds = DataSourceManager.getSpiderDataSource(dataDir);
 		Lock lock = ReadWriteLockUtils.getWriteLock(dataDir);
 		try {

@@ -1,11 +1,12 @@
 package com.zhujun.spider.master.schedule;
 
-import java.io.Serializable;
-import java.util.Map;
-
+import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.DslAction;
 import com.zhujun.spider.master.domain.Spider;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * spider调度 上下文环境
@@ -25,6 +26,8 @@ public interface IScheduleContext {
 	 * @return
 	 */
 	Spider getSpider();
+
+	SpiderTaskPo getSpiderTaskPo();
 	
 	/**
 	 * 当前执行的action

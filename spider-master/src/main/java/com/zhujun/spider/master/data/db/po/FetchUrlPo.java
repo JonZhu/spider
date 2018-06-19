@@ -1,5 +1,7 @@
 package com.zhujun.spider.master.data.db.po;
 
+import org.springframework.data.annotation.Id;
+
 import java.sql.Time;
 
 /**
@@ -16,7 +18,7 @@ public class FetchUrlPo {
 	public final static int STATUS_SUCCESS = 3;
 	public final static int STATUS_ERROR = 4;
 	
-	
+	@Id
 	private Integer id;
 	
 	private String url;

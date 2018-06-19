@@ -1,7 +1,11 @@
 package com.zhujun.spider.master.data.db.po;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.sql.Time;
 
+@Document(collection = "spider_task")
 public class SpiderTaskPo {
 
 	public static interface Status {
@@ -12,8 +16,11 @@ public class SpiderTaskPo {
 		int PAUSED = 4;
 		
 		int COMPLETE = 6;
+
+		int DELETED = 7;
 	}
-	
+
+	@Id
 	private String id;
 	
 	private String name;
