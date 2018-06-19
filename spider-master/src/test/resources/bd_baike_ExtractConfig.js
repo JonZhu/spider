@@ -12,7 +12,7 @@ basicInfo = {
   }]
 }
 
-// 条件
+// begin 人物
 humanCondition = {
     // element: 依赖于element存在
     elementSelector: '/#open-tag-item:contains(人物)',
@@ -64,6 +64,7 @@ works = {
         }]
     }
 }
+// end 人物
 
 // 根对象,必需定义在最下面
 root = {
