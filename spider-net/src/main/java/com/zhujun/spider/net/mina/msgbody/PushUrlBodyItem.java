@@ -11,7 +11,7 @@ public class PushUrlBodyItem {
 
 	public String taskId;
 	
-	public Integer id;
+	public String id;
 	
 	public String url;
 	

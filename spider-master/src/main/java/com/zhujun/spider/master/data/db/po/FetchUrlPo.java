@@ -1,6 +1,7 @@
 package com.zhujun.spider.master.data.db.po;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.sql.Time;
 
@@ -11,6 +12,7 @@ import java.sql.Time;
  * @date 2016年7月4日
  *
  */
+@Document(collection = "fetchurl")
 public class FetchUrlPo {
 
 	public final static int STATUS_INIT = 0;
@@ -19,7 +21,7 @@ public class FetchUrlPo {
 	public final static int STATUS_ERROR = 4;
 	
 	@Id
-	private Integer id;
+	private String id;
 	
 	private String url;
 	
@@ -30,18 +32,18 @@ public class FetchUrlPo {
 	
 	private Time insertTime;
 	
-	private Time Modifytime;
+	private Time modifytime;
 	
 	/**
 	 * spider中哪个action生成的url
 	 */
 	private String actionId;
 
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -70,11 +72,11 @@ public class FetchUrlPo {
 	}
 
 	public Time getModifytime() {
-		return Modifytime;
+		return modifytime;
 	}
 
 	public void setModifytime(Time modifytime) {
-		Modifytime = modifytime;
+		this.modifytime = modifytime;
 	}
 
 	public String getActionId() {

@@ -66,7 +66,7 @@ public class PushDataQueue {
 	public static class Item {
 		public String taskId;
 		public String actionId;
-		public Integer urlId;
+		public String urlId;
 		public String url;
 		public byte[] data;
 		public Date fetchTime;

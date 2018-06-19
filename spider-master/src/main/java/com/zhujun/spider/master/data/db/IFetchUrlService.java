@@ -1,10 +1,10 @@
 package com.zhujun.spider.master.data.db;
 
-import java.util.Date;
-import java.util.List;
-
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 抓取url服务
@@ -78,6 +78,6 @@ public interface IFetchUrlService {
 	 * @return 影响数据行数
 	 * @throws Exception 
 	 */
-	int setFetchUrlStatus(SpiderTaskPo task, Integer urlId, int status, Date time) throws Exception;
+	int setFetchUrlStatus(SpiderTaskPo task, String urlId, int status, Date time) throws Exception;
 	
 }

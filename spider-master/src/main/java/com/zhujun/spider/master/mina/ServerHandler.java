@@ -90,7 +90,7 @@ public class ServerHandler implements IoHandler {
 		byte[] data = netMsg.getBody();
 		String taskId = netMsg.getHeader("Task_id");
 		String actionId = netMsg.getHeader("Action_id");
-		Integer urlId = Integer.valueOf(netMsg.getHeader("Url_id"));
+		String urlId = netMsg.getHeader("Url_id");
 		
 		Item item = new Item();
 		item.data = data;
