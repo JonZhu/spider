@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -39,7 +39,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 		taskPo.setName(spider.getName());
 		taskPo.setAuthor(spider.getAuthor());
 		taskPo.setDatadir(spider.getDataDir());
-		taskPo.setCreateTime(new Time(System.currentTimeMillis()));
+		taskPo.setCreateTime(new Date(System.currentTimeMillis()));
 		taskPo.setStatus(Status.RUN);
 		spiderTaskDao.insertSpiderTaskPo(taskPo);
 

@@ -3,7 +3,7 @@ package com.zhujun.spider.master.data.db.po;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.sql.Time;
+import java.util.Date;
 
 @Document(collection = "spider_task")
 public class SpiderTaskPo {
@@ -29,7 +29,7 @@ public class SpiderTaskPo {
 	
 	private String datadir;
 	
-	private Time createTime;
+	private Date createTime;
 	
 	private int status = Status.NEW;
 
@@ -65,11 +65,11 @@ public class SpiderTaskPo {
 		this.datadir = datadir;
 	}
 
-	public Time getCreateTime() {
+	public Date getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(Time createTime) {
+	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
 

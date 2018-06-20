@@ -66,6 +66,7 @@ public class SpiderScheduleThread extends Thread {
 		ScheduleContextImpl context = new ScheduleContextImpl();
 		context.setSpider(spider);
 		context.setAction(spider);
+		context.setSpiderTaskPo(spiderTaskPo);
 		context.setDataWriter(dataWriter);
 		context.setDataScope(dataScope);
 		
