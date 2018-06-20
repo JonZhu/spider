@@ -3,8 +3,12 @@ package com.zhujun.spider.master.data.db.mongo;
 import com.zhujun.spider.master.data.db.dao.FetchUrlDao;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -60,5 +64,20 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("status").in(statusList).and("actionId").is(actionId);
         return mongoTemplate.exists(Query.query(criteria), COLLECTION_NAME);
+    }
+
+    @Override
+    public void createIndex(SpiderTaskPo task, String[] propArray, boolean unique) {
+        MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
+        Index indexDefinition = new Index();
+        if (unique) {
+            indexDefinition.unique();
+        }
+
+        for (String prop : propArray) {
+            indexDefinition.on(prop, Sort.Direction.ASC);
+        }
+
+        mongoTemplate.indexOps(COLLECTION_NAME).ensureIndex(indexDefinition);
     }
 }

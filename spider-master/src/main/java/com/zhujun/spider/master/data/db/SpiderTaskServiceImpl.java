@@ -1,5 +1,6 @@
 package com.zhujun.spider.master.data.db;
 
+import com.zhujun.spider.master.data.db.dao.FetchUrlDao;
 import com.zhujun.spider.master.data.db.dao.SpiderTaskDao;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo.Status;
@@ -25,6 +26,9 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 
 	@Autowired
 	private SpiderTaskDao spiderTaskDao;
+
+	@Autowired
+	private FetchUrlDao fetchUrlDao;
 	
 	@Override
 	public void createSpiderTask(final Spider spider) throws Exception {
@@ -64,7 +68,8 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 
 		}
 
-		// 初始化spider
+		// 创建fetchurl.url索引
+		fetchUrlDao.createIndex(taskPo, new String[]{"url"}, false);
 
 		// 启动调度
 		scheduleService.startSchedule(taskPo, spider);
