@@ -50,6 +50,7 @@ public class XmlDslParserImpl implements DslParser {
 			
 			XmlSpider xmlSpider = new XmlSpider();
 			xmlSpider.setSpiderDslDoc(doc);
+			xmlSpider.setId(rootEle.attributeValue("id"));
 			String dataDir = rootEle.attributeValue("datadir");
 			if (StringUtils.isBlank(dataDir)) {
 				throw new RuntimeException("spider的datadir属性不能为空");

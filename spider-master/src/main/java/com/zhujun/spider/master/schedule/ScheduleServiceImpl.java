@@ -118,7 +118,7 @@ public class ScheduleServiceImpl implements IScheduleService {
 
 	@Override
 	public void resumeSchedule(SpiderTaskPo spiderTaskPo, Spider spider) {
-		String id = spider.getId();
+		String id = spiderTaskPo.getId();
 		SpiderScheduleThread thread = pausedScheduleThreadMap.remove(id);
 		if (thread == null) {
 			startSchedule(spiderTaskPo, spider);
