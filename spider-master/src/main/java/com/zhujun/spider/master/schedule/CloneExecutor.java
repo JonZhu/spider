@@ -120,6 +120,7 @@ public class CloneExecutor implements ActionExecutor {
 			doc = Jsoup.parse(new String(data, "UTF-8"), url);
 		} catch (Exception e) {
 			// html解析失败
+			LOG.error("解析html失败", e);
 			return;
 		}
 		
