@@ -1,5 +1,7 @@
 package com.zhujun.spider.master.domain;
 
+import java.util.regex.Pattern;
+
 /**
  * 用于克隆站点
  * 
@@ -24,5 +26,11 @@ public interface Clone extends DslAction {
 	 * 限制范围, 仅作用于html
 	 */
 	String [] getHosts();
+
+	/**
+	 * url正则模式
+	 * @return
+	 */
+	Pattern[] getUrlPatterns();
 	
 }

@@ -2,6 +2,8 @@ package com.zhujun.spider.master.domain.internal;
 
 import com.zhujun.spider.master.domain.Clone;
 
+import java.util.regex.Pattern;
+
 public class CloneImpl extends DslActionImpl implements Clone {
 
 	private boolean allowCss = false;
@@ -13,6 +15,17 @@ public class CloneImpl extends DslActionImpl implements Clone {
 	private String[] seeds;
 	
 	private String[] hosts;
+
+	private Pattern[] urlPatterns;
+
+	@Override
+	public Pattern[] getUrlPatterns() {
+		return urlPatterns;
+	}
+
+	public void setUrlPatterns(Pattern[] urlPatterns) {
+		this.urlPatterns = urlPatterns;
+	}
 
 	public boolean isAllowCss() {
 		return allowCss;

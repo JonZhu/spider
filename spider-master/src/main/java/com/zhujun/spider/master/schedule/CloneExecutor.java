@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Component
 public class CloneExecutor implements ActionExecutor {
@@ -69,7 +70,7 @@ public class CloneExecutor implements ActionExecutor {
 			@Override
 			public void execute(IScheduleContext c) throws Exception {
 				SpiderDataWriter writer = c.getDataWriter();
-				
+
 				Item item = null;
 				while (true) {
 					item = ScheduleUtil.waitPushData(c.getSpiderTaskPo(), clone.getId(), fetchUrlService);
@@ -97,8 +98,7 @@ public class CloneExecutor implements ActionExecutor {
 		
 		ProgressUtils.executeSteps(context, stepList, '_');
 	}
-	
-	
+
 	/**
 	 * 解析页面中连接的资源url
 	 * 
@@ -135,7 +135,7 @@ public class CloneExecutor implements ActionExecutor {
 				href = StringUtils.trim(aEle.attr("href"));
 				if (StringUtils.isNotBlank(href) && !href.startsWith("#") && !href.startsWith("javascript:")) {
 					String absoluteUrl = UrlUtils.buildAbsoluteUrl(url, href);
-					if (isUrlInHosts(absoluteUrl, clone.getHosts())) {
+					if (isUrlInHosts(absoluteUrl, clone.getHosts()) && matchPattern(absoluteUrl, clone.getUrlPatterns())) {
 						FetchUrlPo fetchUrl = new FetchUrlPo();
 						fetchUrl.setActionId(clone.getId());
 						fetchUrl.setUrl(absoluteUrl);
@@ -228,6 +228,30 @@ public class CloneExecutor implements ActionExecutor {
 		
 	}
 
+	/**
+	 * 判断是否匹配模式
+	 * @param absoluteUrl
+	 * @param patterns
+	 * @return
+	 */
+	private boolean matchPattern(String absoluteUrl, Pattern[] patterns) {
+		if (patterns == null || patterns.length == 0) {
+			return true;
+		}
+
+		if (absoluteUrl == null) {
+			return false;
+		}
+
+		for (Pattern pattern : patterns) {
+			if (pattern.matcher(absoluteUrl).find()) { // 使用find，能找到就行，不用完全匹配
+				return true;
+			}
+		}
+
+		// 不能匹配
+		return false;
+	}
 
 	/**
 	 * 判断是否可解析

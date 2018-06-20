@@ -13,6 +13,11 @@
 			<host>cd.meituan.com</host>
 			<host>bj.meituan.com</host>
 		</hosts>
+
+		<!-- url正则模式,可选， 仅作用于html，满足其中一个-->
+		<urlpatterns>
+			<pattern>baike\.baidu\.com/item</pattern>
+		</urlpatterns>
 	</clone>
 	
 </spider>

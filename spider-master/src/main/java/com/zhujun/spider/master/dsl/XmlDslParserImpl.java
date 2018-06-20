@@ -1,14 +1,7 @@
 package com.zhujun.spider.master.dsl;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.zhujun.spider.master.domain.*;
+import com.zhujun.spider.master.domain.internal.*;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
@@ -18,18 +11,10 @@ import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhujun.spider.master.domain.DataTransition;
-import com.zhujun.spider.master.domain.DataWrite;
-import com.zhujun.spider.master.domain.DslAction;
-import com.zhujun.spider.master.domain.Spider;
-import com.zhujun.spider.master.domain.Url;
-import com.zhujun.spider.master.domain.internal.CloneImpl;
-import com.zhujun.spider.master.domain.internal.DataTransitionImpl;
-import com.zhujun.spider.master.domain.internal.DataWriteImpl;
-import com.zhujun.spider.master.domain.internal.PagingImpl;
-import com.zhujun.spider.master.domain.internal.UrlImpl;
-import com.zhujun.spider.master.domain.internal.UrlSetImpl;
-import com.zhujun.spider.master.domain.internal.XmlSpider;
+import java.io.InputStream;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Xml DSL解析实现
@@ -129,9 +114,42 @@ public class XmlDslParserImpl implements DslParser {
 			hostList.add(hostEle.getText());
 		}
 		clone.setHosts(hostList.toArray(new String[]{}));
+
+		// urlPatterns
+        List<Node> urlPatternNodeList = element.selectNodes("urlpatterns/pattern");
+        if (urlPatternNodeList != null && !urlPatternNodeList.isEmpty()) {
+            List<String> patternList = new ArrayList<>();
+            for (Node patternNode : urlPatternNodeList) {
+                String pattern = patternNode.getText();
+                if (StringUtils.isNotBlank(pattern)) {
+                    patternList.add(pattern.trim());
+                }
+            }
+            if (!patternList.isEmpty()) {
+                clone.setUrlPatterns(compilePatterns(patternList));
+            }
+        }
 		
 		return clone;
 	}
+
+    /**
+     * 编译url正则表达式
+     * @param patterns
+     * @return
+     */
+    private Pattern[] compilePatterns(List<String> patterns) {
+        if (patterns == null || patterns.isEmpty()) {
+            return null;
+        }
+
+        Pattern[] compiledPatterns = new Pattern[patterns.size()];
+        for (int i = 0; i < patterns.size(); i++) {
+            compiledPatterns[i] = Pattern.compile(patterns.get(i));
+        }
+
+        return compiledPatterns;
+    }
 
 	private DataWrite parseDataWrite(Element element) {
 		String filename = element.attributeValue("filename");
