@@ -4,11 +4,11 @@ import com.zhujun.spider.master.domain.Clone;
 
 public class CloneImpl extends DslActionImpl implements Clone {
 
-	private boolean allowCss = true;
+	private boolean allowCss = false;
 	
-	private boolean allowJs = true;
+	private boolean allowJs = false;
 	
-	private boolean allowImage = true;
+	private boolean allowImage = false;
 	
 	private String[] seeds;
 	

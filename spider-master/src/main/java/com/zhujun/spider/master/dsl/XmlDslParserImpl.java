@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -103,16 +104,10 @@ public class XmlDslParserImpl implements DslParser {
 		String css = element.attributeValue("css");
 		String js = element.attributeValue("js");
 		String image = element.attributeValue("image");
-		if ("false".equals(css)) {
-			clone.setAllowCss(false);
-		}
-		if ("false".equals(js)) {
-			clone.setAllowJs(false);
-		}
-		if ("false".equals(image)) {
-			clone.setAllowImage(false);
-		}
-		
+		clone.setAllowCss(BooleanUtils.toBoolean(css));
+		clone.setAllowJs(BooleanUtils.toBoolean(js));
+		clone.setAllowImage(BooleanUtils.toBoolean(image));
+
 		// seeds
 		List<Node> seedEleList = element.selectNodes("seeds/seed");
 		if (seedEleList == null || seedEleList.isEmpty()) {
