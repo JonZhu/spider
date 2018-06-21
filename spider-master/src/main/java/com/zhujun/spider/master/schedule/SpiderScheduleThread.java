@@ -1,12 +1,15 @@
 package com.zhujun.spider.master.schedule;
 
+import com.zhujun.spider.master.data.db.ISpiderTaskService;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.writer.AppendFileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.EachFileDataWriterImpl;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.internal.XmlSpider;
+import com.zhujun.spider.master.util.SpringUtil;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,14 +72,18 @@ public class SpiderScheduleThread extends Thread {
 		context.setSpiderTaskPo(spiderTaskPo);
 		context.setDataWriter(dataWriter);
 		context.setDataScope(dataScope);
-		
+
+		String errorInfo = null;
 		try {
 			new SpiderActionExecutor().execute(context);
+			LOG.debug("complete schedule spider task, datadir: {}", spider.getDataDir());
 		} catch (Exception e) {
 			LOG.error("schedule task error, datadir:{}", spider.getDataDir(), e);
+			errorInfo = ExceptionUtils.getStackTrace(e);
 		}
-		
-		LOG.debug("complete schedule spider task, datadir: {}", spider.getDataDir());
+
+		// 任务完成
+		SpringUtil.getContext().getBean(ISpiderTaskService.class).completeTask(spiderTaskPo.getId(), errorInfo);
 	}
 	
 	

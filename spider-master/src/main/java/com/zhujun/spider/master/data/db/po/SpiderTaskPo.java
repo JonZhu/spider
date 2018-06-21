@@ -14,10 +14,18 @@ public class SpiderTaskPo {
 		int RUN = 1;
 		
 		int PAUSED = 4;
-		
+
+		/**
+		 * 正常完成
+		 */
 		int COMPLETE = 6;
 
 		int DELETED = 7;
+
+		/**
+		 * 出错，错误结束
+		 */
+		int ERROR = 9;
 	}
 
 	@Id

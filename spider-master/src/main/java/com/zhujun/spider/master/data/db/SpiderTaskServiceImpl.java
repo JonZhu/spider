@@ -146,4 +146,14 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 		return spiderTaskDao.getTaskById(taskId);
 	}
 
+	@Override
+	public void completeTask(String taskId, String errorInfo) {
+		scheduleService.stopSchedule(taskId); // 停止调度
+		if (errorInfo == null) {
+			spiderTaskDao.updateTaskStatus(taskId, Status.COMPLETE);
+		} else {
+			spiderTaskDao.updateTaskStatus(taskId, Status.ERROR);
+		}
+	}
+
 }

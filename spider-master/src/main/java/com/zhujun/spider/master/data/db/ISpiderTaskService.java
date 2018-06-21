@@ -65,4 +65,11 @@ public interface ISpiderTaskService {
 	 * @return
 	 */
 	SpiderTaskPo getSpiderTask(String taskId);
+
+	/**
+	 * 完成任务
+	 * @param taskId
+	 * @param errorInfo 如果不为空，为异常结束
+	 */
+    void completeTask(String taskId, String errorInfo);
 }

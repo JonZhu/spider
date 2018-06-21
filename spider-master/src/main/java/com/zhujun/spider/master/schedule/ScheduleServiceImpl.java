@@ -85,10 +85,14 @@ public class ScheduleServiceImpl implements IScheduleService {
 
 	@Override
 	public void stopSchedule(String id) {
-		SpiderScheduleThread thread = runningScheduleThreadMap.get(id);
+		SpiderScheduleThread thread = runningScheduleThreadMap.remove(id);
 		if (thread != null) {
 			thread.stop();
-			runningScheduleThreadMap.remove(id);
+		}
+
+		thread = runningScheduleThreadMap.remove(id);
+		if (thread != null) {
+			thread.stop();
 		}
 	}
 	
