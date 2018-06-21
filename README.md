@@ -29,3 +29,18 @@ mvn -f spider-build/pom.xml -DskipTests clean package <br/>
 [计划](doc/计划.md)<br/>
 [数据结构](doc/数据结构.md)<br/>
 
+##功能模块
+spider主要包括：任务、worker、数据 模块。
+
+###任务模块
+![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_task.png)
+
+###worker模块
+![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_worker.png)
+
+###data模块
+数据文件列表
+![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_data_2.png)
+
+数据文件中的数据列表
+![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_data_3.png)
