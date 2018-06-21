@@ -76,14 +76,14 @@ $(function(){
 
                 $tbody.append($tr);
 
-                upBytesTotal += item.upBytes;
-                upBytesPSTotal += item.upBytesPS;
-                upMsgTotal += item.upMsg;
-                upMsgPSTotal += item.upMsgPS;
-                downBytesTotal += item.downBytes;
-                downBytesPSTotal += item.downBytesPS;
-                downMsgTotal += item.downMsg;
-                downMsgPSTotal += item.downMsgPS;
+                upBytesTotal += item.upBytes ? item.upBytes : 0;
+                upBytesPSTotal += item.upBytesPS ? item.upBytesPS : 0;
+                upMsgTotal += item.upMsg ? item.upMsg : 0;
+                upMsgPSTotal += item.upMsgPS ? item.upMsgPS : 0;
+                downBytesTotal += item.downBytes ? item.downBytes : 0;
+                downBytesPSTotal += item.downBytesPS ? item.downBytesPS : 0;
+                downMsgTotal += item.downMsg ? item.downMsg : 0;
+                downMsgPSTotal += item.downMsgPS ? item.downMsgPS : 0;
             });
 
             if (workList.length > 1) {
