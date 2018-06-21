@@ -16,29 +16,29 @@ worker根据任务的负载量，从master拉取url，然后抓取这些url的�
 worker工作非常单纯，专注于最大努力地从url得到数据。
 </p>
 
-##编译
+## 编译
 命令：<br/>
 mvn -f spider-build/pom.xml -DskipTests clean package <br/>
 命令执行后，会生成发布文件：spider-master/target/spider-master-verion-bin.zip和spider-worker/target/spider-worker-verion-bin.zip
 
 
-##运行
+## 运行
 将编译之后得到的zip包解压，执行 bin/run.bat，这是window的脚本。linux下可参考。
 
-##其它文档
+## 其它文档
 [计划](doc/计划.md)<br/>
 [数据结构](doc/数据结构.md)<br/>
 
-##功能模块
+## 功能模块
 spider主要包括：任务、worker、数据 模块。
 
-###任务模块
+### 任务模块
 ![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_task.png)
 
-###worker模块
+### worker模块
 ![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_worker.png)
 
-###data模块
+### data模块
 数据文件列表
 ![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_data_2.png)
 
