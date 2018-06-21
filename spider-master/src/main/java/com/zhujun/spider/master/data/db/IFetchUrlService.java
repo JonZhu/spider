@@ -2,6 +2,7 @@ package com.zhujun.spider.master.data.db;
 
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
+import com.zhujun.spider.master.exception.ExceptionIgnore;
 
 import java.util.Date;
 import java.util.List;
@@ -39,6 +40,16 @@ public interface IFetchUrlService {
 	 * @throws Exception
 	 */
 	void createFetchUrl(SpiderTaskPo task, List<FetchUrlPo> fetchUrlList) throws Exception;
+
+	/**
+	 * 批量创建url
+	 *
+	 * @param task
+	 * @param fetchUrlList
+	 * @param exceptionIgnore
+	 * @throws Exception
+	 */
+	void createFetchUrl(SpiderTaskPo task, List<FetchUrlPo> fetchUrlList, ExceptionIgnore exceptionIgnore) throws Exception;
 	
 	/**
 	 * 获取要分发的url

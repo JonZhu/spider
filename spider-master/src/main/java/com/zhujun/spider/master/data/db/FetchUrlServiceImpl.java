@@ -3,21 +3,15 @@ package com.zhujun.spider.master.data.db;
 import com.zhujun.spider.master.data.db.dao.FetchUrlDao;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
-import com.zhujun.spider.master.data.db.sqlite.DataSourceManager;
-import com.zhujun.spider.master.data.db.sqlite.DsUtils;
-import com.zhujun.spider.master.data.db.sqlite.DsUtils.IAction;
-import com.zhujun.spider.master.util.ReadWriteLockUtils;
+import com.zhujun.spider.master.exception.ExceptionIgnore;
 import org.apache.commons.dbutils.QueryRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.Time;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
 
 @Service
 public class FetchUrlServiceImpl implements IFetchUrlService {
@@ -31,18 +25,38 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	
 	@Override
 	public void createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl) throws Exception {
+		createFetchUrl(task, fetchUrl, null);
+	}
+
+	public void createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl, ExceptionIgnore exceptionIgnore) throws Exception {
 		if (!fetchUrlDao.existByUrl(task, fetchUrl.getUrl())) {
-			fetchUrlDao.insertFetchUrl(task, fetchUrl);
+			if (exceptionIgnore == null) {
+				fetchUrlDao.insertFetchUrl(task, fetchUrl);
+			} else {
+				try {
+					fetchUrlDao.insertFetchUrl(task, fetchUrl);
+				} catch (Exception e) {
+					if (exceptionIgnore.isIgnore(e)) {
+						LOG.warn("忽略的异常", e);
+					} else {
+						throw e;
+					}
+				}
+			}
 		}
 	}
 	
 	public void createFetchUrl(SpiderTaskPo task, final List<FetchUrlPo> fetchUrlList) throws Exception {
+		createFetchUrl(task, fetchUrlList, null);
+	}
+
+	public void createFetchUrl(SpiderTaskPo task, final List<FetchUrlPo> fetchUrlList, ExceptionIgnore exceptionIgnore) throws Exception {
 		if (fetchUrlList == null || fetchUrlList.isEmpty()) {
 			return;
 		}
 
 		for (FetchUrlPo fetchUrlPo : fetchUrlList) {
-			createFetchUrl(task, fetchUrlPo);
+			createFetchUrl(task, fetchUrlPo, exceptionIgnore);
 		}
 	}
 

@@ -1,10 +1,12 @@
 package com.zhujun.spider.master.schedule;
 
+import com.mongodb.MongoWriteException;
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Clone;
+import com.zhujun.spider.master.exception.ExceptionIgnore;
 import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.schedule.progress.IStep;
 import com.zhujun.spider.master.schedule.progress.ProgressUtils;
@@ -29,7 +31,9 @@ import java.util.regex.Pattern;
 public class CloneExecutor implements ActionExecutor {
 
 	private final static Logger LOG = LoggerFactory.getLogger(CloneExecutor.class);
-	
+
+	private final static CreateFetchUrlExceptionIgnore CREATE_FETCH_URL_EXCEPTION_IGNORE = new CreateFetchUrlExceptionIgnore();
+
 	/**
 	 * 可解析的页面content-type
 	 */
@@ -144,7 +148,7 @@ public class CloneExecutor implements ActionExecutor {
 //						LOG.debug("增加关联url: {}", absoluteUrl);
 						
 						if (urlPoList.size() > 1000) {
-							fetchUrlService.createFetchUrl(spider, urlPoList);
+							fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 							urlPoList = new ArrayList<>();
 						}
 					}
@@ -166,7 +170,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联css url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider, urlPoList);
+						fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -188,7 +192,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联js url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider, urlPoList);
+						fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -210,7 +214,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联image url: {}", imageUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider, urlPoList);
+						fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -219,13 +223,35 @@ public class CloneExecutor implements ActionExecutor {
 		}
 		
 		if (urlPoList.size() > 0) {
-			fetchUrlService.createFetchUrl(spider, urlPoList);
+			fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 		}
 		
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("parse {} link url and insert into database cost {} ms", paseUrlCount, System.currentTimeMillis() - startTime);
 		}
 		
+	}
+
+	private static class CreateFetchUrlExceptionIgnore implements ExceptionIgnore {
+		@Override
+		public boolean isIgnore(Exception e) {
+			Throwable throwable = e;
+			while (true) {
+				if (throwable == null) {
+					break;
+				}
+				if (throwable instanceof MongoWriteException) {
+					if (((MongoWriteException) throwable).getError().getCode() == 1047) {
+						// com.mongodb.MongoWriteException: WiredTigerIndex::insert: key too large to index, failing  1047
+						return true;
+					}
+				}
+
+				throwable = throwable.getCause(); // 遍历cause链
+			}
+
+			return false;
+		}
 	}
 
 	/**
