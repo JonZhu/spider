@@ -33,14 +33,14 @@ mvn -f spider-build/pom.xml -DskipTests clean package <br/>
 spider主要包括：任务、worker、数据 模块。
 
 ### 任务模块
-![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_task.png)
+![image](doc/image/spider_task.png)
 
 ### worker模块
-![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_worker.png)
+![image](doc/image/spider_worker.png)
 
 ### data模块
 数据文件列表
-![image](https://github.com/JonZhu/spider/raw/dev1.0/doc/image/spider_data_2.png)
+![image](doc/image/spider_data_2.png)
 
 数据文件中的数据列表
 ![image](doc/image/spider_data_3.png)
