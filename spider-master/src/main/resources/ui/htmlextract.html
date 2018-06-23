@@ -22,19 +22,6 @@
       <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
-    <style>
-      #urlListModal .modal-dialog {
-        width: 1024px;
-      }
-
-      #urlListModal .modal-dialog .modal-body {
-        min-height: 400px;
-        max-height: 800px;
-        overflow: auto;
-      }
-
-    </style>
   </head>
 
   <body>
@@ -56,8 +43,8 @@
             <li><a href="/">主页</a></li>
             <li><a href="task.html">任务</a></li>
             <li><a href="worker.html">worker</a></li>
-            <li class="active"><a>数据浏览</a></li>
-            <li><a href="htmlextract.html">html数据抽取</a></li>
+            <li><a href="data.html">数据浏览</a></li>
+            <li class="active"><a>html数据抽取</a></li>
             <li><a href="contact.html">联系方式</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -67,30 +54,25 @@
     <!-- Begin page content -->
     <div class="container">
       <div class="page-header">
-        <h1>数据浏览</h1>
+        <h1>html数据抽取</h1>
       </div>
-      <p>
-      	任务：
-        <select>
-          <option value="1">任务1</option>
-          <option>任务2</option>
-          <option>任务3</option>
-          <option>任务4</option>
-        </select>
-      </p>
 
-      <table id="dataListTable" class="table table-bordered table-hover">
-        <thead>
-          <tr>
-            <th>名称</th>
-            <th>大小</th>
-            <th>创建时间</th>
-            <th>修改时间</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
+        <div class="form-group">
+          <label for="url">url</label>
+          <input id="url" name="url" class="form-control"/>
+        </div>
+
+        <div class="form-group">
+          <label for="extractConfig">抽取配置</label>
+          <textarea id="extractConfig" name="extractConfig" class="form-control" style="height:200px"></textarea>
+        </div>
+
+        <button id="doExtractBt">抽取</button>
+
+        <div class="form-group">
+          <label for="extractResult">抽取结果</label>
+          <textarea id="extractResult" name="extractResult" class="form-control" readonly style="height:300px"></textarea>
+        </div>
 
     </div>
 
@@ -100,41 +82,6 @@
       </div>
     </footer>
 
-    <!--datafile中url显示框-->
-    <div id="urlListModal" class="modal fade">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">数据文件url</h4>
-          </div>
-          <div class="modal-body">
-
-            <table id="urlListTable" class="table table-bordered table-hover">
-              <thead>
-              <tr>
-                <th style="max-width: 500px">url</th>
-                <th>Content-Type</th>
-                <th>大小</th>
-                <th>抓取时间</th>
-                <th>offset</th>
-              </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-
-          </div>
-          <div class="modal-footer">
-            当前第<span id="urlPageNo">0</span>页
-            <button id="urlPrePageBtn" type="button" class="btn btn-default">上页</button>
-            <button id="urlNextPageBtn" type="button" class="btn btn-default">下页</button>
-            <!--<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>-->
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -142,8 +89,7 @@
     <script src="jquery/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
 
-    <!--my script-->
-    <script src="js/util.js"></script>
-    <script src="js/data.js"></script>
+    <!-- my js -->
+    <script src="js/htmlextract.js"></script>
   </body>
 </html>
