@@ -1,22 +1,20 @@
 package com.zhujun.spider.worker.fetch;
 
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import com.zhujun.spider.worker.MasterClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.zhujun.spider.net.mina.SpiderNetMessage;
 import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
 import com.zhujun.spider.net.url.ContentFetcher;
 import com.zhujun.spider.net.url.IFetchResult;
 import com.zhujun.spider.net.url.JavaUrlContentFetcher;
 import com.zhujun.spider.worker.FetchUrlQueue;
+import com.zhujun.spider.worker.MasterClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 内容抓取线程
@@ -62,22 +60,13 @@ public class FetchWorker implements Runnable {
 			netMsg.setHeader("Fetch-url", item.url);
 			
 			IFetchResult result = null;
-			Lock lock = null;
 			try {
-				
-				URL url = new URL(item.url);
-				lock = getHostFetchLock(url.getHost());
-				
 				result = CONTENT_FETCHER.fetch(item.url);
 				netMsg.setHeader("Fetch-Result", "Success");
 				netMsg.setHeader("Content-Type", result.getContentType());
 				netMsg.setBody(result.getData());
 			} catch (Exception e) {
 				LOG.error("fetch url[{}] data fail", item.url, e);
-			} finally {
-				if (lock != null) {
-					lock.unlock();
-				}
 			}
 			
 			netMsg.setHeader("Fetch-time", String.valueOf(System.currentTimeMillis()));
