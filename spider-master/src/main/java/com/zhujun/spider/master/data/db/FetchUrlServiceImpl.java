@@ -68,7 +68,8 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 
 	@Override
 	public List<FetchUrlPo> getGiveOutUrls(SpiderTaskPo task) throws Exception {
-		int count = 50;
+	    long startTime = System.currentTimeMillis();
+		int count = 100;
 		List<FetchUrlPo> urlList = new ArrayList<>();
 
 		// 查询未下发过的url
@@ -107,7 +108,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 			fetchUrlDao.updateFetchUrl(task, idList, FetchUrlPo.STATUS_PUSHED, new Time(System.currentTimeMillis()));
 		}
 
-
+        LOG.debug("getGiveOutUrls cost {} ms", System.currentTimeMillis() - startTime);
 		return urlList;
 	}
 
