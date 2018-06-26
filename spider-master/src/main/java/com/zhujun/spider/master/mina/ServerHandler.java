@@ -124,8 +124,9 @@ public class ServerHandler implements IoHandler {
 		if (task != null) {
 			String taskId = task.getLeft();
 			netMsg.setHeader("Task-id", taskId);
+			final int speedLimitCount = 10000; // PushDataQueue中数据量多于该值限速
 			try {
-				if (PushDataQueue.getDataCount(taskId) < 1000) {
+				if (PushDataQueue.getDataCount(taskId) < speedLimitCount) {
 					List<FetchUrlPo> urlList = fetchUrlService.getGiveOutUrls(task.getRight());
 					PushUrlBody body = new PushUrlBody();
 					for (FetchUrlPo urlPo : urlList) {
@@ -138,7 +139,7 @@ public class ServerHandler implements IoHandler {
 
 					netMsg.setBody(new ObjectMapper().writeValueAsBytes(body));
 				} else {
-					LOG.warn("任务{} PushDataQueue中未处理数据达到 1000, 暂不pushUrl", taskId);
+					LOG.warn("任务{} PushDataQueue中未处理数据达到 {}, 暂不pushUrl", taskId, speedLimitCount);
 				}
 			} catch (Exception e) {
 				status = "500";
