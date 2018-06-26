@@ -46,7 +46,7 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("status").is(status);
         if (timeAfter != null) {
-            criteria.and("modifytime").gt(timeAfter);
+            criteria.and("modifyTime").gt(timeAfter);
         }
         return mongoTemplate.find(Query.query(criteria).limit(limit), FetchUrlPo.class);
     }

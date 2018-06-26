@@ -32,7 +32,7 @@ public class FetchUrlPo {
 	
 	private Time insertTime;
 	
-	private Time modifytime;
+	private Time modifyTime;
 	
 	/**
 	 * spider中哪个action生成的url
@@ -71,12 +71,12 @@ public class FetchUrlPo {
 		this.insertTime = insertTime;
 	}
 
-	public Time getModifytime() {
-		return modifytime;
+	public Time getModifyTime() {
+		return modifyTime;
 	}
 
-	public void setModifytime(Time modifytime) {
-		this.modifytime = modifytime;
+	public void setModifyTime(Time modifyTime) {
+		this.modifyTime = modifyTime;
 	}
 
 	public String getActionId() {
