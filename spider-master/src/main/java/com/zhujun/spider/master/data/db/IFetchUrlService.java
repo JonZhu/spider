@@ -25,9 +25,10 @@ public interface IFetchUrlService {
 	 * @param task
 	 * @param fetchUrl
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
+	 * @return insertCount
 	 */
-	void createFetchUrl(SpiderTaskPo task, FetchUrlPo fetchUrl) throws Exception;
+	int createFetchUrl(SpiderTaskPo task, FetchUrlPo fetchUrl) throws Exception;
 	
 	/**
 	 * 批量创建url
@@ -38,8 +39,9 @@ public interface IFetchUrlService {
 	 * @param task
 	 * @param fetchUrlList
 	 * @throws Exception
+	 * @return insertCount
 	 */
-	void createFetchUrl(SpiderTaskPo task, List<FetchUrlPo> fetchUrlList) throws Exception;
+	int createFetchUrl(SpiderTaskPo task, List<FetchUrlPo> fetchUrlList) throws Exception;
 
 	/**
 	 * 批量创建url
@@ -48,8 +50,9 @@ public interface IFetchUrlService {
 	 * @param fetchUrlList
 	 * @param exceptionIgnore
 	 * @throws Exception
+	 * @return insertCount
 	 */
-	void createFetchUrl(SpiderTaskPo task, List<FetchUrlPo> fetchUrlList, ExceptionIgnore exceptionIgnore) throws Exception;
+	int createFetchUrl(SpiderTaskPo task, List<FetchUrlPo> fetchUrlList, ExceptionIgnore exceptionIgnore) throws Exception;
 	
 	/**
 	 * 获取要分发的url

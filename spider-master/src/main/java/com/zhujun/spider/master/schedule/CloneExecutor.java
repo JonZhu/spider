@@ -129,7 +129,8 @@ public class CloneExecutor implements ActionExecutor {
 		}
 		
 		List<FetchUrlPo> urlPoList = new ArrayList<>();
-		int paseUrlCount = 0;
+		int paseUrlCount = 0; //解析url数量
+		int insertCount = 0; // 新增入库url数量
 		
 		// 查询a标签
 		Elements aEles = doc.select("a[href]");
@@ -148,7 +149,7 @@ public class CloneExecutor implements ActionExecutor {
 //						LOG.debug("增加关联url: {}", absoluteUrl);
 						
 						if (urlPoList.size() > 1000) {
-							fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
+							insertCount += fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 							urlPoList = new ArrayList<>();
 						}
 					}
@@ -170,7 +171,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联css url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
+						insertCount += fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -192,7 +193,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联js url: {}", absUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
+						insertCount += fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -214,7 +215,7 @@ public class CloneExecutor implements ActionExecutor {
 //					LOG.debug("增加关联image url: {}", imageUrl);
 					
 					if (urlPoList.size() > 1000) {
-						fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
+						insertCount += fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 						urlPoList = new ArrayList<>();
 					}
 				}
@@ -223,11 +224,12 @@ public class CloneExecutor implements ActionExecutor {
 		}
 		
 		if (urlPoList.size() > 0) {
-			fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
+			insertCount += fetchUrlService.createFetchUrl(spider, urlPoList, CREATE_FETCH_URL_EXCEPTION_IGNORE);
 		}
 		
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("parse {} link url and insert into database cost {} ms", paseUrlCount, System.currentTimeMillis() - startTime);
+			LOG.debug("parse {} link url and insert {} into database cost {} ms", paseUrlCount,
+					insertCount, System.currentTimeMillis() - startTime);
 		}
 		
 	}

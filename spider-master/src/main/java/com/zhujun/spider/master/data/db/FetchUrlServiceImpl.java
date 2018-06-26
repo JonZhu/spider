@@ -24,17 +24,19 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	private FetchUrlDao fetchUrlDao;
 	
 	@Override
-	public void createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl) throws Exception {
-		createFetchUrl(task, fetchUrl, null);
+	public int createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl) throws Exception {
+		return createFetchUrl(task, fetchUrl, null);
 	}
 
-	public void createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl, ExceptionIgnore exceptionIgnore) throws Exception {
+	public int createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl, ExceptionIgnore exceptionIgnore) throws Exception {
+		int insertCount = 0;
 		if (!fetchUrlDao.existByUrl(task, fetchUrl.getUrl())) {
 			if (exceptionIgnore == null) {
 				fetchUrlDao.insertFetchUrl(task, fetchUrl);
 			} else {
 				try {
 					fetchUrlDao.insertFetchUrl(task, fetchUrl);
+					insertCount++;
 				} catch (Exception e) {
 					if (exceptionIgnore.isIgnore(e)) {
 						LOG.warn("忽略的异常", e);
@@ -44,20 +46,23 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 				}
 			}
 		}
+		return insertCount;
 	}
 	
-	public void createFetchUrl(SpiderTaskPo task, final List<FetchUrlPo> fetchUrlList) throws Exception {
-		createFetchUrl(task, fetchUrlList, null);
+	public int createFetchUrl(SpiderTaskPo task, final List<FetchUrlPo> fetchUrlList) throws Exception {
+		return createFetchUrl(task, fetchUrlList, null);
 	}
 
-	public void createFetchUrl(SpiderTaskPo task, final List<FetchUrlPo> fetchUrlList, ExceptionIgnore exceptionIgnore) throws Exception {
+	public int createFetchUrl(SpiderTaskPo task, final List<FetchUrlPo> fetchUrlList, ExceptionIgnore exceptionIgnore) throws Exception {
 		if (fetchUrlList == null || fetchUrlList.isEmpty()) {
-			return;
+			return 0;
 		}
 
+		int insertCount = 0;
 		for (FetchUrlPo fetchUrlPo : fetchUrlList) {
-			createFetchUrl(task, fetchUrlPo, exceptionIgnore);
+			insertCount += createFetchUrl(task, fetchUrlPo, exceptionIgnore);
 		}
+		return insertCount;
 	}
 
 
