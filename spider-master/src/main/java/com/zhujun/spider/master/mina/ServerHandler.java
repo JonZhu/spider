@@ -122,19 +122,24 @@ public class ServerHandler implements IoHandler {
 		
 		Pair<String, SpiderTaskPo> task = scheduleService.randomRunningScheduleTask();
 		if (task != null) {
-			netMsg.setHeader("Task-id", task.getLeft());
+			String taskId = task.getLeft();
+			netMsg.setHeader("Task-id", taskId);
 			try {
-				List<FetchUrlPo> urlList = fetchUrlService.getGiveOutUrls(task.getRight());
-				PushUrlBody body = new PushUrlBody();
-				for (FetchUrlPo urlPo : urlList) {
-					PushUrlBodyItem item = new PushUrlBodyItem();
-					item.url = urlPo.getUrl();
-					item.id = urlPo.getId();
-					item.actionId = urlPo.getActionId();
-					body.add(item);
+				if (PushDataQueue.getDataCount(taskId) < 1000) {
+					List<FetchUrlPo> urlList = fetchUrlService.getGiveOutUrls(task.getRight());
+					PushUrlBody body = new PushUrlBody();
+					for (FetchUrlPo urlPo : urlList) {
+						PushUrlBodyItem item = new PushUrlBodyItem();
+						item.url = urlPo.getUrl();
+						item.id = urlPo.getId();
+						item.actionId = urlPo.getActionId();
+						body.add(item);
+					}
+
+					netMsg.setBody(new ObjectMapper().writeValueAsBytes(body));
+				} else {
+					LOG.warn("任务{} PushDataQueue中未处理数据达到 1000, 暂不pushUrl", taskId);
 				}
-				
-				netMsg.setBody(new ObjectMapper().writeValueAsBytes(body));
 			} catch (Exception e) {
 				status = "500";
 				LOG.error("获取任务的下发url出错", e);

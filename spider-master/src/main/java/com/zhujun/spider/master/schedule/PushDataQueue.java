@@ -1,9 +1,6 @@
 package com.zhujun.spider.master.schedule;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -61,8 +58,24 @@ public class PushDataQueue {
 		Queue<Item> queue = QUEUE_MAP.get(getQueueKey(taskId, actionId));
 		return queue == null ? null : queue.poll();
 	}
-	
-	
+
+	/**
+	 * 获取队列中task的数据
+	 * @param taskId
+	 * @return
+	 */
+	public static int getDataCount(String taskId) {
+		int count = 0;
+		Set<Map.Entry<String, Queue<Item>>> entrySet = QUEUE_MAP.entrySet();
+		for (Map.Entry<String, Queue<Item>> entry : entrySet) {
+			if (entry.getKey().startsWith(taskId)) {
+				count += entry.getValue().size();
+			}
+		}
+		return count;
+	}
+
+
 	public static class Item {
 		public String taskId;
 		public String actionId;
