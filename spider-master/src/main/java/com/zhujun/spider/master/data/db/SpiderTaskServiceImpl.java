@@ -70,6 +70,8 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 
 		// 创建fetchurl.url索引
 		fetchUrlDao.createIndex(taskPo, new String[]{"url"}, false);
+		// 创建fetchurl.status索引
+		fetchUrlDao.createIndex(taskPo, new String[]{"status"}, false);
 
 		// 启动调度
 		scheduleService.startSchedule(taskPo, spider);
