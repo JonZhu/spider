@@ -31,6 +31,8 @@ $(function(){
     // 显示数据列表
     function showDataFileList(taskId, fileList) {
         currentShowTaskId = taskId;
+        $("#dataCount").text(fileList ? fileList.length : 0); // 设置文件数量
+        var fileSizeSum = 0;
         var $tbody = $("#dataListTable tbody");
         $tbody.empty();
         if (fileList != null && fileList.length > 0) {
@@ -44,8 +46,12 @@ $(function(){
                 $('<td></td>').text(util.time.ms2Str(dataFile.createTime)).appendTo($tr); // 创建时间
                 $('<td></td>').text(util.time.ms2Str(dataFile.modifyTime)).appendTo($tr); // 修改时间
                 $tbody.append($tr);
+
+                fileSizeSum += dataFile.size ? dataFile.size : 0;
             });
         }
+
+        $("#dataSizeSum").text(util.byte.adapt(fileSizeSum)); // 设置文件大小合计
     }
 
     if (urlParams.taskId) {
