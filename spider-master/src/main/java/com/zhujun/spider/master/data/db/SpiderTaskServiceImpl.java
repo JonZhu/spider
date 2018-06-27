@@ -11,6 +11,8 @@ import com.zhujun.spider.master.dsl.XmlDslParserImpl;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.util.UuidUtil;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ import java.util.List;
 
 @Service
 public class SpiderTaskServiceImpl implements ISpiderTaskService {
+	private final static Logger LOG = LoggerFactory.getLogger(SpiderTaskServiceImpl.class);
 
 	@Autowired
 	private IScheduleService scheduleService;
@@ -152,8 +155,10 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 	public void completeTask(String taskId, String errorInfo) {
 		scheduleService.stopSchedule(taskId); // 停止调度
 		if (errorInfo == null) {
+			LOG.info("task {} success complete", taskId);
 			spiderTaskDao.updateTaskStatus(taskId, Status.COMPLETE);
 		} else {
+			LOG.error("task {} error complete, message: \n{}", taskId, errorInfo);
 			spiderTaskDao.updateTaskStatus(taskId, Status.ERROR);
 		}
 	}
