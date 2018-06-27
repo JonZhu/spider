@@ -3,7 +3,7 @@ package com.zhujun.spider.master.data.db.po;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.sql.Time;
+import java.util.Date;
 
 /**
  * 抓取url
@@ -30,9 +30,9 @@ public class FetchUrlPo {
 	 */
 	private int status = STATUS_INIT;
 	
-	private Time insertTime;
+	private Date insertTime;
 	
-	private Time modifyTime;
+	private Date modifyTime;
 	
 	/**
 	 * spider中哪个action生成的url
@@ -63,19 +63,19 @@ public class FetchUrlPo {
 		this.status = status;
 	}
 
-	public Time getInsertTime() {
+	public Date getInsertTime() {
 		return insertTime;
 	}
 
-	public void setInsertTime(Time insertTime) {
+	public void setInsertTime(Date insertTime) {
 		this.insertTime = insertTime;
 	}
 
-	public Time getModifyTime() {
+	public Date getModifyTime() {
 		return modifyTime;
 	}
 
-	public void setModifyTime(Time modifyTime) {
+	public void setModifyTime(Date modifyTime) {
 		this.modifyTime = modifyTime;
 	}
 
