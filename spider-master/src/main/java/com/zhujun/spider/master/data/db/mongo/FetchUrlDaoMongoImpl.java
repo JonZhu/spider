@@ -42,11 +42,11 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
     }
 
     @Override
-    public List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date timeAfter, int limit) {
+    public List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date modifyTimeBefore, int limit) {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("status").is(status);
-        if (timeAfter != null) {
-            criteria.and("modifyTime").gt(timeAfter);
+        if (modifyTimeBefore != null) {
+            criteria.and("modifyTime").lt(modifyTimeBefore);
         }
         return mongoTemplate.find(Query.query(criteria).limit(limit), FetchUrlPo.class);
     }

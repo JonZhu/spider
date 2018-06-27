@@ -78,21 +78,22 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 			urlList.addAll(unGiveOutUrls);
 		}
 
+		Date modifyTimeBefore = new Date(System.currentTimeMillis());
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(modifyTimeBefore);
+		calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - 2);
+		modifyTimeBefore.setTime(calendar.getTimeInMillis());
 		if (urlList.size() < count) {
 			// 数据不够， 查询 下发超过2分钟，但未push结果的url
-			Date time = new Time(System.currentTimeMillis());
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(time);
-			calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - 2);
-			time.setTime(calendar.getTimeInMillis());
-
-			List<FetchUrlPo> unPushUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_PUSHED, time, count - urlList.size());
+			List<FetchUrlPo> unPushUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_PUSHED, modifyTimeBefore, count - urlList.size());
+			LOG.debug("push down url again, count:{}", unGiveOutUrls.size());
 			urlList.addAll(unPushUrls);
 		}
 
 		if (urlList.size() < count) {
 			// 数据不够, 查询 失败的url
-			List<FetchUrlPo> errorUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_ERROR, null, count - urlList.size());
+			List<FetchUrlPo> errorUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_ERROR, modifyTimeBefore, count - urlList.size());
+			LOG.debug("push down error url, count:{}", errorUrls);
 			urlList.addAll(errorUrls);
 		}
 

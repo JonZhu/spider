@@ -16,7 +16,7 @@ public interface FetchUrlDao {
 
     boolean existByUrl(SpiderTaskPo task, String fetchUrl);
 
-    List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date timeAfter, int limit);
+    List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date modifyTimeBefore, int limit);
 
     int updateFetchUrl(SpiderTaskPo task, List<String> idList, int status, Date modifyTime);
 
