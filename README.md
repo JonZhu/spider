@@ -44,3 +44,6 @@ spider主要包括：任务、worker、数据 模块。
 
 数据文件中的数据列表
 ![image](doc/image/spider_data_3.png)
+
+抓取baidu baike item页面的1千多万mongo数据，data文件大小为：895.22G
+![image](doc/image/spider_mongo.png)
