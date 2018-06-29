@@ -87,12 +87,12 @@ public class ScheduleServiceImpl implements IScheduleService {
 	public void stopSchedule(String id) {
 		SpiderScheduleThread thread = runningScheduleThreadMap.remove(id);
 		if (thread != null) {
-			thread.stop();
+			thread.interrupt();
 		}
 
 		thread = runningScheduleThreadMap.remove(id);
 		if (thread != null) {
-			thread.stop();
+			thread.interrupt();
 		}
 	}
 	
