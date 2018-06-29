@@ -153,7 +153,6 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 
 	@Override
 	public void completeTask(String taskId, String errorInfo) {
-		scheduleService.stopSchedule(taskId); // 停止调度
 		if (errorInfo == null) {
 			LOG.info("task {} success complete", taskId);
 			spiderTaskDao.updateTaskStatus(taskId, Status.COMPLETE);
@@ -161,6 +160,7 @@ public class SpiderTaskServiceImpl implements ISpiderTaskService {
 			LOG.error("task {} error complete, message: \n{}", taskId, errorInfo);
 			spiderTaskDao.updateTaskStatus(taskId, Status.ERROR);
 		}
+		scheduleService.stopSchedule(taskId); // 停止调度
 	}
 
 }
