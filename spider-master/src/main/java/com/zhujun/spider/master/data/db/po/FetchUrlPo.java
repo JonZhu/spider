@@ -39,6 +39,19 @@ public class FetchUrlPo {
 	 */
 	private String actionId;
 
+	/**
+	 * 下发次数
+	 */
+	private Integer pushDownCount;
+
+	public Integer getPushDownCount() {
+		return pushDownCount;
+	}
+
+	public void setPushDownCount(Integer pushDownCount) {
+		this.pushDownCount = pushDownCount;
+	}
+
 	public String getId() {
 		return id;
 	}

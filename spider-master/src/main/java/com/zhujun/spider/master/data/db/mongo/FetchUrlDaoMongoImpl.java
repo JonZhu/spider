@@ -3,12 +3,10 @@ package com.zhujun.spider.master.data.db.mongo;
 import com.zhujun.spider.master.data.db.dao.FetchUrlDao;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -56,6 +54,16 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("_id").in(idList);
         Update update = Update.update("status", status).set("modifyTime", modifyTime);
+        return (int)mongoTemplate.updateMulti(Query.query(criteria), update, COLLECTION_NAME).getModifiedCount();
+    }
+
+    @Override
+    public int markFetchUrlPushed(SpiderTaskPo task, List<String> idList, Date modifyTime) {
+        MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
+        Criteria criteria = Criteria.where("_id").in(idList);
+        Update update = Update.update("status", FetchUrlPo.STATUS_PUSHED)
+                .set("modifyTime", modifyTime)
+                .inc("pushDownCount", 1); // 增加下发次数
         return (int)mongoTemplate.updateMulti(Query.query(criteria), update, COLLECTION_NAME).getModifiedCount();
     }
 

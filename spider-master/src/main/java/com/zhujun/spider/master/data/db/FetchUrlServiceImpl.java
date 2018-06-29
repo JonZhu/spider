@@ -105,14 +105,14 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 				urlList.addAll(errorUrls);
 			}
 
-			if (unGiveOutUrls != null && !unGiveOutUrls.isEmpty()) {
-				// 修改状态
+			if (urlList != null && !urlList.isEmpty()) {
+				// 修改为已下发状态
 				List<String> idList = new ArrayList<>();
-				for (FetchUrlPo fetchUrlPo : unGiveOutUrls) {
+				for (FetchUrlPo fetchUrlPo : urlList) {
 					idList.add(fetchUrlPo.getId());
 				}
 
-				fetchUrlDao.updateFetchUrl(task, idList, FetchUrlPo.STATUS_PUSHED, new Time(System.currentTimeMillis()));
+				fetchUrlDao.markFetchUrlPushed(task, idList, new Time(System.currentTimeMillis()));
 			}
 		} finally {
 		    lock.unlock();
