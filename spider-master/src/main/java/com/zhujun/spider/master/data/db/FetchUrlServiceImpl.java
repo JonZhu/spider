@@ -101,7 +101,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 			if (urlList.size() < count) {
 				// 数据不够, 查询 失败的url
 				List<FetchUrlPo> errorUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_ERROR, modifyTimeBefore, count - urlList.size());
-				LOG.debug("push down error url, count:{}", errorUrls);
+				LOG.debug("push down error url, count:{}", errorUrls.size());
 				urlList.addAll(errorUrls);
 			}
 
