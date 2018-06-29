@@ -66,7 +66,7 @@ $(function(){
     }
 
     // 转换为status名称
-    var statusNameObj = {0: "新建", 1: "运行中", 4: "暂停", 6: "完成"};
+    var statusNameObj = {0: "新建", 1: "运行中", 4: "暂停", 6: "完成", 7: "已删除", 9: "出错"};
     function statusName(status) {
         var name = statusNameObj[status];
         return name ? name : "未知";
