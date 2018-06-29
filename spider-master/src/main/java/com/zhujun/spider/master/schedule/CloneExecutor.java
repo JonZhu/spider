@@ -243,7 +243,7 @@ public class CloneExecutor implements ActionExecutor {
 					break;
 				}
 				if (throwable instanceof MongoWriteException) {
-					if (((MongoWriteException) throwable).getError().getCode() == 1047) {
+					if (((MongoWriteException) throwable).getCode() == 1047) {
 						// com.mongodb.MongoWriteException: WiredTigerIndex::insert: key too large to index, failing  1047
 						return true;
 					}
