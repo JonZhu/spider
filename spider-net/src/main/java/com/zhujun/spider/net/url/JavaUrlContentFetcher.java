@@ -1,14 +1,14 @@
 package com.zhujun.spider.net.url;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * 使用java url实现
@@ -71,7 +71,7 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 				LOG.debug("fetch: {}", url);
 			}
 			
-			URL urlObj = new URL(url);
+			URL urlObj = new URL(processUrlString(url));
 			connection = (HttpURLConnection)urlObj.openConnection();
 			connection.setConnectTimeout(CONNECT_TIMEOUT); //设置连接超时
 			connection.setReadTimeout(READ_TIMEOUT); //设置读数据超时
@@ -108,6 +108,19 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 		}
 		
 	}
-	
+
+	/**
+	 * 处理url
+	 * @param url
+	 * @return
+	 */
+	private String processUrlString(String url) {
+		if (url == null) {
+			return null;
+		}
+
+		return url.replace(" ", "%20"); // 处理空格
+	}
+
 
 }
