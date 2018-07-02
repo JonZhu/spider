@@ -19,14 +19,13 @@ import java.util.List;
  */
 @Repository
 public class SpiderTaskDaoMongoImpl implements SpiderTaskDao {
-    private final static String COLLECTION_NAME = "spider_task";
 
     @Autowired
     private MongoTemplate masterMongoTemplate;
 
     @Override
     public int countByDatadir(String dataDir) {
-        return (int)masterMongoTemplate.count(Query.query(Criteria.where("datadir").is(dataDir)), COLLECTION_NAME);
+        return (int)masterMongoTemplate.count(Query.query(Criteria.where("datadir").is(dataDir)), SpiderTaskPo.class);
     }
 
     @Override
@@ -37,7 +36,7 @@ public class SpiderTaskDaoMongoImpl implements SpiderTaskDao {
     @Override
     public Page<SpiderTaskPo> pagingTask(int pageNo, int pageSize) {
         Page<SpiderTaskPo> page = new Page<>();
-        long count = masterMongoTemplate.getCollection(COLLECTION_NAME).count();
+        long count = masterMongoTemplate.count(new Query(), SpiderTaskPo.class);
         page.setDataTotal((int)count);
         if (count > 0) {
             List<SpiderTaskPo> data = masterMongoTemplate.find(new Query().skip((pageNo - 1) * pageSize).limit(pageSize), SpiderTaskPo.class);
@@ -53,7 +52,7 @@ public class SpiderTaskDaoMongoImpl implements SpiderTaskDao {
 
     @Override
     public void deleteTask(String taskId) {
-        masterMongoTemplate.remove(Query.query(Criteria.where("_id").is(taskId)), COLLECTION_NAME);
+        masterMongoTemplate.remove(Query.query(Criteria.where("_id").is(taskId)), SpiderTaskPo.class);
     }
 
     @Override
@@ -69,6 +68,6 @@ public class SpiderTaskDaoMongoImpl implements SpiderTaskDao {
     @Override
     public int updateTaskStatus(String taskId, int status) {
         return (int)masterMongoTemplate.updateMulti(Query.query(Criteria.where("_id").is(taskId)),
-                Update.update("status", status), COLLECTION_NAME).getModifiedCount();
+                Update.update("status", status), SpiderTaskPo.class).getModifiedCount();
     }
 }

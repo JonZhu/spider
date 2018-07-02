@@ -22,7 +22,6 @@ import java.util.List;
  */
 @Repository
 public class FetchUrlDaoMongoImpl implements FetchUrlDao {
-    private final static String COLLECTION_NAME = "fetchurl";
 
     @Autowired
     TaskMongoTemplateGetter taskMongoTemplateGetter;
@@ -36,7 +35,7 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
     @Override
     public boolean existByUrl(SpiderTaskPo task, String fetchUrl) {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
-        return mongoTemplate.exists(Query.query(Criteria.where("url").is(fetchUrl)), COLLECTION_NAME);
+        return mongoTemplate.exists(Query.query(Criteria.where("url").is(fetchUrl)), FetchUrlPo.class);
     }
 
     @Override
@@ -54,7 +53,7 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("_id").in(idList);
         Update update = Update.update("status", status).set("modifyTime", modifyTime);
-        return (int)mongoTemplate.updateMulti(Query.query(criteria), update, COLLECTION_NAME).getModifiedCount();
+        return (int)mongoTemplate.updateMulti(Query.query(criteria), update, FetchUrlPo.class).getModifiedCount();
     }
 
     @Override
@@ -64,14 +63,14 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
         Update update = Update.update("status", FetchUrlPo.STATUS_PUSHED)
                 .set("modifyTime", modifyTime)
                 .inc("pushDownCount", 1); // 增加下发次数
-        return (int)mongoTemplate.updateMulti(Query.query(criteria), update, COLLECTION_NAME).getModifiedCount();
+        return (int)mongoTemplate.updateMulti(Query.query(criteria), update, FetchUrlPo.class).getModifiedCount();
     }
 
     @Override
     public boolean existByAction(SpiderTaskPo task, String actionId, List<Integer> statusList) {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("status").in(statusList).and("actionId").is(actionId);
-        return mongoTemplate.exists(Query.query(criteria), COLLECTION_NAME);
+        return mongoTemplate.exists(Query.query(criteria), FetchUrlPo.class);
     }
 
     @Override
@@ -86,6 +85,6 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
             indexDefinition.on(prop, Sort.Direction.ASC);
         }
 
-        mongoTemplate.indexOps(COLLECTION_NAME).ensureIndex(indexDefinition);
+        mongoTemplate.indexOps(FetchUrlPo.class).ensureIndex(indexDefinition);
     }
 }
