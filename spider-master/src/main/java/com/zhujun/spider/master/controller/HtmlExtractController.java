@@ -1,9 +1,13 @@
 package com.zhujun.spider.master.controller;
 
+import com.zhujun.spider.master.data.db.IHtmlExtractService;
+import com.zhujun.spider.master.data.db.po.HtmlExtractTaskPo;
 import com.zhujun.spider.master.extract.html.ConfigParseUtil;
 import com.zhujun.spider.master.extract.html.DataItemConfig;
 import com.zhujun.spider.master.extract.html.HtmlExtractor;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +18,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 /**
  * html数据抽取
@@ -24,6 +29,9 @@ import java.net.URL;
 @RestController
 @RequestMapping("/api/html/extract")
 public class HtmlExtractController {
+
+    @Autowired
+    private IHtmlExtractService htmlExtractService;
 
     /**
      * 抽取url中的数据
@@ -83,6 +91,36 @@ public class HtmlExtractController {
         Object extractResult = htmlExtractor.extract(url, contentType, byteArrayOutputStream.toByteArray());
 
         return new Result(extractResult);
+    }
+
+    @RequestMapping(value = "/task", method = RequestMethod.POST)
+    public Result<HtmlExtractTaskPo> createExtractTask(String extractConfig, String taskName, String srcDataDir,
+                                                       String mongoDbName, String mongoCollectionName) {
+        HtmlExtractTaskPo task = new HtmlExtractTaskPo();
+        task.setExtractConfig(extractConfig);
+        task.setTaskName(taskName);
+        task.setSrcDataDir(srcDataDir);
+        task.setMongoDbName(mongoDbName);
+        task.setMongoCollectionName(mongoCollectionName);
+        return new Result(htmlExtractService.createExtractTask(task));
+    }
+
+    @RequestMapping(value = "/task/status/{taskId}/{newStatus}", method = RequestMethod.PUT)
+    public Result changeTaskStatus(@PathVariable("taskId") String taskId, @PathVariable("newStatus") int newStatus) {
+        htmlExtractService.chnageTaskStatus(taskId, newStatus);
+        return new Result();
+    }
+
+    @RequestMapping(value = "/task/{taskId}", method = RequestMethod.DELETE)
+    public Result deleteTask(@PathVariable("taskId") String taskId) {
+        htmlExtractService.deleteTask(taskId);
+        return new Result();
+    }
+
+    @RequestMapping(value = "/task", method = RequestMethod.GET)
+    public Result findTask() {
+        List<HtmlExtractTaskPo> taskList = htmlExtractService.findTask();
+        return new Result(taskList);
     }
 
 }

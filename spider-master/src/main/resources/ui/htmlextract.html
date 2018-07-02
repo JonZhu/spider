@@ -53,26 +53,58 @@
 
     <!-- Begin page content -->
     <div class="container">
-      <div class="page-header">
-        <h1>html数据抽取</h1>
+
+      <ul class="nav nav-tabs">
+        <li role="presentation" class="active"><a href="#extractTaskListTab" data-toggle="tab">抽取任务</a></li>
+        <li role="presentation"><a href="#extractTestTab" data-toggle="tab">抽取测试</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <!--任务列表-->
+        <div id="extractTaskListTab" class="tab-pane in active">
+          <table id="taskListTable" class="table table-bordered table-hover">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>名称</th>
+              <th>数据目录</th>
+              <th>Mongo DB</th>
+              <th>Mongo Collection</th>
+              <th>成功数量</th>
+              <th>出错数量</th>
+              <th>创建时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+
+        <!--测试-->
+        <div id="extractTestTab" class="tab-pane">
+          <div class="form-group">
+            <label for="url">url</label>
+            <input id="url" name="url" class="form-control"/>
+          </div>
+
+          <div class="form-group">
+            <label for="extractConfig">抽取配置</label>
+            <textarea id="extractConfig" name="extractConfig" class="form-control" style="height:200px"></textarea>
+          </div>
+
+          <p>
+            <button id="doExtractBt" type="button" class="btn btn-primary">执行抽取</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTaskModal">使用配置创建任务</button>
+          </p>
+
+          <div class="form-group">
+            <label for="extractResult">抽取结果</label>
+            <textarea id="extractResult" name="extractResult" class="form-control" readonly style="height:300px"></textarea>
+          </div>
+        </div>
       </div>
-
-        <div class="form-group">
-          <label for="url">url</label>
-          <input id="url" name="url" class="form-control"/>
-        </div>
-
-        <div class="form-group">
-          <label for="extractConfig">抽取配置</label>
-          <textarea id="extractConfig" name="extractConfig" class="form-control" style="height:200px"></textarea>
-        </div>
-
-        <button id="doExtractBt">抽取</button>
-
-        <div class="form-group">
-          <label for="extractResult">抽取结果</label>
-          <textarea id="extractResult" name="extractResult" class="form-control" readonly style="height:300px"></textarea>
-        </div>
 
     </div>
 
@@ -83,6 +115,43 @@
     </footer>
 
 
+    <!-- 创建任务dialog -->
+    <div id="createTaskModal" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">创建html抽取任务</h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="taskNameInput">任务名称</label>
+              <input id="taskNameInput" class="form-control"></input>
+            </div>
+            <div class="form-group">
+              <label for="taskDataDirInput">数据目录</label>
+              <input id="taskDataDirInput" class="form-control"></input>
+            </div>
+            <div class="form-group">
+              <label for="taskMongoDbInput">mongo db name</label>
+              <input id="taskMongoDbInput" class="form-control"></input>
+            </div>
+            <div class="form-group">
+              <label for="taskMongoCollectionInput">mongo collection name</label>
+              <input id="taskMongoCollectionInput" class="form-control"></input>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button id="createTaskBtn" type="button" class="btn btn-primary">创建</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -90,6 +159,7 @@
     <script src="bootstrap/js/bootstrap.min.js"></script>
 
     <!-- my js -->
+    <script src="js/util.js"></script>
     <script src="js/htmlextract.js"></script>
   </body>
 </html>
