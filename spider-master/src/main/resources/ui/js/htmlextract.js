@@ -2,7 +2,7 @@ $(function(){
 
     $('#doExtractBt').click(function(){
         var url = $("#url").val();
-        var extractConfig = $("#extractConfig").val();
+        var extractConfig = $("#extractConfigTest").val();
 
         extractHtml(url, extractConfig);
     });
@@ -97,11 +97,33 @@ $(function(){
 
     // 绑定创建任务事件
     $("#createTaskBtn").click(function(){
-        var extractConfig = $("#extractConfig").val();
+        var extractConfig = $("#taskExtractConfigInput").val();
         var taskName = $("#taskNameInput").val();
         var srcDataDir = $("#taskDataDirInput").val();
         var mongoDbName = $("#taskMongoDbInput").val();
         var mongoCollectionName = $("#taskMongoCollectionInput").val();
+
+        // 验证数据
+        if (!taskName) {
+            alert('任务名不能为空');
+            return;
+        }
+        if (!srcDataDir) {
+            alert('源数据目录不能为空');
+            return;
+        }
+        if (!mongoDbName) {
+            alert('mongoDbName不能为空');
+            return;
+        }
+        if (!mongoCollectionName) {
+            alert('mongoCollectionName不能为空');
+            return;
+        }
+        if (!extractConfig) {
+            alert('配置不能为空');
+            return;
+        }
 
         $.ajax({
             url: 'api/html/extract/task',
@@ -176,5 +198,13 @@ $(function(){
             }
         });
      }
+
+     // 绑定使用测试配置创建任务按钮 事件
+     $("#useTestCreateTaskBt").click(function(){
+        // 复制配置
+        $("#taskExtractConfigInput").val($("#extractConfigTest").val());
+        // 显示model
+        $("#createTaskModal").modal('show');
+     });
 
 })
