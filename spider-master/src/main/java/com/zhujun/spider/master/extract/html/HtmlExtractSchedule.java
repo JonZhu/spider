@@ -64,10 +64,12 @@ public class HtmlExtractSchedule {
      * 调度线程
      */
     private static class ScheduleThread extends Thread {
-
+        private final static AtomicInteger SCHEDULE_THREAD_INDEX = new AtomicInteger(0);
+        private final static AtomicInteger EXTRACT_THREAD_INDEX = new AtomicInteger(0);
         private final HtmlExtractTaskPo task;
 
         public ScheduleThread(HtmlExtractTaskPo task) {
+            super((Runnable) null, "HtmlExtractScheduler-" + SCHEDULE_THREAD_INDEX.getAndIncrement());
             this.task = task;
         }
 
@@ -100,8 +102,13 @@ public class HtmlExtractSchedule {
 
                 MongoCollection<Document> collection = getTaskMongoCollection(task);
 
-                int threadCount = Runtime.getRuntime().availableProcessors() * 2 + 1;
-                Executor pool = Executors.newFixedThreadPool(threadCount);
+                int threadCount = Math.min(Runtime.getRuntime().availableProcessors() * 2 + 1, dataFiles.length);
+                Executor pool = Executors.newFixedThreadPool(threadCount, new ThreadFactory() {
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        return new Thread(r, "HtmlExtractor-" + EXTRACT_THREAD_INDEX.getAndIncrement());
+                    }
+                });
                 System.out.println("创建线程池, size:" + threadCount);
 
 
