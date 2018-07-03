@@ -62,7 +62,7 @@ $(function(){
                 $("<td></td>").text(item.successCount).appendTo($tr);
                 $("<td></td>").text(item.failCount).appendTo($tr);
                 $("<td></td>").text(util.time.ms2Str(item.createTime)).appendTo($tr);
-                $("<td></td>").text(item.status).appendTo($tr);
+                $("<td></td>").text(statusName(item.status)).appendTo($tr);
 
                 $delBtn = $('<button class="btn btn-default">删除</button>');
                 $delBtn.click(function(){ // 绑定删除操作
@@ -90,6 +90,13 @@ $(function(){
             });
 
         }
+    }
+
+    // 转换为status名称
+    var statusNameObj = {0: "新建", 1: "运行中", 4: "暂停", 6: "完成", 7: "已删除", 9: "出错"};
+    function statusName(status) {
+        var name = statusNameObj[status];
+        return name ? name : "未知";
     }
 
     // 执行任务查询
