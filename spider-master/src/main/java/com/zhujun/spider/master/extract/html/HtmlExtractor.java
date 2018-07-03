@@ -41,6 +41,8 @@ public class HtmlExtractor implements Extractor {
      */
     private final static Pattern ATTR_PATTERN = Pattern.compile("@([\\w-_]+)$");
 
+    private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+
     private final DataItemConfig config;
 
     public HtmlExtractor(DataItemConfig config) {
@@ -53,12 +55,32 @@ public class HtmlExtractor implements Extractor {
 
     @Override
     public Object extract(String url, String conentType, byte[] content) {
-        Document document = Jsoup.parse(new String(content, Charset.forName("UTF-8")), url);
+        Charset charset = getCharset(conentType);
+        Document document = Jsoup.parse(new String(content, charset), url);
         if (!validateCondition(document, document, this.config.getCondition())) {
             // 根数据条件验证不通过
             return null;
         }
         return extractCurrentConfig(document, document, this.config);
+    }
+
+    /**
+     * 从contentType获取字符集
+     * @param contentType
+     * @return
+     */
+    private Charset getCharset(String contentType) {
+        if (contentType == null) {
+            return DEFAULT_CHARSET;
+        }
+
+        String existPrefix = "charset=";
+        int index = contentType.toLowerCase().indexOf(existPrefix);
+        if (index < 0) {
+            return DEFAULT_CHARSET;
+        }
+
+        return Charset.forName(contentType.substring(index + existPrefix.length()));
     }
 
     /**
