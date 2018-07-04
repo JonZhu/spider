@@ -138,7 +138,7 @@ public class HtmlExtractSchedule {
 
         private MongoCollection<Document> getTaskMongoCollection(HtmlExtractTaskPo task) {
             return SpringUtil.getContext().getBean(MongoClient.class)
-                    .getDatabase(task.getTaskName()).getCollection(task.getMongoCollectionName());
+                    .getDatabase(task.getMongoDbName()).getCollection(task.getMongoCollectionName());
         }
     }
 
