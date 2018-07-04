@@ -43,6 +43,15 @@ public class HtmlExtractor implements Extractor {
 
     private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
+    /**
+     * 查询html中的字符集 模式, 支持动态位置
+     *
+     * <META content="text/html; charset=gb2312" http-equiv=Content-Type
+     */
+    private final static Pattern HTML_CHARSET_FIND_PATTERN = Pattern.compile(
+            "<META.+(charset=([\\w-]+).+http-equiv=Content-Type|http-equiv=Content-Type.+charset=([\\w-]+))",
+            Pattern.CASE_INSENSITIVE);
+
     private final DataItemConfig config;
 
     public HtmlExtractor(DataItemConfig config) {
@@ -55,7 +64,7 @@ public class HtmlExtractor implements Extractor {
 
     @Override
     public Object extract(String url, String conentType, byte[] content) {
-        Charset charset = getCharset(conentType);
+        Charset charset = getCharset(conentType, content);
         Document document = Jsoup.parse(new String(content, charset), url);
         if (!validateCondition(document, document, this.config.getCondition())) {
             // 根数据条件验证不通过
@@ -64,20 +73,48 @@ public class HtmlExtractor implements Extractor {
         return extractCurrentConfig(document, document, this.config);
     }
 
+    private Charset getCharset(String conentType, byte[] content) {
+        Charset charset = getCharsetFromContentType(conentType); // 首先中http content type中获取
+        if (charset == null) {
+            charset = getCharsetFromHtml(new String(content, DEFAULT_CHARSET)); // 从html head中获取
+        }
+
+        return charset == null ? DEFAULT_CHARSET : charset; // 如果都未获取到, 返回默认字符集
+    }
+
+    /**
+     * 从html header内容获取字符集
+     *
+     * <HTML><HEAD><META content="text/html; charset=gb2312" http-equiv=Content-Type>
+     *
+     * @param html
+     * @return
+     */
+    private static Charset getCharsetFromHtml(String html) {
+        Charset charset = null;
+        Matcher matcher = HTML_CHARSET_FIND_PATTERN.matcher(html);
+        if (matcher.find()) {
+            String group2 = matcher.group(2);
+            String group3 = matcher.group(3);
+            charset = Charset.forName(group2 != null ? group2 : group3);
+        }
+        return charset;
+    }
+
     /**
      * 从contentType获取字符集
      * @param contentType
      * @return
      */
-    private Charset getCharset(String contentType) {
+    private Charset getCharsetFromContentType(String contentType) {
         if (contentType == null) {
-            return DEFAULT_CHARSET;
+            return null;
         }
 
         String existPrefix = "charset=";
         int index = contentType.toLowerCase().indexOf(existPrefix);
         if (index < 0) {
-            return DEFAULT_CHARSET;
+            return null;
         }
 
         return Charset.forName(contentType.substring(index + existPrefix.length()));
