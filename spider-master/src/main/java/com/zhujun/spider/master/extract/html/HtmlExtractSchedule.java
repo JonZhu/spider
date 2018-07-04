@@ -21,6 +21,7 @@ import org.springframework.util.DigestUtils;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -210,19 +211,37 @@ public class HtmlExtractSchedule {
         }
 
         private final static UpdateOptions UPSERT_OPTIONS = new UpdateOptions().upsert(true);
-        private static void saveData2Mongo(MongoCollection<org.bson.Document> baikeCollection, Object extractResult) {
-            if (extractResult == null || !(extractResult instanceof Map)) {
+        private static void saveData2Mongo(MongoCollection<org.bson.Document> collection, Object data) {
+            if (data == null) {
                 return;
             }
 
-            org.bson.Document doc = new org.bson.Document((Map<String, Object>) extractResult);
+            if (data instanceof Map) {
+                saveMap2Mongo(collection, (Map) data);
+            } else if (data instanceof Collection) {
+                Collection dataColl = (Collection) data;
+                for (Object item : dataColl) {
+                    saveData2Mongo(collection, item);
+                }
+            } else if (data instanceof Object[]) {
+                Object[] dataArray = (Object[]) data;
+                for (Object item : dataArray) {
+                    saveData2Mongo(collection, item);
+                }
+            } else {
+                log.warn("忽略的数据类型:{}，未存入mongo", data.getClass().getName());
+            }
+        }
+
+        private static void saveMap2Mongo(MongoCollection<org.bson.Document> collection, Map map) {
+            org.bson.Document doc = new org.bson.Document(map);
             Object id = doc.get("_id");
             if (id != null) {
                 // update
-                baikeCollection.replaceOne(Filters.eq(id), doc, UPSERT_OPTIONS);
+                collection.replaceOne(Filters.eq(id), doc, UPSERT_OPTIONS);
             } else {
                 // insert
-                baikeCollection.insertOne(doc);
+                collection.insertOne(doc);
             }
         }
     }
