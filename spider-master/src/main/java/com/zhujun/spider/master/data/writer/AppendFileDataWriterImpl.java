@@ -149,6 +149,7 @@ public class AppendFileDataWriterImpl implements SpiderDataWriter {
 	 *
 	 */
 	private void switchWritingFile() {
+		IOUtils.closeQuietly(bufferedOutputStream);
 		IOUtils.closeQuietly(fileOutputStream);
 		
 		try {
