@@ -20,7 +20,11 @@ public class UrlUtils {
 	 * @return
 	 */
 	public static String buildAbsoluteUrl(String baseUrl, String url) {
-		if (url.startsWith("/")) {
+		if (url.startsWith("//")) {
+			// 绝对地址,但复用http https协议头
+			int index = baseUrl.indexOf(":");
+			return baseUrl.substring(0, index + 1) + url;
+		} else if (url.startsWith("/")) {
 			// 相对于baseUrl的根路径
 			int index = baseUrl.indexOf("/", 8); // 查找http(s):// 之后的/
 			return index > 0 ? baseUrl.substring(0, index) + url : baseUrl + url;
