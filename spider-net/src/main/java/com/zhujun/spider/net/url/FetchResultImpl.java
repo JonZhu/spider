@@ -6,6 +6,8 @@ public class FetchResultImpl implements IFetchResult {
 	
 	private byte[] data;
 
+	private int httpStatusCode;
+
 	public String getContentType() {
 		return contentType;
 	}
@@ -21,5 +23,13 @@ public class FetchResultImpl implements IFetchResult {
 	public void setData(byte[] data) {
 		this.data = data;
 	}
-	
+
+	@Override
+	public int getHttpStatusCode() {
+		return httpStatusCode;
+	}
+
+	public void setHttpStatusCode(int httpStatusCode) {
+		this.httpStatusCode = httpStatusCode;
+	}
 }

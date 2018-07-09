@@ -93,5 +93,16 @@ public interface IFetchUrlService {
 	 * @throws Exception 
 	 */
 	int setFetchUrlStatus(SpiderTaskPo task, String urlId, int status, Date time) throws Exception;
+
+	/**
+	 * 保存抓取成功信息
+	 *
+	 * @param task
+	 * @param urlId
+	 * @param time
+	 * @param httpStatusCode
+	 * @return
+	 */
+	int saveFetchSuccessInfo(SpiderTaskPo task, String urlId, Date time, int httpStatusCode);
 	
 }

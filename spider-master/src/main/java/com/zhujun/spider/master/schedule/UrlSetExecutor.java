@@ -134,20 +134,22 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 					
 					// 从队列中获得数据
 					if (item.success) {
-						// 存储到文件
-						writer.write(item.url, item.contentType, item.fetchTime, item.data);
-						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
-						
-						if (StringUtils.isNotBlank(urlSet.getId())) {
-							dataScope.put(urlSet.getId(), item.data);
+						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), item.urlId, item.fetchTime, item.httpStatusCode);
+						if (item.httpStatusCode >= 200 && item.httpStatusCode < 300) {
+							// 存储到文件
+							writer.write(item.url, item.contentType, item.fetchTime, item.data);
+
+							if (StringUtils.isNotBlank(urlSet.getId())) {
+								dataScope.put(urlSet.getId(), item.data);
+							}
+
+							// 设置数据到data scope, 子结点使用
+							dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, item.data);
+							dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, item.url);
+
+							// 执行子级,例如paging
+							executeChildren(c);
 						}
-						
-						// 设置数据到data scope, 子结点使用
-						dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, item.data);
-						dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, item.url);
-						
-						// 执行子级,例如paging
-						executeChildren(c);
 					} else {
 						// 抓取失败
 						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);

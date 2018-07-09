@@ -44,6 +44,11 @@ public class FetchUrlPo {
 	 */
 	private Integer pushDownCount;
 
+	/**
+	 * http状态码
+	 */
+	private Integer httpStatus;
+
 	public Integer getPushDownCount() {
 		return pushDownCount;
 	}
@@ -99,5 +104,12 @@ public class FetchUrlPo {
 	public void setActionId(String actionId) {
 		this.actionId = actionId;
 	}
-	
+
+	public Integer getHttpStatus() {
+		return httpStatus;
+	}
+
+	public void setHttpStatus(Integer httpStatus) {
+		this.httpStatus = httpStatus;
+	}
 }

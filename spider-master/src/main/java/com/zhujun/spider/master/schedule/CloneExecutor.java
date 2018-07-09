@@ -83,13 +83,15 @@ public class CloneExecutor implements ActionExecutor {
 					}
 					
 					if (item.success) {
-						// 存储到文件
-						writer.write(item.url, item.contentType, item.fetchTime, item.data);
-						
-						// 解析连接的url
-						parseLinkedUrls(item.url, item.contentType, item.data, clone, c.getSpiderTaskPo());
-						
-						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_SUCCESS, item.fetchTime);
+						if (item.httpStatusCode >= 200 && item.httpStatusCode < 300) {
+							// 存储到文件
+							writer.write(item.url, item.contentType, item.fetchTime, item.data);
+
+							// 解析连接的url
+							parseLinkedUrls(item.url, item.contentType, item.data, clone, c.getSpiderTaskPo());
+						}
+
+						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), item.urlId, item.fetchTime, item.httpStatusCode);
 					} else {
 						// 抓取失败
 						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);

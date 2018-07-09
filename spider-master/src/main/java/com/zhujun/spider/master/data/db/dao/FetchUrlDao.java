@@ -20,6 +20,8 @@ public interface FetchUrlDao {
 
     int updateFetchUrl(SpiderTaskPo task, List<String> idList, int status, Date modifyTime);
 
+    int updateFetchUrl(SpiderTaskPo task, List<String> idList, int status, Date modifyTime, Integer httpStatusCode);
+
     /**
      * 标记url为已下发状态
      *

@@ -50,9 +50,16 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
 
     @Override
     public int updateFetchUrl(SpiderTaskPo task, List<String> idList, int status, Date modifyTime) {
+        return updateFetchUrl(task, idList, status, modifyTime, null);
+    }
+
+    public int updateFetchUrl(SpiderTaskPo task, List<String> idList, int status, Date modifyTime, Integer httpStatusCode) {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("_id").in(idList);
         Update update = Update.update("status", status).set("modifyTime", modifyTime);
+        if (httpStatusCode != null) {
+            update.set("httpStatus", httpStatusCode);
+        }
         return (int)mongoTemplate.updateMulti(Query.query(criteria), update, FetchUrlPo.class).getModifiedCount();
     }
 

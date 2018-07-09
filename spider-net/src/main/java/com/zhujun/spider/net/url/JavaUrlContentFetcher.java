@@ -83,19 +83,19 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 			
 			int httpRespCode = connection.getResponseCode();
-			if (httpRespCode >= 400) {
-				throw new Exception("http response code >= 400");
-			}
-			
+
 			String contentType = connection.getHeaderField("Content-Type");
-			urlInputStream = connection.getInputStream();
-			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-			IOUtils.copy(urlInputStream, byteOutputStream);
-			
 			FetchResultImpl result = new FetchResultImpl();
-			
+			if (httpRespCode >= 200 && httpRespCode < 300) {
+				// 读取内容
+				urlInputStream = connection.getInputStream();
+				ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+				IOUtils.copy(urlInputStream, byteOutputStream);
+				result.setData(byteOutputStream.toByteArray());
+			}
+
 			result.setContentType(contentType);
-			result.setData(byteOutputStream.toByteArray());
+			result.setHttpStatusCode(httpRespCode);
 			return result;
 		} catch (Exception e) {
 			throw new RuntimeException("fetch content fail", e);

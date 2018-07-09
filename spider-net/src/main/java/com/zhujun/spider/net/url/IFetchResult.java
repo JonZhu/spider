@@ -12,5 +12,7 @@ public interface IFetchResult {
 	String getContentType();
 	
 	byte[] getData();
+
+	int getHttpStatusCode();
 	
 }

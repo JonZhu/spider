@@ -85,6 +85,7 @@ public class PushDataQueue {
 		public Date fetchTime;
 		public boolean success;
 		public String contentType;
+		public int httpStatusCode;
 	}
 	
 }

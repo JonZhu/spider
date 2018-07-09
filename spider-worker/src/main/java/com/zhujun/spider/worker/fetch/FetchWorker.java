@@ -64,6 +64,7 @@ public class FetchWorker implements Runnable {
 				result = CONTENT_FETCHER.fetch(item.url);
 				netMsg.setHeader("Fetch-Result", "Success");
 				netMsg.setHeader("Content-Type", result.getContentType());
+				netMsg.setHeader("StatusCode", String.valueOf(result.getHttpStatusCode()));
 				netMsg.setBody(result.getData());
 			} catch (Exception e) {
 				LOG.error("fetch url[{}] data fail", item.url, e);
