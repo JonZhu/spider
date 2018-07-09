@@ -103,6 +103,6 @@ public interface IFetchUrlService {
 	 * @param httpStatusCode
 	 * @return
 	 */
-	int saveFetchSuccessInfo(SpiderTaskPo task, String urlId, Date time, int httpStatusCode);
+	int saveFetchSuccessInfo(SpiderTaskPo task, String urlId, Date time, Integer httpStatusCode);
 	
 }

@@ -101,8 +101,10 @@ public class ServerHandler implements IoHandler {
 		item.actionId = actionId;
 		item.urlId = urlId;
 		item.contentType = netMsg.getHeader("Content-Type");
-		item.httpStatusCode = Integer.parseInt(netMsg.getHeader("StatusCode"));
-		
+		if (success) {
+			item.httpStatusCode = Integer.parseInt(netMsg.getHeader("StatusCode"));
+		}
+
 		// 写入数据上传队列, 等待其它线程处理
 		PushDataQueue.addPushData(taskId, actionId, item);
 	}

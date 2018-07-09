@@ -145,8 +145,8 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 	}
 
 	@Override
-	public int saveFetchSuccessInfo(SpiderTaskPo task, String urlId, Date time, int httpStatusCode) {
-		return fetchUrlDao.updateFetchUrl(task, Arrays.asList(urlId), FetchUrlPo.STATUS_SUCCESS, time);
+	public int saveFetchSuccessInfo(SpiderTaskPo task, String urlId, Date time, Integer httpStatusCode) {
+		return fetchUrlDao.updateFetchUrl(task, Arrays.asList(urlId), FetchUrlPo.STATUS_SUCCESS, time, httpStatusCode);
 	}
 
 }
