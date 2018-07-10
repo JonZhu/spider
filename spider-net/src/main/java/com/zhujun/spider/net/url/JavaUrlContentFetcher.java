@@ -9,6 +9,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 使用java url实现
@@ -82,11 +85,12 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			connection.setRequestProperty("Cache-Control", "max-age=0");
 			connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 			
-			int httpRespCode = connection.getResponseCode();
-
-			String contentType = connection.getHeaderField("Content-Type");
 			FetchResultImpl result = new FetchResultImpl();
-			if (httpRespCode >= 200 && httpRespCode < 300) {
+			int httpRespCode = connection.getResponseCode();
+			result.setHttpStatusCode(httpRespCode);
+			result.setHeaders(getHeaders(connection));
+
+			if (connection.getContentLengthLong() > 0) {
 				// 读取内容
 				urlInputStream = connection.getInputStream();
 				ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
@@ -94,8 +98,6 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 				result.setData(byteOutputStream.toByteArray());
 			}
 
-			result.setContentType(contentType);
-			result.setHttpStatusCode(httpRespCode);
 			return result;
 		} catch (Exception e) {
 			throw new RuntimeException("fetch content fail", e);
@@ -107,6 +109,25 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			}
 		}
 		
+	}
+
+	private Map<String,String> getHeaders(HttpURLConnection connection) {
+		Map<String, List<String>> orignalHeadersMap = connection.getHeaderFields();
+		if (orignalHeadersMap == null || orignalHeadersMap.isEmpty()) {
+			return null;
+		}
+
+		Map<String, String> headers = new HashMap<>(orignalHeadersMap.size());
+		List<String> headerValueList = null;
+		for (Map.Entry<String, List<String>> entry : orignalHeadersMap.entrySet()) {
+			if (entry.getKey() != null) { // 排除status line
+				headerValueList = entry.getValue();
+				if (headerValueList != null && !headerValueList.isEmpty()) {
+					headers.put(entry.getKey(), headerValueList.get(0));
+				}
+			}
+		}
+		return  headers;
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package com.zhujun.spider.net.url;
 
+import java.util.Map;
+
 /**
  * 抓取结果
  * 
@@ -14,5 +16,7 @@ public interface IFetchResult {
 	byte[] getData();
 
 	int getHttpStatusCode();
+
+	Map<String, String> getHeaders();
 	
 }

@@ -27,4 +27,13 @@ public class JavaUrlContentFetcherTest {
 
         System.out.println(url.getPath());
     }
+
+
+    @Test
+    public void fetchQQ() {
+        String url = "http://news.qq.com/a/20161227/008669.htm";
+        IFetchResult result = JavaUrlContentFetcher.getInstance().fetch(url);
+        System.out.println(result.getContentType());
+    }
+
 }
