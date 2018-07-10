@@ -1,6 +1,11 @@
 package com.zhujun.spider.master.schedule;
 
-import java.util.*;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -12,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class PushDataQueue {
 
-	private static final Map<String, Queue<Item>> QUEUE_MAP = new HashMap<>();
+	private static final Map<String, Queue<SpiderNetMessage>> QUEUE_MAP = new HashMap<>();
 	
 	/**
 	 * 添加数据到队列
@@ -22,11 +27,11 @@ public class PushDataQueue {
 	 *
 	 * @param taskId
 	 * @param actionId
-	 * @param item
+	 * @param netMessage
 	 */
-	public static void addPushData(String taskId, String actionId, Item item) {
+	public static void addPushData(String taskId, String actionId, SpiderNetMessage netMessage) {
 		String queueKey = getQueueKey(taskId, actionId);
-		Queue<Item> queue = QUEUE_MAP.get(queueKey);
+		Queue<SpiderNetMessage> queue = QUEUE_MAP.get(queueKey);
 		if (queue == null) {
 			synchronized (QUEUE_MAP) {
 				queue = QUEUE_MAP.get(queueKey);
@@ -37,7 +42,7 @@ public class PushDataQueue {
 			}
 		}
 
-		queue.add(item);
+		queue.add(netMessage);
 	}
 	
 	private static String getQueueKey(String taskId, String actionId) {
@@ -54,8 +59,8 @@ public class PushDataQueue {
 	 * @param actionId
 	 * @return
 	 */
-	public static Item popPushData(String taskId, String actionId) {
-		Queue<Item> queue = QUEUE_MAP.get(getQueueKey(taskId, actionId));
+	public static SpiderNetMessage popPushData(String taskId, String actionId) {
+		Queue<SpiderNetMessage> queue = QUEUE_MAP.get(getQueueKey(taskId, actionId));
 		return queue == null ? null : queue.poll();
 	}
 
@@ -66,8 +71,8 @@ public class PushDataQueue {
 	 */
 	public static int getDataCount(String taskId) {
 		int count = 0;
-		Set<Map.Entry<String, Queue<Item>>> entrySet = QUEUE_MAP.entrySet();
-		for (Map.Entry<String, Queue<Item>> entry : entrySet) {
+		Set<Map.Entry<String, Queue<SpiderNetMessage>>> entrySet = QUEUE_MAP.entrySet();
+		for (Map.Entry<String, Queue<SpiderNetMessage>> entry : entrySet) {
 			if (entry.getKey().startsWith(taskId)) {
 				count += entry.getValue().size();
 			}
@@ -75,17 +80,4 @@ public class PushDataQueue {
 		return count;
 	}
 
-
-	public static class Item {
-		public String taskId;
-		public String actionId;
-		public String urlId;
-		public String url;
-		public byte[] data;
-		public Date fetchTime;
-		public boolean success;
-		public String contentType;
-		public Integer httpStatusCode;
-	}
-	
 }

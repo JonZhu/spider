@@ -7,10 +7,10 @@ import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Clone;
 import com.zhujun.spider.master.exception.ExceptionIgnore;
-import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.schedule.progress.IStep;
 import com.zhujun.spider.master.schedule.progress.ProgressUtils;
 import com.zhujun.spider.master.util.UrlUtils;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -75,26 +76,28 @@ public class CloneExecutor implements ActionExecutor {
 			public void execute(IScheduleContext c) throws Exception {
 				SpiderDataWriter writer = c.getDataWriter();
 
-				Item item = null;
+				SpiderNetMessage msg = null;
 				while (true) {
-					item = ScheduleUtil.waitPushData(c.getSpiderTaskPo(), clone.getId(), fetchUrlService);
-					if (item == null) {
+					msg = ScheduleUtil.waitPushData(c.getSpiderTaskPo(), clone.getId(), fetchUrlService);
+					if (msg == null) {
 						break;
 					}
 					
-					if (item.success) {
-						if (item.httpStatusCode >= 200 && item.httpStatusCode < 300) {
+					if (msg.getFetchResult()) {
+						int httpStatusCode = msg.getStatusCode();
+						Date fetchTime = msg.getFetchTime();
+						if (httpStatusCode >= 200 && httpStatusCode < 300) {
 							// 存储到文件
-							writer.write(item.url, item.contentType, item.fetchTime, item.data);
+							writer.write(msg.getFetchUrl(), msg.getContentType(), fetchTime, msg.getBody());
 
 							// 解析连接的url
-							parseLinkedUrls(item.url, item.contentType, item.data, clone, c.getSpiderTaskPo());
+							parseLinkedUrls(msg.getFetchUrl(), msg.getContentType(), msg.getBody(), clone, c.getSpiderTaskPo());
 						}
 
-						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), item.urlId, item.fetchTime, item.httpStatusCode);
+						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), msg.getUrlId(), fetchTime, httpStatusCode);
 					} else {
 						// 抓取失败
-						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
+						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), msg.getUrlId(), FetchUrlPo.STATUS_ERROR, msg.getFetchTime());
 					}
 				}
 			}

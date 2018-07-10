@@ -10,6 +10,7 @@ import com.zhujun.spider.worker.MasterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -55,27 +56,48 @@ public class FetchWorker implements Runnable {
 			} catch (InterruptedException e1) {
 				break;
 			}
+
 			SpiderNetMessage netMsg = new SpiderNetMessage();
-			netMsg.setHeader("Action", "Push-fetch-data");
-			netMsg.setHeader("Fetch-url", item.url);
-			
 			IFetchResult result = null;
 			try {
 				result = CONTENT_FETCHER.fetch(item.url);
-				netMsg.setHeader("Fetch-Result", "Success");
-				netMsg.setHeader("Content-Type", result.getContentType());
-				netMsg.setHeader("StatusCode", String.valueOf(result.getHttpStatusCode()));
+				// 复制http response header
+				copyHttpResponseHeader(result.getHeaders(), netMsg);
+				netMsg.setFetchResult(true); // 设置抓取成功标识
+				netMsg.setStatusCode(result.getHttpStatusCode());
 				netMsg.setBody(result.getData());
 			} catch (Exception e) {
 				LOG.error("fetch url[{}] data fail", item.url, e);
 			}
-			
-			netMsg.setHeader("Fetch-time", String.valueOf(System.currentTimeMillis()));
-			netMsg.setHeader("Task_id", item.taskId);
-			netMsg.setHeader("Action_id", item.actionId);
-			netMsg.setHeader("Url_id", String.valueOf(item.id));
+
+			// 设置Spider头
+			netMsg.setMsgType("Push-fetch-data");
+			netMsg.setFetchUrl(item.url);
+			netMsg.setFetchTime(new Date(System.currentTimeMillis()));
+			netMsg.setTaskId(item.taskId);
+			netMsg.setActionId(item.actionId);
+			netMsg.setUrlId(item.id);
 			
 			pushData2master(netMsg);
+		}
+	}
+
+	/**
+	 * 复制http response header
+	 * @param httpHeaders
+	 * @param netMsg
+	 */
+	private void copyHttpResponseHeader(Map<String, String> httpHeaders, SpiderNetMessage netMsg) {
+		if (httpHeaders == null || httpHeaders.isEmpty()) {
+			return;
+		}
+
+		for (Map.Entry<String, String> httpEntry : httpHeaders.entrySet()) {
+			if (SpiderNetMessage.HEADER_BODY_LENGTH.equals(httpEntry.getKey())) {
+				// 排除该header，这个header由NetMessageEncoder添加
+				continue;
+			}
+			netMsg.setHeader(httpEntry.getKey(), httpEntry.getValue());
 		}
 	}
 

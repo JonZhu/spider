@@ -5,9 +5,9 @@ import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.writer.SpiderDataWriter;
 import com.zhujun.spider.master.domain.Spider;
 import com.zhujun.spider.master.domain.UrlSet;
-import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.schedule.progress.IStep;
 import com.zhujun.spider.master.schedule.progress.ProgressUtils;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,35 +124,36 @@ public class UrlSetExecutor extends ParentActionExecutor implements ActionExecut
 				SpiderDataWriter writer = c.getDataWriter();
 				
 				// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
-				Item item = null;
+				SpiderNetMessage msg = null;
 				while (true) {
-					item = ScheduleUtil.waitPushData(c.getSpiderTaskPo(), urlSet.getId(), fetchUrlService);
-					if (item == null) {
+					msg = ScheduleUtil.waitPushData(c.getSpiderTaskPo(), urlSet.getId(), fetchUrlService);
+					if (msg == null) {
 						break;
 					}
 					
 					
 					// 从队列中获得数据
-					if (item.success) {
-						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), item.urlId, item.fetchTime, item.httpStatusCode);
-						if (item.httpStatusCode >= 200 && item.httpStatusCode < 300) {
+					if (msg.getFetchResult()) {
+						int httpStatusCode = msg.getStatusCode();
+						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), msg.getUrlId(), msg.getFetchTime(), msg.getStatusCode());
+						if (httpStatusCode >= 200 && httpStatusCode < 300) {
 							// 存储到文件
-							writer.write(item.url, item.contentType, item.fetchTime, item.data);
+							writer.write(msg.getFetchUrl(), msg.getContentType(), msg.getFetchTime(), msg.getBody());
 
 							if (StringUtils.isNotBlank(urlSet.getId())) {
-								dataScope.put(urlSet.getId(), item.data);
+								dataScope.put(urlSet.getId(), msg.getBody());
 							}
 
 							// 设置数据到data scope, 子结点使用
-							dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, item.data);
-							dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, item.url);
+							dataScope.put(ScheduleConst.PRE_RESULT_DATA_KEY, msg.getBody());
+							dataScope.put(ScheduleConst.PRE_RESULT_URL_KEY, msg.getFetchUrl());
 
 							// 执行子级,例如paging
 							executeChildren(c);
 						}
 					} else {
 						// 抓取失败
-						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), item.urlId, FetchUrlPo.STATUS_ERROR, item.fetchTime);
+						fetchUrlService.setFetchUrlStatus(c.getSpiderTaskPo(), msg.getUrlId(), FetchUrlPo.STATUS_ERROR, msg.getFetchTime());
 					}
 					
 				}

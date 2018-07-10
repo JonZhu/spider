@@ -2,8 +2,8 @@ package com.zhujun.spider.master.schedule;
 
 import com.zhujun.spider.master.data.db.IFetchUrlService;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
-import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.master.util.ThreadUtils;
+import com.zhujun.spider.net.mina.SpiderNetMessage;
 
 import java.nio.charset.Charset;
 
@@ -30,9 +30,9 @@ public class ScheduleUtil {
 	 * @return 返回null, 表示push队列无数据 且 fetchurl中无该action创建的无完成的url
 	 * @throws Exception
 	 */
-	public static Item waitPushData(SpiderTaskPo spider, String actionId, IFetchUrlService fetchUrlService) throws Exception {
+	public static SpiderNetMessage waitPushData(SpiderTaskPo spider, String actionId, IFetchUrlService fetchUrlService) throws Exception {
 		// 等待worker push数据, 直到fetchurl中关于该action的数据已经抓取完
-		Item item = null;
+		SpiderNetMessage item = null;
 		while (true) {
 			item = PushDataQueue.popPushData(spider.getId(), actionId);
 			if (item == null) {

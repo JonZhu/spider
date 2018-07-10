@@ -42,16 +42,15 @@ public class PullUrlThread extends Thread {
 			}
 			
 			SpiderNetMessage netMsg = new SpiderNetMessage();
-			netMsg.setHeader("Action", "Pull-url");
+			netMsg.setMsgType("Pull-url");
 			SpiderNetMessage pushUrlMsg = minaClient.sendMsg(netMsg, 5000);
 			
 			int needSleep = 10000;
 			if (pushUrlMsg != null) {
-				String status = pushUrlMsg.getHeader("Status");
-				if ("200".equals(status)) {
+				int status = pushUrlMsg.getStatusCode();
+				if (200. == status) {
 					// 正常响应
-					
-					String taskId = pushUrlMsg.getHeader("Task-id");
+					String taskId = pushUrlMsg.getTaskId();
 					try {
 						PushUrlBody body = new ObjectMapper().readValue(pushUrlMsg.getBody(), PushUrlBody.class);
 						if (body != null && !body.isEmpty()) {

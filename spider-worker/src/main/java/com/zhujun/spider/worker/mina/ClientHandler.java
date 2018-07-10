@@ -1,16 +1,15 @@
 package com.zhujun.spider.worker.mina;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.zhujun.spider.net.mina.SpiderNetMessage;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhujun.spider.net.mina.SpiderNetMessage;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientHandler implements IoHandler {
 
@@ -52,7 +51,7 @@ public class ClientHandler implements IoHandler {
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		if (message instanceof SpiderNetMessage) {
 			SpiderNetMessage netMsg = (SpiderNetMessage)message;
-			String respForMsgId = netMsg.getHeader("Response-for");
+			String respForMsgId = netMsg.getResponseFor();
 			
 			boolean existWaitLock = false;
 			if (respForMsgId != null) {

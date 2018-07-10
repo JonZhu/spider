@@ -29,7 +29,7 @@ public abstract class AbstractClient implements MasterClient {
         }
         getSession().write(netMsg);
 
-        LOG.debug("send {} message to master", netMsg.getHeader("Action"));
+        LOG.debug("send {} message to master", netMsg.getMsgType());
     }
 
 
@@ -44,10 +44,10 @@ public abstract class AbstractClient implements MasterClient {
      * @return 响应消息, 超时返回null
      */
     public SpiderNetMessage sendMsg(SpiderNetMessage netMsg, long responseTimeoutMs) {
-        String msgId = netMsg.getHeader("Msg-id");
+        String msgId = netMsg.getMsgId();
         if (msgId == null) {
             msgId = UUID.randomUUID().toString();
-            netMsg.setHeader("Msg-id", msgId);
+            netMsg.setMsgId(msgId);
         }
 
         WaitMsgLock lock = new WaitMsgLock();

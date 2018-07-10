@@ -6,7 +6,6 @@ import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.schedule.IScheduleService;
 import com.zhujun.spider.master.schedule.PushDataQueue;
-import com.zhujun.spider.master.schedule.PushDataQueue.Item;
 import com.zhujun.spider.net.mina.SpiderNetMessage;
 import com.zhujun.spider.net.mina.msgbody.PushUrlBody;
 import com.zhujun.spider.net.mina.msgbody.PushUrlBodyItem;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -67,12 +65,12 @@ public class ServerHandler implements IoHandler {
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		if (message instanceof SpiderNetMessage) {
 			SpiderNetMessage netMsg = (SpiderNetMessage)message;
-			String action = netMsg.getHeader("Action");
-			LOG.debug("messageReceived SpiderNetMessage {}", action);
+			String msgType = netMsg.getMsgType();
+			LOG.debug("messageReceived SpiderNetMessage {}", msgType);
 			
-			if ("Pull-url".equals(action)) {
+			if ("Pull-url".equals(msgType)) {
 				pushUrl2client(session, netMsg);
-			} else if ("Push-fetch-data".equals(action)) {
+			} else if ("Push-fetch-data".equals(msgType)) {
 				receiveFetchData(netMsg);
 			}
 			
@@ -85,28 +83,8 @@ public class ServerHandler implements IoHandler {
 	 * @param netMsg
 	 */
 	private void receiveFetchData(SpiderNetMessage netMsg) {
-		String url = netMsg.getHeader("Fetch-url");
-		boolean success = "Success".equals(netMsg.getHeader("Fetch-Result"));
-		byte[] data = netMsg.getBody();
-		String taskId = netMsg.getHeader("Task_id");
-		String actionId = netMsg.getHeader("Action_id");
-		String urlId = netMsg.getHeader("Url_id");
-		
-		Item item = new Item();
-		item.data = data;
-		item.success = success;
-		item.url = url;
-		item.fetchTime = new Date(Long.parseLong(netMsg.getHeader("Fetch-time")));
-		item.taskId = taskId;
-		item.actionId = actionId;
-		item.urlId = urlId;
-		item.contentType = netMsg.getHeader("Content-Type");
-		if (success) {
-			item.httpStatusCode = Integer.parseInt(netMsg.getHeader("StatusCode"));
-		}
-
 		// 写入数据上传队列, 等待其它线程处理
-		PushDataQueue.addPushData(taskId, actionId, item);
+		PushDataQueue.addPushData(netMsg.getTaskId(), netMsg.getActionId(), netMsg);
 	}
 
 	/**
@@ -119,14 +97,14 @@ public class ServerHandler implements IoHandler {
 	 */
 	private void pushUrl2client(IoSession session, SpiderNetMessage requstMsg) {
 		SpiderNetMessage netMsg = new SpiderNetMessage();
-		netMsg.setHeader("Action", "Push-url");
-		netMsg.setHeader("Content-type", "json");
-		String status = "200";
+		netMsg.setMsgType("Push-url");
+		netMsg.setContentType("json");
+		int status = 200;
 		
 		Pair<String, SpiderTaskPo> task = scheduleService.randomRunningScheduleTask();
 		if (task != null) {
 			String taskId = task.getLeft();
-			netMsg.setHeader("Task-id", taskId);
+			netMsg.setTaskId(taskId);
 			final int speedLimitCount = 10000; // PushDataQueue中数据量多于该值限速
 			try {
 				if (PushDataQueue.getDataCount(taskId) < speedLimitCount) {
@@ -145,21 +123,21 @@ public class ServerHandler implements IoHandler {
 					LOG.warn("任务{} PushDataQueue中未处理数据达到 {}, 暂不pushUrl", taskId, speedLimitCount);
 				}
 			} catch (Exception e) {
-				status = "500";
+				status = 500;
 				LOG.error("获取任务的下发url出错", e);
 			}
 			
 		} else {
 			// 无运行中的任务
-			status = "404";
+			status = 404;
 		}
 		
-		netMsg.setHeader("Status", status);
+		netMsg.setStatusCode(status);
 		
 		// 处理响应消息id
-		String reqMsgId = requstMsg.getHeader("Msg-id");
+		String reqMsgId = requstMsg.getMsgId();
 		if (reqMsgId != null) {
-			netMsg.setHeader("Response-for", reqMsgId);
+			netMsg.setResponseFor(reqMsgId);
 		}
 		
 		session.write(netMsg);
