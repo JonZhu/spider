@@ -4,8 +4,6 @@ import java.util.Map;
 
 public class FetchResultImpl implements IFetchResult {
 
-	private String contentType;
-	
 	private byte[] data;
 
 	private int httpStatusCode;
