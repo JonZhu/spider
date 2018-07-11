@@ -94,7 +94,15 @@ public class CloneExecutor implements ActionExecutor {
 								parseLinkedUrls(msg.getFetchUrl(), msg.getContentType(), msg.getBody(), clone, c.getSpiderTaskPo());
 							}
 						} else if (httpStatusCode >= 300 && httpStatusCode < 400) {
-						    // 重定
+						    // 重定向, 获取Location头数据
+                            String location = msg.getHeader("Location");
+                            if (location != null && isUrlInHosts(location, clone.getHosts()) && matchPattern(location, clone.getUrlPatterns())) {
+                                // 保存location url
+                                FetchUrlPo fetchUrl = new FetchUrlPo();
+                                fetchUrl.setActionId(clone.getId());
+                                fetchUrl.setUrl(location);
+                                fetchUrlService.createFetchUrl(c.getSpiderTaskPo(), fetchUrl, CREATE_FETCH_URL_EXCEPTION_IGNORE);
+                            }
                         }
 
 						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), msg.getUrlId(), fetchTime, httpStatusCode);

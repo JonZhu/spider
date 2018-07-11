@@ -33,7 +33,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 		return createFetchUrl(task, fetchUrl, null);
 	}
 
-	public int createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl, ExceptionIgnore exceptionIgnore) throws Exception {
+	public int createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl, ExceptionIgnore exceptionIgnore) {
 		int insertCount = 0;
 		if (!fetchUrlDao.existByUrl(task, fetchUrl.getUrl())) {
 			if (exceptionIgnore == null) {

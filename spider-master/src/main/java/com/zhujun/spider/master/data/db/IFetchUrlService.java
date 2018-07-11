@@ -29,6 +29,8 @@ public interface IFetchUrlService {
 	 * @return insertCount
 	 */
 	int createFetchUrl(SpiderTaskPo task, FetchUrlPo fetchUrl) throws Exception;
+
+	public int createFetchUrl(SpiderTaskPo task, final FetchUrlPo fetchUrl, ExceptionIgnore exceptionIgnore);
 	
 	/**
 	 * 批量创建url
