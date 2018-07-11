@@ -8,6 +8,8 @@ logging:
         spider: DEBUG
 
 spring:
+  profiles:
+    active: dev
   resources:
     static-locations: file:src/main/resources/ui/
 
@@ -21,6 +23,16 @@ spider:
 
 ---
 spring:
+  profiles: dev
+
+spider:
+  mongo:
+    url: mongodb://root:qwer1234@42.123.99.34:27017/?authSource=admin&authMechanism=SCRAM-SHA-1
+    master-db-name: spider_master_dev
+
+
+---
+spring:
   profiles: prod
 
   resources:
@@ -29,3 +41,7 @@ spring:
 spider:
   mina:
     log-filter: false
+
+  mongo:
+    url: mongodb://root:qwer1234@42.123.99.34:27017/?authSource=admin&authMechanism=SCRAM-SHA-1
+    master-db-name: spider_master

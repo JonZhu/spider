@@ -19,7 +19,8 @@ public class MongoConfig {
 
     @Bean(name = "mongoMasterTemplate")
     public MongoTemplate getMasterMongoTemplate() {
-        return new MongoTemplate(getMongoClient(), "spider_master");
+        Properties props = getMongoProps();
+        return new MongoTemplate(getMongoClient(), props.getProperty("master-db-name", "spider_master"));
     }
 
     @Bean
