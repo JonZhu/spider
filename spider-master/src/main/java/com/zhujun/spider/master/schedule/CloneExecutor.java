@@ -87,12 +87,15 @@ public class CloneExecutor implements ActionExecutor {
 						int httpStatusCode = msg.getStatusCode();
 						Date fetchTime = msg.getFetchTime();
 						if (httpStatusCode >= 200 && httpStatusCode < 300) {
-							// 存储到文件
-							writer.write(msg.getFetchUrl(), msg.getContentType(), fetchTime, msg.getBody());
-
-							// 解析连接的url
-							parseLinkedUrls(msg.getFetchUrl(), msg.getContentType(), msg.getBody(), clone, c.getSpiderTaskPo());
-						}
+							if (msg.getBody() != null) {
+								// 存储到文件
+								writer.write(msg.getFetchUrl(), msg.getContentType(), fetchTime, msg.getBody());
+								// 解析连接的url
+								parseLinkedUrls(msg.getFetchUrl(), msg.getContentType(), msg.getBody(), clone, c.getSpiderTaskPo());
+							}
+						} else if (httpStatusCode >= 300 && httpStatusCode < 400) {
+						    // 重定
+                        }
 
 						fetchUrlService.saveFetchSuccessInfo(c.getSpiderTaskPo(), msg.getUrlId(), fetchTime, httpStatusCode);
 					} else {
