@@ -101,6 +101,7 @@ public class CloneExecutor implements ActionExecutor {
                                 FetchUrlPo fetchUrl = new FetchUrlPo();
                                 fetchUrl.setActionId(clone.getId());
                                 fetchUrl.setUrl(location);
+                                LOG.debug("save redirect location url: {}", location);
                                 fetchUrlService.createFetchUrl(c.getSpiderTaskPo(), fetchUrl, CREATE_FETCH_URL_EXCEPTION_IGNORE);
                             }
                         }
