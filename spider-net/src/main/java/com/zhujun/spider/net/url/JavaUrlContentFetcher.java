@@ -90,13 +90,11 @@ public class JavaUrlContentFetcher implements ContentFetcher {
 			result.setHttpStatusCode(httpRespCode);
 			result.setHeaders(getHeaders(connection));
 
-			if (connection.getContentLengthLong() > 0) {
-				// 读取内容
-				urlInputStream = connection.getInputStream();
-				ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-				IOUtils.copy(urlInputStream, byteOutputStream);
-				result.setData(byteOutputStream.toByteArray());
-			}
+			// 读取内容
+			urlInputStream = connection.getInputStream();
+			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+			IOUtils.copy(urlInputStream, byteOutputStream);
+			result.setData(byteOutputStream.size() > 0 ? byteOutputStream.toByteArray() : null);
 
 			return result;
 		} catch (Exception e) {
