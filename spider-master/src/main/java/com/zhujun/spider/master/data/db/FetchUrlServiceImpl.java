@@ -4,7 +4,6 @@ import com.zhujun.spider.master.data.db.dao.FetchUrlDao;
 import com.zhujun.spider.master.data.db.po.FetchUrlPo;
 import com.zhujun.spider.master.data.db.po.SpiderTaskPo;
 import com.zhujun.spider.master.exception.ExceptionIgnore;
-import org.apache.commons.dbutils.QueryRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +19,13 @@ import java.util.concurrent.locks.ReentrantLock;
 public class FetchUrlServiceImpl implements IFetchUrlService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(FetchUrlServiceImpl.class);
-	
-	private final static QueryRunner QUERY_RUNNER = new QueryRunner();
 
 	private final static ConcurrentHashMap<String, Lock> GET_GIVEOUT_URLS_LOCK_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * url下发次数
+     */
+	private final static int MAX_URL_PUSHDOWN_COUNT = 3;
 
 	@Autowired
 	private FetchUrlDao fetchUrlDao;
@@ -93,14 +95,16 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
 			modifyTimeBefore.setTime(calendar.getTimeInMillis());
 			if (urlList.size() < count) {
 				// 数据不够， 查询 下发超过2分钟，但未push结果的url
-				List<FetchUrlPo> unPushUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_PUSHED, modifyTimeBefore, count - urlList.size());
+				List<FetchUrlPo> unPushUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_PUSHED,
+                        modifyTimeBefore, MAX_URL_PUSHDOWN_COUNT, count - urlList.size());
 				LOG.debug("push down url again, count:{}", unGiveOutUrls.size());
 				urlList.addAll(unPushUrls);
 			}
 
 			if (urlList.size() < count) {
 				// 数据不够, 查询 失败的url
-				List<FetchUrlPo> errorUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_ERROR, modifyTimeBefore, count - urlList.size());
+				List<FetchUrlPo> errorUrls = fetchUrlDao.findFetchurl(task, FetchUrlPo.STATUS_ERROR,
+                        modifyTimeBefore, MAX_URL_PUSHDOWN_COUNT, count - urlList.size());
 				LOG.debug("push down error url, count:{}", errorUrls.size());
 				urlList.addAll(errorUrls);
 			}
@@ -134,7 +138,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
     @Override
 	public boolean existUnFetchUrlInAction(SpiderTaskPo task, final String actionId) throws Exception {
 		List<Integer> statusList = Arrays.asList(FetchUrlPo.STATUS_INIT, FetchUrlPo.STATUS_ERROR, FetchUrlPo.STATUS_PUSHED);
-		return fetchUrlDao.existByAction(task, actionId, statusList);
+		return fetchUrlDao.existByAction(task, actionId, statusList, MAX_URL_PUSHDOWN_COUNT);
 	}
 
 	@Override

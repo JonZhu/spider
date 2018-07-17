@@ -18,6 +18,17 @@ public interface FetchUrlDao {
 
     List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date modifyTimeBefore, int limit);
 
+    /**
+     *
+     * @param task
+     * @param status
+     * @param modifyTimeBefore
+     * @param maxPushdownCount 最大下发次数（不包含）
+     * @param limit
+     * @return
+     */
+    List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date modifyTimeBefore, Integer maxPushdownCount, int limit);
+
     int updateFetchUrl(SpiderTaskPo task, List<String> idList, int status, Date modifyTime);
 
     int updateFetchUrl(SpiderTaskPo task, List<String> idList, int status, Date modifyTime, Integer httpStatusCode);
@@ -32,7 +43,15 @@ public interface FetchUrlDao {
      */
     int markFetchUrlPushed(SpiderTaskPo task, List<String> idList, Date modifyTime);
 
-    boolean existByAction(SpiderTaskPo task, String actionId, List<Integer> statusList);
+    /**
+     *
+     * @param task
+     * @param actionId
+     * @param statusList
+     * @param maxPushdownCount 最大下发次数（不包含）
+     * @return
+     */
+    boolean existByAction(SpiderTaskPo task, String actionId, List<Integer> statusList, Integer maxPushdownCount);
 
     void createIndex(SpiderTaskPo task, String[] propArray, boolean unique);
 }

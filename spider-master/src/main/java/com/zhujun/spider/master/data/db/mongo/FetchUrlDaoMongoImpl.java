@@ -40,11 +40,22 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
 
     @Override
     public List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date modifyTimeBefore, int limit) {
+        return findFetchurl(task, status, modifyTimeBefore, null, limit);
+    }
+
+    @Override
+    public List<FetchUrlPo> findFetchurl(SpiderTaskPo task, int status, Date modifyTimeBefore, Integer maxPushdownCount, int limit) {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("status").is(status);
         if (modifyTimeBefore != null) {
             criteria.and("modifyTime").lt(modifyTimeBefore);
         }
+
+        if (maxPushdownCount != null) {
+            // maxPushdownCount == null or maxPushdownCount < maxPushdownCount
+            criteria.orOperator(Criteria.where("pushDownCount").lt(maxPushdownCount), Criteria.where("pushDownCount").is(null));
+        }
+
         return mongoTemplate.find(Query.query(criteria).limit(limit), FetchUrlPo.class);
     }
 
@@ -74,9 +85,13 @@ public class FetchUrlDaoMongoImpl implements FetchUrlDao {
     }
 
     @Override
-    public boolean existByAction(SpiderTaskPo task, String actionId, List<Integer> statusList) {
+    public boolean existByAction(SpiderTaskPo task, String actionId, List<Integer> statusList, Integer maxPushdownCount) {
         MongoTemplate mongoTemplate = taskMongoTemplateGetter.getTemplate(task);
         Criteria criteria = Criteria.where("status").in(statusList).and("actionId").is(actionId);
+        if (maxPushdownCount != null) {
+            // maxPushdownCount == null or maxPushdownCount < maxPushdownCount
+            criteria.orOperator(Criteria.where("pushDownCount").lt(maxPushdownCount), Criteria.where("pushDownCount").is(null));
+        }
         return mongoTemplate.exists(Query.query(criteria), FetchUrlPo.class);
     }
 
