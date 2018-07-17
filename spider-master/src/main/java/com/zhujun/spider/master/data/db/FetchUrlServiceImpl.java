@@ -128,9 +128,7 @@ public class FetchUrlServiceImpl implements IFetchUrlService {
      * @return
      */
     private Lock getGiveOutUrlsLock(SpiderTaskPo task) {
-        Lock newLock = new ReentrantLock();
-        Lock oldLock = GET_GIVEOUT_URLS_LOCK_MAP.putIfAbsent(task.getId(), newLock);
-        return oldLock != null ? oldLock : newLock;
+		return GET_GIVEOUT_URLS_LOCK_MAP.computeIfAbsent(task.getId(), (key)->{return new ReentrantLock();});
     }
 
     @Override
